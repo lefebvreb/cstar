@@ -4,7 +4,9 @@ INT ::= [+-]?[0-9]+ | [+-]?0[xX][0-9A-Fa-f]* | [+-]?0b[0-1]*
 
 FLOAT ::= [+-]?[0-9]+.[0-9]*(e[+-]?[0-9]+)?
 
-STRING ::= // todo
+STRING ::= // trivial
+
+CHAR ::= // trivial
 
 
 
@@ -20,12 +22,14 @@ STRUCT ::= { DECLARATION;* }
 
 DECLARATION ::= const? TYPE IDENTIFIER
 
-TYPE ::= int | float | char | string | TYPE[INT] | TYPE *
+TYPE ::= Entity | System | void | int | float | uint | char | string | bool | TYPE[INT] | TYPE * | IDENTIFIER
 
-SYSTEM ::= System IDENTIFIER ( FILTER;* FILTER? ) { STATEMENT* }
+SYSTEM ::= System IDENTIFIER (FILTERS) BLOCK
 
 FILTER ::= IDENTIFIER, DECLARATION,* ,?
 
-STATEMENT ::= // todo
+FILTERS ::= FILTER;* FILTER?
 
-EXPR ::= // todo
+BLOCK ::= { EXPR*; EXPR? }
+
+EXPR ::= DECLARATION =EXPR? | while (EXPR) BLOCK | break | continue | if (EXPR) BLOCK | if (EXPR) BLOCK else BLOCK | query (FILTERS) BLOCK | for (EXPR; EXPR; EXPR) | EXPR + EXPR | EXPR * EXPR | EXPR / EXPR | EXPR - EXPR | EXPR >> EXPR | EXPR << EXPR | EXPR ** EXPR | EXPR & EXPR | EXPR && EXPR | EXPR '|' EXPR | EXPR '||' EXPR | EXPR ^ EXPR | *EXPR | +EXPR | -EXPR | ~EXPR | !EXPR | &EXPR | BLOCK
