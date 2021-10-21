@@ -1,0 +1,54 @@
+// Quiet rules
+
+WHITESPACE = _{ " " | "\t" | "\n" }
+COMMENT = _{ "/*" ~ (!"*/" ~ ANY)* ~ "*/" }
+
+
+// Common definitions
+
+ident = { (ASCII_ALPHA | "_") ~ (ASCII_ALPHANUMERIC | "_")* }
+maybe_sign = _{ ("+" | "-")? }
+int = { maybe_sign ~ (ASCII_DIGIT+ | "0x" ~ ASCII_HEX_DIGIT+ | "0b" ~ ASCII_BIN_DIGIT+) }
+float = { maybe_sign ~ ASCII_DIGIT+ ~ "." ~ ASCII_DIGIT* ~ ("e" ~ maybe_sign ~ ASCII_DIGIT+)? }
+char = { "'" ~ "\\"? ~ ANY ~ "'" }
+string = { "\"" ~ ((!"\"" | "\\") ~ ANY)* ~ "\"" }
+
+
+// Entire files
+
+program = { SOI ~ element* ~ ^"Initialization" ~ "[" ~ ident* ~ "]" ~ ^"Run" ~ "[" ~ ident* ~ "]" ~ EOI }
+module = { SOI ~ element* ~ EOI }
+
+
+// Elements
+
+element = { component | resource | system | (const_assignement | import) ~ ";" }
+component = { ^"Component" ~ ident ~ struct }
+resource = { ^"Resource" ~ ident ~ struct }
+system = { ^"System" ~ ident ~ "(" ~ query ~ ")" ~ block }
+import = { ^"import" ~ string }
+
+
+// Curly braces blocks
+
+struct = { "{" ~ (declaration ~ ";")* ~ "}" }
+block = { (expr ~ ";")* ~ expr? }
+
+
+// Assignements, declarations and type
+
+declaration = { type ~ ident }
+assignement = { declaration ~ "=" ~ expr }
+const_assignement = { ^"const" ~ assignement }
+type = { ^"void" | ^"bool" | ^"int" | ^"float" | ^"char" | ^"string" | type ~ "[" ~ expr ~ "]" | type ~ "*" | ident }
+
+
+// Filter and queries
+
+query = { (filter ~ ";")* ~ filter? }
+filter = { ident ~ ("," ~ ^"const"? ~ declaration)? ~ ","? }
+
+
+// Expression
+
+expr = { "todo" }

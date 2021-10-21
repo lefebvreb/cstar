@@ -10,9 +10,9 @@ CHAR ::= // trivial
 
 
 
-PROGRAM ::= BLOCK* Initialization [ IDENTIFIER* ]; Run [ IDENTIFIER* ];
+PROGRAM ::= PART* Initialization [ IDENTIFIER* ]; Run [ IDENTIFIER* ];
 
-BLOCK ::= RESOURCE | COMPONENT | SYSTEM
+PART ::= RESOURCE | COMPONENT | SYSTEM
 
 RESOURCE ::= Resource IDENTIFIER STRUCT
 
