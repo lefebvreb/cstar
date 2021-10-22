@@ -62,8 +62,8 @@ filters = { "(" ~ (filter ~ ";")* ~ filter? ~ ")" }
 // Values
 
 array_init = { "[" ~ (expr ~ ",")* ~ expr? ~ "]" }
-struct_init = { ident ~ "{" ~ ("." ~ ident ~ "=" ~ expr ~ ";")* ~ "}" }
-value = { array_init | struct_init | ident | void | bool | int | float | char | string }
+comp_init = { ident ~ "{" ~ (ident ~ ":" ~ expr ~ ";")* ~ "}" }
+value = { array_init | comp_init | ident | void | bool | int | float | char | string }
 
 
 // Binary operators and expressions
@@ -86,7 +86,10 @@ unexpr = { unop ~ term }
 // Caclulations and expressions
 
 term = _{ assignement | value | unexpr | "(" ~ expr ~ ")" }
-expr = { binexpr | term }
+spawn = { ^"Spawn" ~ "{" ~ (comp_init ~ ",")* ~ comp_init? ~ "}" }
+clone = { ^"Clone" ~ "(" ~ ident ~ ")" }
+delete = { ^"Delete" ~ "(" ~ ident ~ ")" }
+expr = { binexpr | term | spawn | clone | delete }
 
 
 // Statements
