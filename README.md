@@ -17,3 +17,4 @@ An interpreter for an [ECS](https://en.wikipedia.org/wiki/Entity_component_syste
 - [ ] Functions and structs
 - [ ] Switch statements
 - [ ] Enums
+- [ ] Pointers
