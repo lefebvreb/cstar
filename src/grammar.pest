@@ -7,48 +7,64 @@ COMMENT = _{ "/*" ~ (!"*/" ~ ANY)* ~ "*/" }
 // Common definitions
 
 ident = { (ASCII_ALPHA | "_") ~ (ASCII_ALPHANUMERIC | "_")* }
-maybe_sign = _{ ("+" | "-")? }
-int = { maybe_sign ~ (ASCII_DIGIT+ | "0x" ~ ASCII_HEX_DIGIT+ | "0b" ~ ASCII_BIN_DIGIT+) }
-float = { maybe_sign ~ ASCII_DIGIT+ ~ "." ~ ASCII_DIGIT* ~ ("e" ~ maybe_sign ~ ASCII_DIGIT+)? }
+int = { (ASCII_DIGIT+ | "0x" ~ ASCII_HEX_DIGIT+ | "0b" ~ ASCII_BIN_DIGIT+) }
+float = { ASCII_DIGIT+ ~ "." ~ ASCII_DIGIT* ~ ("e" ~ ("+" | "-")? ~ ASCII_DIGIT+)? }
 char = { "'" ~ "\\"? ~ ANY ~ "'" }
 string = { "\"" ~ ((!"\"" | "\\") ~ ANY)* ~ "\"" }
 
 
-// Entire files
+// Files
 
-program = { SOI ~ element* ~ ^"Initialization" ~ "[" ~ ident* ~ "]" ~ ^"Run" ~ "[" ~ ident* ~ "]" ~ EOI }
+program = { SOI ~ element* ~ init ~ run ~ EOI }
 module = { SOI ~ element* ~ EOI }
+init = { ^"Init" ~ "[" ~ ident* ~ "]" ~ ";" }
+run = { ^"Run" ~ "[" ~ ident* ~ "]" ~ ";" }
 
 
 // Elements
 
-element = { component | resource | system | (const_assignement | import) ~ ";" }
-component = { ^"Component" ~ ident ~ struct }
-resource = { ^"Resource" ~ ident ~ struct }
-system = { ^"System" ~ ident ~ "(" ~ query ~ ")" ~ block }
+element = { component | resource | system | (const_ | import) ~ ";" }
+component = { ^"Component" ~ ident ~ struct_ }
+resource = { ^"Resource" ~ ident ~ struct_ }
+system = { ^"System" ~ ident ~ filters ~ block }
 import = { ^"import" ~ string }
 
 
-// Curly braces blocks
+// Curly braces and blocks
 
-struct = { "{" ~ (declaration ~ ";")* ~ "}" }
-block = { (expr ~ ";")* ~ expr? }
+struct_ = { "{" ~ (declaration ~ ";")* ~ "}" }
+block = { "{" ~ (statement ~ ";")* ~ expr? ~ "}" }
 
 
-// Assignements, declarations and type
+// Assignements, declarations and types
 
-declaration = { type ~ ident }
-assignement = { declaration ~ "=" ~ expr }
-const_assignement = { ^"const" ~ assignement }
-type = { ^"void" | ^"bool" | ^"int" | ^"float" | ^"char" | ^"string" | type ~ "[" ~ expr ~ "]" | type ~ "*" | ident }
+assignement = { ident ~ "=" ~ expr }
+declaration = { type_ ~ (assignement | ident) }
+const_ = { ^"const" ~ type_ ~ assignement }
+primitive_type = { ^"void" | ^"bool" | ^"int" | ^"float" | ^"char" | ^"string" }
+type_ = { ident | primitive_type ~ ("[" ~ expr ~ "]")+ | primitive_type ~ "*"+ }
 
 
 // Filter and queries
 
-query = { (filter ~ ";")* ~ filter? }
+filters = { "(" ~ (filter ~ ";")* ~ filter? ~ ")" }
 filter = { ident ~ ("," ~ ^"const"? ~ declaration)? ~ ","? }
 
 
-// Expression
+// Expressions
 
-expr = { "todo" }
+binop = { "+" | "-" | "*" | "/" | "%" | "&" | "|" | "^" | "&&" | "||" | "<<" | ">>" | "<" | ">" | "==" | "<=" | ">=" | "!=" }
+unop = { "+" | "-" | "*" | "!" | "~" | "&" }
+atom = { ident | int | float | char | string }
+term = { atom | "(" ~ expr ~ ")" }
+expr = { term ~ (binop ~ term)+ | unop ~ term | term | assignement | ^"if" ~ expr ~ block ~ (^"else" ~ block)? }
+
+
+// Statements
+
+while_ = { ^"while" ~ "(" ~ expr ~ ")" ~ block }
+query = { ^"query" ~ filters ~ block }
+for_ = { ^"for" ~ "(" ~ statement? ~ ";" ~ expr? ~ ";" ~ statement? ~ ")" ~ block }
+break_ = { ^"break" }
+continue_ = { ^"continue" }
+statement = { expr | break_ | continue_ | declaration | const_ | while_ | query | for_ }
