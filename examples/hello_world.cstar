@@ -1,0 +1,6 @@
+System hello() {
+    println("Hello, world");
+}
+
+Init [hello];
+Run [];
