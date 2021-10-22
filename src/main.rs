@@ -4,4 +4,6 @@ use pest_derive::Parser;
 #[grammar = "grammar.pest"]
 struct Grammar;
 
-fn main() {}
+fn main() {
+    
+}

@@ -6,19 +6,21 @@ COMMENT = _{ "/*" ~ (!"*/" ~ ANY)* ~ "*/" }
 
 // Common definitions
 
-ident = { (ASCII_ALPHA | "_") ~ (ASCII_ALPHANUMERIC | "_")* }
-int = { (ASCII_DIGIT+ | "0x" ~ ASCII_HEX_DIGIT+ | "0b" ~ ASCII_BIN_DIGIT+) }
-float = { ASCII_DIGIT+ ~ "." ~ ASCII_DIGIT* ~ ("e" ~ ("+" | "-")? ~ ASCII_DIGIT+)? }
-char = { "'" ~ "\\"? ~ ANY ~ "'" }
-string = { "\"" ~ ((!"\"" | "\\") ~ ANY)* ~ "\"" }
+ident = @{ (ASCII_ALPHA | "_") ~ (ASCII_ALPHANUMERIC | "_")* }
+void = { ^"void" }
+bool = { true_ | false_ } true_ = { ^"true" } false_ = { ^"false" }
+int = @{ (ASCII_DIGIT+ | "0x" ~ ASCII_HEX_DIGIT+ | "0b" ~ ASCII_BIN_DIGIT+) }
+float = @{ ASCII_DIGIT+ ~ "." ~ ASCII_DIGIT* ~ ("e" ~ ("+" | "-")? ~ ASCII_DIGIT+)? }
+char = @{ "'" ~ "\\"? ~ ANY ~ "'" }
+string = @{ "\"" ~ (("\\" | !"\"") ~ ANY)* ~ "\"" }
 
 
 // Files
 
 program = { SOI ~ element* ~ init ~ run ~ EOI }
 module = { SOI ~ element* ~ EOI }
-init = { ^"Init" ~ "[" ~ ident* ~ "]" ~ ";" }
-run = { ^"Run" ~ "[" ~ ident* ~ "]" ~ ";" }
+init = { ^"Init" ~ "[" ~ (ident ~ ",")* ~ ident? ~ "]" ~ ";" }
+run = { ^"Run" ~ "[" ~ (ident ~ ",")* ~ ident? ~ "]" ~ ";" }
 
 
 // Elements
@@ -32,39 +34,67 @@ import = { ^"import" ~ string }
 
 // Curly braces and blocks
 
-struct_ = { "{" ~ (declaration ~ ";")* ~ "}" }
-block = { "{" ~ (statement ~ ";")* ~ expr? ~ "}" }
+struct_ = { "{" ~ (type_ ~ ident ~ ";")* ~ "}" }
+block = { "{" ~ stmt* ~ "}" }
 
 
-// Assignements, declarations and types
+// Assignements and declarations
 
 assignement = { ident ~ "=" ~ expr }
 declaration = { type_ ~ (assignement | ident) }
 const_ = { ^"const" ~ type_ ~ assignement }
-primitive_type = { ^"void" | ^"bool" | ^"int" | ^"float" | ^"char" | ^"string" }
-type_ = { ident | primitive_type ~ ("[" ~ expr ~ "]")+ | primitive_type ~ "*"+ }
+
+
+// Types
+
+primitive_type = { ^"void" | ^"bool" | ^"int" | ^"float" | ^"char" | ^"string" | ^"System" | ^"Entity" }
+type_ = { primitive_type ~ ("[" ~ expr ~ "]")+ | primitive_type ~ "*"+ | primitive_type | ident }
 
 
 // Filter and queries
 
+entity_filter = { ^"Entity" ~ ident ~ ("," ~ ^"const"? ~ ident ~ ident)* ~ ","? }
+resource_filter = { ident ~ ident }
+filter = _{ entity_filter | resource_filter }
 filters = { "(" ~ (filter ~ ";")* ~ filter? ~ ")" }
-filter = { ident ~ ("," ~ ^"const"? ~ declaration)? ~ ","? }
 
 
-// Expressions
+// Values
 
-binop = { "+" | "-" | "*" | "/" | "%" | "&" | "|" | "^" | "&&" | "||" | "<<" | ">>" | "<" | ">" | "==" | "<=" | ">=" | "!=" }
-unop = { "+" | "-" | "*" | "!" | "~" | "&" }
-atom = { ident | int | float | char | string }
-term = { atom | "(" ~ expr ~ ")" }
-expr = { term ~ (binop ~ term)+ | unop ~ term | term | assignement | ^"if" ~ expr ~ block ~ (^"else" ~ block)? }
+array_init = { "[" ~ (expr ~ ",")* ~ expr? ~ "]" }
+struct_init = { ident ~ "{" ~ ("." ~ ident ~ "=" ~ expr ~ ";")* ~ "}" }
+value = { array_init | struct_init | ident | void | bool | int | float | char | string }
+
+
+// Binary operators and expressions
+
+binop = _{ add | sub | mul | div | mod_ | and | or | xor | bitand | bitor | shl | shr | leq | geq | lt | gt | eq | neq }
+add = { "+" }  sub = { "-" }  mul = { "*" }  div = { "/" }    mod_ = { "%" }
+and = { "&&" } or = { "||" }  xor = { "^" }  bitand = { "&" } bitor = { "|" }
+shl = { "<<" } shr = { ">>" } leq = { "<=" } geq = { ">=" }   lt = { "<" }  
+gt = { ">" }   eq = { "==" }  neq = { "!=" }
+binexpr = { term ~ (binop ~ term)+ }
+
+
+// Unary operators and expressions
+
+unop = _{ pos | neg | ref_ | deref | not | bitnot }
+pos = { "+" } neg = { "-" } ref_ = { "&" } deref = { "*" } not = { "!" } bitnot = { "~" }
+unexpr = { unop ~ term }
+
+
+// Caclulations and expressions
+
+term = _{ assignement | value | unexpr | "(" ~ expr ~ ")" }
+expr = { binexpr | term }
 
 
 // Statements
 
+if_ = { ^"if" ~ "(" ~ expr ~ ")" ~ block ~ (^"else" ~ block)? }
+for_ = { ^"for" ~ "(" ~ (expr | declaration)? ~ ";" ~ expr? ~ ";" ~ expr? ~ ")" ~ block }
 while_ = { ^"while" ~ "(" ~ expr ~ ")" ~ block }
 query = { ^"query" ~ filters ~ block }
-for_ = { ^"for" ~ "(" ~ statement? ~ ";" ~ expr? ~ ";" ~ statement? ~ ")" ~ block }
 break_ = { ^"break" }
 continue_ = { ^"continue" }
-statement = { expr | break_ | continue_ | declaration | const_ | while_ | query | for_ }
+stmt = { if_ | for_ | while_ | query | block | (expr | declaration | const_ | break_ | continue_) ~ ";" }
