@@ -7,8 +7,8 @@ COMMENT = _{ "/*" ~ (!"*/" ~ ANY)* ~ "*/" }
 // Common definitions
 
 ident = @{ (ASCII_ALPHA | "_") ~ (ASCII_ALPHANUMERIC | "_")* }
-void = { ^"void" }
-bool = { true_ | false_ } true_ = { ^"true" } false_ = { ^"false" }
+void = { "void" }
+bool = { true_ | false_ } true_ = { "true" } false_ = { "false" }
 int = @{ (ASCII_DIGIT+ | "0x" ~ ASCII_HEX_DIGIT+ | "0b" ~ ASCII_BIN_DIGIT+) }
 float = @{ ASCII_DIGIT+ ~ "." ~ ASCII_DIGIT* ~ ("e" ~ ("+" | "-")? ~ ASCII_DIGIT+)? }
 char = @{ "'" ~ "\\"? ~ ANY ~ "'" }
@@ -19,17 +19,17 @@ string = @{ "\"" ~ (("\\" | !"\"") ~ ANY)* ~ "\"" }
 
 program = { SOI ~ element* ~ init ~ run ~ EOI }
 module = { SOI ~ element* ~ EOI }
-init = { ^"Init" ~ "[" ~ (ident ~ ",")* ~ ident? ~ "]" ~ ";" }
-run = { ^"Run" ~ "[" ~ (ident ~ ",")* ~ ident? ~ "]" ~ ";" }
+init = { "Init" ~ "[" ~ (ident ~ ",")* ~ ident? ~ "]" ~ ";" }
+run = { "Run" ~ "[" ~ (ident ~ ",")* ~ ident? ~ "]" ~ ";" }
 
 
 // Elements
 
 element = { component | resource | system | (const_ | import) ~ ";" }
-component = { ^"Component" ~ ident ~ struct_ }
-resource = { ^"Resource" ~ ident ~ struct_ }
-system = { ^"System" ~ ident ~ filters ~ block }
-import = { ^"import" ~ string }
+component = { "Component" ~ ident ~ struct_ }
+resource = { "Resource" ~ ident ~ struct_ }
+system = { "System" ~ ident ~ filters ~ block }
+import = { "import" ~ string }
 
 
 // Curly braces and blocks
@@ -42,29 +42,49 @@ block = { "{" ~ stmt* ~ "}" }
 
 assignement = { ident ~ "=" ~ expr }
 declaration = { type_ ~ (assignement | ident) }
-const_ = { ^"const" ~ type_ ~ assignement }
+const_ = { "const" ~ type_ ~ assignement }
 
 
 // Types
 
-primitive_type = { ^"void" | ^"bool" | ^"int" | ^"float" | ^"char" | ^"string" | ^"System" | ^"Entity" }
+primitive_type = { "void" | "bool" | "int" | "float" | "char" | "string" | "System" | "Entity" }
 array = { primitive_type ~ ("[" ~ expr ~ "]")+ }
 type_ = { array | primitive_type | ident }
 
 
 // Filter and queries
 
-entity_filter = { ^"Entity" ~ ident ~ ("," ~ ^"const"? ~ ident ~ ident)* ~ ","? }
+entity_filter = { "Entity" ~ ident ~ ("," ~ "const"? ~ ident ~ ident)* ~ ","? }
 resource_filter = { ident ~ ident }
 filter = _{ entity_filter | resource_filter }
 filters = { "(" ~ (filter ~ ";")* ~ filter? ~ ")" }
 
 
-// Values
+// Builtins
 
+clone = { "Clone" }
+delete = { "Delete" }
+spawn = { "Spawn" }
+print = { "Print" }
+builtin = { clone | delete | spawn | print }
+
+
+// Calls 
+
+call = { builtin ~ "(" ~ (expr ~ ",")* ~ expr? ~ ")" }
+
+
+// Access
+
+access = { ident ~ ("." ~ ident)+ }
+
+
+// Atoms and values
+
+atom = _{ void | bool | int | float | char | string }
 array_init = { "[" ~ (expr ~ ",")* ~ expr? ~ "]" }
 comp_init = { ident ~ "{" ~ (ident ~ ":" ~ expr ~ ";")* ~ "}" }
-value = { array_init | comp_init | ident | void | bool | int | float | char | string }
+value = { atom | access | call | array_init | comp_init | ident }
 
 
 // Binary operators and expressions
@@ -84,21 +104,18 @@ pos = { "+" } neg = { "-" } not = { "!" } bitnot = { "~" }
 unexpr = { unop ~ term }
 
 
-// Caclulations and expressions
+// Terms and expressions
 
 term = _{ assignement | value | unexpr | "(" ~ expr ~ ")" }
-spawn = { ^"Spawn" ~ "{" ~ (comp_init ~ ",")* ~ comp_init? ~ "}" }
-clone = { ^"Clone" ~ "(" ~ ident ~ ")" }
-delete = { ^"Delete" ~ "(" ~ ident ~ ")" }
-expr = { binexpr | term | spawn | clone | delete }
+expr = { binexpr | term }
 
 
 // Statements
 
-if_ = { ^"if" ~ "(" ~ expr ~ ")" ~ block ~ (^"else" ~ block)? }
-for_ = { ^"for" ~ "(" ~ (expr | declaration)? ~ ";" ~ expr? ~ ";" ~ expr? ~ ")" ~ block }
-while_ = { ^"while" ~ "(" ~ expr ~ ")" ~ block }
-query = { ^"query" ~ filters ~ block }
-break_ = { ^"break" }
-continue_ = { ^"continue" }
+if_ = { "if" ~ "(" ~ expr ~ ")" ~ block ~ ("else" ~ block)? }
+for_ = { "for" ~ "(" ~ (expr | declaration)? ~ ";" ~ expr? ~ ";" ~ expr? ~ ")" ~ block }
+while_ = { "while" ~ "(" ~ expr ~ ")" ~ block }
+query = { "query" ~ filters ~ block }
+break_ = { "break" }
+continue_ = { "continue" }
 stmt = { if_ | for_ | while_ | query | block | (expr | declaration | const_ | break_ | continue_) ~ ";" }

@@ -1,5 +1,5 @@
 System hello() {
-    println("Hello, world");
+    Print("Hello, world\n");
 }
 
 Init [hello];
