@@ -37,3 +37,4 @@ This will run the `hello, world!` example of the `examples` directory. There are
 - [ ] Switch statements
 - [ ] Enums
 - [ ] Pointers
+- [ ] Arrays
