@@ -11,8 +11,6 @@ use crate::ast::AST;
 #[grammar = "grammar.pest"]
 struct Grammar;
 
-pub fn parse_program(path: &Path) -> Result<AST> {
-    let source = fs::read_to_string(path)?;
-
+pub fn parse_program(src: &str) -> Result<AST> {
     todo!()
 }

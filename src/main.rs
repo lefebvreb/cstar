@@ -1,10 +1,11 @@
 #![allow(unused)]
 
 mod ast;
-mod check;
+mod checker;
 mod parser;
-mod treewalk;
+mod treewalker;
 
+use std::fs;
 use std::path::Path;
 
 use anyhow::Result;
@@ -22,13 +23,13 @@ fn main() -> Result<()> {
             .required(true))
         .get_matches();
 
-    let src = Path::new(args.value_of("source").unwrap());
+    let src = fs::read_to_string(args.value_of("source").unwrap())?;
 
-    let ast = parser::parse_program(src)?;
+    let ast = parser::parse_program(&src)?;
 
-    check::check_ast(&ast)?;
+    checker::check_ast(&ast)?;
 
-    treewalk::treewalk(&ast)?;
+    treewalker::treewalk(&ast)?;
 
     Ok(())
 }
