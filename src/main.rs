@@ -1,16 +1,14 @@
 #![allow(unused)]
 
-use std::fs;
+mod ast;
+mod check;
+mod parser;
+mod treewalk;
 
-use anyhow::{Error, Result};
+use std::path::Path;
+
+use anyhow::Result;
 use clap::{App, Arg};
-
-use pest::Parser;
-use pest_derive::Parser;
-
-#[derive(Parser)]
-#[grammar = "grammar.pest"]
-struct Grammar;
 
 fn main() -> Result<()> {
     let args = App::new("C* interpreter")
@@ -24,13 +22,13 @@ fn main() -> Result<()> {
             .required(true))
         .get_matches();
 
-    let src_path = args.value_of("source").unwrap();
+    let src = Path::new(args.value_of("source").unwrap());
 
-    let text = fs::read_to_string(src_path)?;
+    let ast = parser::parse_program(src)?;
 
-    let parse = Grammar::parse(Rule::program, &text)?;
+    check::check_ast(&ast)?;
 
-    println!("{}", parse);
+    treewalk::treewalk(&ast)?;
 
     Ok(())
 }
