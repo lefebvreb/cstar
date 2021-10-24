@@ -18,18 +18,16 @@ string = @{ "\"" ~ (("\\" | !"\"") ~ ANY)* ~ "\"" }
 // Files
 
 program = { SOI ~ element* ~ init ~ run ~ EOI }
-module = { SOI ~ element* ~ EOI }
 init = { "Init" ~ "[" ~ (ident ~ ",")* ~ ident? ~ "]" ~ ";" }
 run = { "Run" ~ "[" ~ (ident ~ ",")* ~ ident? ~ "]" ~ ";" }
 
 
 // Elements
 
-element = { component | resource | system | (const_decl | import) ~ ";" }
+element = { component | resource | system | const_decl ~ ";" }
 component = { "Component" ~ ident ~ struct_ }
 resource = { "Resource" ~ ident ~ struct_ }
 system = { "System" ~ ident ~ filter_list ~ block }
-import = { "import" ~ string }
 
 
 // Curly braces and blocks
@@ -54,8 +52,9 @@ type_ = { primitive | ident }
 // Filters and queries
 
 const_ = { "const" }
-entity_filter = { "Entity" ~ ident ~ ("," ~ const_? ~ type_ ~ ident)* ~ ","? }
-resource_filter = { const_? ~ type_ ~ ident }
+typed_ident = { const_? ~ type_ ~ ident }
+entity_filter = { "Entity" ~ ident ~ ("," ~ typed_ident)* ~ ","? }
+resource_filter = { typed_ident }
 filter = _{ entity_filter | resource_filter }
 filter_list = { "(" ~ (filter ~ ";")* ~ filter? ~ ")" }
 
@@ -77,8 +76,9 @@ lvalue = { access | ident }
 // Values
 
 atom = _{ void | bool | int | float | char | string }
+cast = { "(" ~ type_ ~ ")" ~ value }
 struct_init = { ident ~ "{" ~ (ident ~ ":" ~ expr ~ ";")* ~ "}" }
-value = { atom | call | struct_init | assign | lvalue }
+value = { atom | call | cast | struct_init | assign | lvalue }
 
 
 // Binary operators and expressions

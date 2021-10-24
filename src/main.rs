@@ -1,9 +1,11 @@
 #![allow(unused)]
 
 mod ast;
-mod checker;
+
 mod parser;
 mod treewalker;
+
+mod ecs;
 
 use std::fs;
 use std::path::Path;
@@ -26,8 +28,6 @@ fn main() -> Result<()> {
     let src = fs::read_to_string(args.value_of("source").unwrap())?;
 
     let ast = parser::parse_program(&src)?;
-
-    checker::check_ast(&ast)?;
 
     treewalker::treewalk(&ast)?;
 
