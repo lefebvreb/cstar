@@ -1,11 +1,9 @@
 #![allow(unused)]
 
 mod ast;
-
+mod ecs;
 mod parser;
 mod treewalker;
-
-mod ecs;
 
 use std::fs;
 use std::path::Path;
@@ -14,6 +12,7 @@ use anyhow::Result;
 use clap::{App, Arg};
 
 fn main() -> Result<()> {
+    /// Parses the CLI arguments.
     let args = App::new("C* interpreter")
         .version(env!("CARGO_PKG_VERSION"))
         .author("Benjamin Lefebvre")
@@ -25,10 +24,13 @@ fn main() -> Result<()> {
             .required(true))
         .get_matches();
 
-    let src = fs::read_to_string(args.value_of("source").unwrap())?;
+    /// Reads the source file's path.
+    let path = args.value_of("source").unwrap();
 
-    let ast = parser::parse_program(&src)?;
+    /// Parses the AST.
+    let ast = parser::parse_program(&path)?;
 
+    /// Walks the AST.
     treewalker::treewalk(&ast)?;
 
     Ok(())

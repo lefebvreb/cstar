@@ -13,23 +13,10 @@ use crate::ast::AST;
 struct Grammar;
 
 /// Generates the Abstract Syntax Tree from the program's source code. 
-pub fn parse_program(src: &str) -> Result<AST> {
-    let pairs = Grammar::parse(Rule::program, src).map_err(|e| Error::msg(e))?;
+pub fn parse_program(path: &str) -> Result<AST> {
+    let src = fs::read_to_string(path)?;
 
-    for pair in pairs {
-        match pair.as_rule() {
-            Rule::component => {
-
-            },
-            Rule::system => {
-
-            },
-            Rule::const_decl => {
-
-            },
-            _ => unreachable!(),
-        }
-    }
+    
 
     todo!()
 }

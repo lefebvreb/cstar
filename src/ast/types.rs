@@ -4,8 +4,8 @@ use super::*;
 #[derive(PartialEq)]
 pub enum Type<'a> {
     Primitive(Primitive),
-    Component(Struct<'a>),
-    Resource(Struct<'a>),
+    Component(&'a str),
+    Resource(&'a str),
 }
 
 /// A primitive type.
@@ -17,15 +17,4 @@ pub enum Primitive {
     Float,
     Char,
     String,
-}
-
-/// A struct-like type.
-pub struct Struct<'a> {
-    names: Map<'a, Type<'a>>,
-}
-
-impl<'a> PartialEq for Struct<'a> {
-    fn eq(&self, _: &Self) -> bool {
-        false
-    }
 }
