@@ -15,40 +15,40 @@ pub enum Statement<'a> {
 
 /// An if block.
 pub struct If<'a> {
-    cond: Expr<'a>,
-    branch1: Block<'a>,
-    branch2: Option<Block<'a>>,
+    pub cond: Expr<'a>,
+    pub branch1: Block<'a>,
+    pub branch2: Option<Block<'a>>,
 }
 
 /// A for loop.
 pub struct For<'a> {
-    init: Either<Expr<'a>, Declaration<'a>>,
-    cond: Expr<'a>,
-    incr: Expr<'a>,
-    code: Block<'a>,
+    pub init: Either<Expr<'a>, Declaration<'a>>,
+    pub cond: Expr<'a>,
+    pub incr: Expr<'a>,
+    pub code: Block<'a>,
 }
 
 /// A while loop.
 pub struct While<'a> {
-    cond: Expr<'a>,
-    code: Block<'a>,
+    pub cond: Expr<'a>,
+    pub code: Block<'a>,
 }
 
 /// A query loop.
 pub struct Query<'a> {
-    filters: Vec<Filter<'a>>,
-    code: Block<'a>,
+    pub filters: Vec<Filter<'a>>,
+    pub code: Block<'a>,
 }
 
 /// A code block.
 pub struct Block<'a> {
-    statements: Vec<Statement<'a>>,
+    pub statements: Vec<Statement<'a>>,
 }
 
 /// A declaration.
 pub struct Declaration<'a> {
-    is_const: bool,
-    ty: Type<'a>,
-    name: &'a str,
-    expr: Option<Expr<'a>>,
+    pub is_const: bool,
+    pub ty: Type<'a>,
+    pub name: &'a str,
+    pub expr: Option<Expr<'a>>,
 }

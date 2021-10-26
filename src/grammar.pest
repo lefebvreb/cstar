@@ -24,23 +24,24 @@ run = { "Run" ~ "[" ~ (ident ~ ",")* ~ ident? ~ "]" ~ ";" }
 
 // Elements
 
-element = { component | resource | system | const_decl ~ ";" }
-component = { "Component" ~ ident ~ struct_ }
-resource = { "Resource" ~ ident ~ struct_ }
+element = { component | resource | system | static_ }
+component = { "Component" ~ ident ~ struct_def }
+resource = { "Resource" ~ ident ~ struct_def }
 system = { "System" ~ ident ~ filter_list ~ block }
 
 
 // Curly braces and blocks
 
-struct_ = { "{" ~ (type_ ~ ident ~ ";")* ~ "}" }
+struct_def = { "{" ~ (type_ ~ ident ~ ";")* ~ "}" }
 block = { "{" ~ stmt* ~ "}" }
 
 
 // Assignements and declarations
 
 assign = { lvalue ~ "=" ~ expr }
-decl = { type_ ~ (assign | ident) }
-const_decl = { "const" ~ type_ ~ assign }
+static_ = { "static" ~ type_ ~ ident ~ "=" ~ expr ~ ";" }
+const_ = { "const" }
+decl = { const_ ~ type_ ~ ident ~ ("=" ~ expr)? }
 
 
 // Types
@@ -51,10 +52,9 @@ type_ = { primitive | ident }
 
 // Filters and queries
 
-const_ = { "const" }
-typed_ident = { const_? ~ type_ ~ ident }
-entity_filter = { "Entity" ~ ident ~ ("," ~ typed_ident)* ~ ","? }
-resource_filter = { typed_ident }
+arg = { const_? ~ type_ ~ ident }
+entity_filter = { "Entity" ~ ident ~ ("," ~ arg)* ~ ","? }
+resource_filter = { arg }
 filter = _{ entity_filter | resource_filter }
 filter_list = { "(" ~ (filter ~ ";")* ~ filter? ~ ")" }
 
@@ -112,4 +112,4 @@ while_ = { "while" ~ "(" ~ expr ~ ")" ~ block }
 query = { "query" ~ filter_list ~ block }
 break_ = { "break" }
 continue_ = { "continue" }
-stmt = { if_ | for_ | while_ | query | block | (expr | decl | const_decl | break_ | continue_) ~ ";" }
+stmt = { if_ | for_ | while_ | query | block | (expr | decl | break_ | continue_) ~ ";" }

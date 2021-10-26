@@ -22,9 +22,22 @@ pub enum Either<T, U> {
 pub type Map<'a, T> = HashMap<&'a str, T>;
 
 /// The main AST struct, representing a program.
+#[derive(Default)]
 pub struct AST<'a> {
-    types: Map<'a, Type<'a>>,
-    systems: Map<'a, System<'a>>, 
-    init: Vec<&'a str>,
-    run: Vec<&'a str>,
+    pub names: Map<'a, Name<'a>>,
+    pub init: Vec<&'a str>,
+    pub run: Vec<&'a str>,
+}
+
+// A name in the global namespace.
+pub enum Name<'a> {
+    Static(Static<'a>),
+    System(System<'a>),
+    Type(Type<'a>),
+}
+
+pub struct Static<'a> {
+    pub name: &'a str,
+    pub ty: Type<'a>,
+    pub value: Expr<'a>,
 }

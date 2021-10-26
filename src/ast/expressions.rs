@@ -19,14 +19,14 @@ pub enum LValue<'a> {
 
 /// An assign expression.
 pub struct Assign<'a> {
-    lvalue: LValue<'a>,
-    expr: Expr<'a>,
+    pub lvalue: LValue<'a>,
+    pub expr: Expr<'a>,
 }
 
 /// A struct initialization.
 pub struct StructInit<'a> {
-    ty: &'a str,
-    fields: Vec<(&'a str, Expr<'a>)>,
+    pub ty: &'a str,
+    pub fields: Vec<(&'a str, Expr<'a>)>,
 }
 
 /// The atomic value of a primitive.
@@ -41,8 +41,8 @@ pub enum Atom {
 
 /// A call expression. Can only call builtins for now.
 pub struct Call<'a> {
-    builtin: BuiltIn,
-    args: Vec<Expr<'a>>,
+    pub builtin: BuiltIn,
+    pub args: Vec<Expr<'a>>,
 }
 
 /// A builtin function name.
@@ -55,9 +55,9 @@ pub enum BuiltIn {
 
 /// A binary expression.
 pub struct BinExpr<'a> {
-    left: Expr<'a>,
-    op: BinOp,
-    right: Expr<'a>,
+    pub left: Expr<'a>,
+    pub op: BinOp,
+    pub right: Expr<'a>,
 }
 
 /// A binary operator.
@@ -70,8 +70,8 @@ pub enum BinOp {
 
 /// An unary expression.
 pub struct UnExpr<'a> {
-    expr: Expr<'a>,
-    op: UnOp,
+    pub expr: Expr<'a>,
+    pub op: UnOp,
 }
 
 /// An unary operator.

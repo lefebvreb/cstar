@@ -1,6 +1,7 @@
 #![allow(unused)]
 
 mod ast;
+mod checker;
 mod ecs;
 mod parser;
 mod treewalker;
@@ -27,8 +28,14 @@ fn main() -> Result<()> {
     /// Reads the source file's path.
     let path = args.value_of("source").unwrap();
 
+    /// Reads the source code.
+    let mut src = vec![fs::read_to_string(path)?];
+
     /// Parses the AST.
-    let ast = parser::parse_program(&path)?;
+    let ast = parser::parse_program(&path, &mut src)?;
+
+    /// Checks the AST.
+    checker::check(&ast)?;
 
     /// Walks the AST.
     treewalker::treewalk(&ast)?;

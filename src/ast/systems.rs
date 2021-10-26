@@ -2,8 +2,8 @@ use super::*;
 
 /// A system.
 pub struct System<'a> {
-    filters: Vec<Filter<'a>>,
-    code: Block<'a>,
+    pub filters: Vec<Filter<'a>>,
+    pub code: Block<'a>,
 }
 
 /// A single Filter.
@@ -14,7 +14,7 @@ pub enum Filter<'a> {
 
 /// An argument to a System or function signature.
 pub struct Argument<'a> {
-    is_const: bool,
-    ty: Type<'a>,
-    name: &'a str,
+    pub is_const: bool,
+    pub ty: Type<'a>,
+    pub name: &'a str,
 }
