@@ -46,7 +46,10 @@ decl = { const_ ~ type_ ~ ident ~ ("=" ~ expr)? }
 
 // Types
 
-primitive = { "void" | "bool" | "int" | "float" | "char" | "string" | "System" | "Entity" }
+void_t = { "void" } bool_t = { "bool" } int_t = { "int" }
+float_t = { "float" } char_t = { "char" } string_t = { "string" }
+system_t = { "System" } entity_t = { "entity" }
+primitive = { void_t | bool_t | int_t | float_t | char_t | string_t | system_t | entity_t }
 type_ = { primitive | ident }
 
 

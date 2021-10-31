@@ -4,8 +4,7 @@ use super::*;
 #[derive(PartialEq)]
 pub enum Type<'a> {
     Primitive(Primitive),
-    Component(&'a str),
-    Resource(&'a str),
+    Composite(&'a str),
 }
 
 /// A primitive type.
@@ -17,4 +16,11 @@ pub enum Primitive {
     Float,
     Char,
     String,
+    System,
+    Entity,
+}
+
+#[derive(Default)]
+pub struct StructDef<'a> {
+    pub names: Map<'a, Type<'a>>,
 }

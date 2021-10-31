@@ -33,11 +33,11 @@ pub struct AST<'a> {
 pub enum Name<'a> {
     Static(Static<'a>),
     System(System<'a>),
-    Type(Type<'a>),
+    Component(StructDef<'a>),
+    Resource(StructDef<'a>),
 }
 
 pub struct Static<'a> {
-    pub name: &'a str,
     pub ty: Type<'a>,
     pub value: Expr<'a>,
 }
