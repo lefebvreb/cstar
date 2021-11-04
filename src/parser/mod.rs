@@ -22,7 +22,7 @@ use types::*;
 
 /// The grammar of our language.
 #[derive(Parser)]
-#[grammar = "grammar.pest"]
+#[grammar = "parser/grammar.pest"]
 struct Grammar;
 
 /// Generates the Abstract Syntax Tree from the program's source code. 

@@ -2,7 +2,7 @@ use pest::iterators::Pairs;
 
 use crate::ast;
 
-use super::Rule;
+use super::*;
 
 /// Parses a structure definition.
 pub fn parse_struct_def<'a>(mut pairs: Pairs<'a, Rule>) -> ast::StructDef<'a> {
