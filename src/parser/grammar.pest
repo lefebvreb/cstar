@@ -41,7 +41,7 @@ block = { "{" ~ stmt* ~ "}" }
 assign = { lvalue ~ "=" ~ expr }
 static_ = { "static" ~ type_ ~ ident ~ "=" ~ expr ~ ";" }
 const_ = { "const" }
-decl = { const_ ~ type_ ~ ident ~ ("=" ~ expr)? }
+decl = { const_? ~ type_ ~ ident ~ ("=" ~ expr)? }
 
 
 // Types

@@ -21,10 +21,11 @@ pub struct If<'a> {
 }
 
 /// A for loop.
+#[derive(Default)]
 pub struct For<'a> {
-    pub init: Either<Expr<'a>, Declaration<'a>>,
-    pub cond: Expr<'a>,
-    pub incr: Expr<'a>,
+    pub init: Option<Either<Expr<'a>, Declaration<'a>>>,
+    pub cond: Option<Expr<'a>>,
+    pub incr: Option<Expr<'a>>,
     pub code: Block<'a>,
 }
 
@@ -41,6 +42,7 @@ pub struct Query<'a> {
 }
 
 /// A code block.
+#[derive(Default)]
 pub struct Block<'a> {
     pub statements: Vec<Statement<'a>>,
 }
@@ -50,5 +52,5 @@ pub struct Declaration<'a> {
     pub is_const: bool,
     pub ty: Type<'a>,
     pub name: &'a str,
-    pub expr: Option<Expr<'a>>,
+    pub init: Option<Expr<'a>>,
 }
