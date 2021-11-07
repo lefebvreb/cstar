@@ -1,11 +1,14 @@
 use pest::prec_climber::Operator;
 
+use super::*;
+
 /// An expression.
 pub enum Expr<'a> {
     Atom(Atom),
     LValue(LValue<'a>),
     StructInit(StructInit<'a>),
-    Call(Box<Call<'a>>),
+    Cast(Box<Cast<'a>>),
+    Call(Call<'a>),
     BinExpr(Box<BinExpr<'a>>),
     UnExpr(Box<UnExpr<'a>>),
     Assign(Box<Assign<'a>>),
@@ -25,7 +28,7 @@ pub struct Assign<'a> {
 
 /// A struct initialization.
 pub struct StructInit<'a> {
-    pub ty: &'a str,
+    pub name: &'a str,
     pub fields: Vec<(&'a str, Expr<'a>)>,
 }
 
@@ -34,7 +37,7 @@ pub enum Atom {
     Void,
     Bool(bool),
     Int(i64),
-    Float(f32),
+    Float(f64),
     Char(char),
     String(String),
 }
@@ -43,6 +46,12 @@ pub enum Atom {
 pub struct Call<'a> {
     pub builtin: BuiltIn,
     pub args: Vec<Expr<'a>>,
+}
+
+/// A cast expression.
+pub struct Cast<'a> {
+    pub ty: Type<'a>,
+    pub expr: Expr<'a>,
 }
 
 /// A builtin function name.
@@ -70,8 +79,8 @@ pub enum BinOp {
 
 /// An unary expression.
 pub struct UnExpr<'a> {
-    pub expr: Expr<'a>,
     pub op: UnOp,
+    pub expr: Expr<'a>,
 }
 
 /// An unary operator.
