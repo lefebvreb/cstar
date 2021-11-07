@@ -1,6 +1,7 @@
 use super::*;
 
 /// A statement.
+#[derive(Debug)]
 pub enum Statement<'a> {
     If(If<'a>),
     For(For<'a>),
@@ -14,6 +15,7 @@ pub enum Statement<'a> {
 }
 
 /// An if block.
+#[derive(Debug)]
 pub struct If<'a> {
     pub cond: Expr<'a>,
     pub branch1: Block<'a>,
@@ -21,7 +23,7 @@ pub struct If<'a> {
 }
 
 /// A for loop.
-#[derive(Default)]
+#[derive(Default, Debug)]
 pub struct For<'a> {
     pub init: Option<Either<Expr<'a>, Declaration<'a>>>,
     pub cond: Option<Expr<'a>>,
@@ -30,24 +32,27 @@ pub struct For<'a> {
 }
 
 /// A while loop.
+#[derive(Debug)]
 pub struct While<'a> {
     pub cond: Expr<'a>,
     pub code: Block<'a>,
 }
 
 /// A query loop.
+#[derive(Debug)]
 pub struct Query<'a> {
     pub filters: Vec<Filter<'a>>,
     pub code: Block<'a>,
 }
 
 /// A code block.
-#[derive(Default)]
+#[derive(Default, Debug)]
 pub struct Block<'a> {
     pub statements: Vec<Statement<'a>>,
 }
 
 /// A declaration.
+#[derive(Debug)]
 pub struct Declaration<'a> {
     pub is_const: bool,
     pub ty: Type<'a>,

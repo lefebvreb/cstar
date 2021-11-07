@@ -34,11 +34,15 @@ fn main() -> Result<()> {
     /// Parses the AST.
     let ast = parser::parse_program(&path, &mut src)?;
 
+    println!("{:?}", ast);
+
+    /*
     /// Checks the AST.
     checker::check(&ast)?;
 
     /// Walks the AST.
     treewalker::treewalk(&ast)?;
+    */
 
     Ok(())
 }

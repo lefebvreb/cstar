@@ -13,6 +13,7 @@ mod types;
 pub use types::*;
 
 /// Either a T or an U value.
+#[derive(Debug)]
 pub enum Either<T, U> {
     Left(T),
     Right(U),
@@ -22,7 +23,7 @@ pub enum Either<T, U> {
 pub type Map<'a, T> = HashMap<&'a str, T>;
 
 /// The main AST struct, representing a program.
-#[derive(Default)]
+#[derive(Default, Debug)]
 pub struct AST<'a> {
     pub names: Map<'a, Name<'a>>,
     pub init: Vec<&'a str>,
@@ -30,6 +31,7 @@ pub struct AST<'a> {
 }
 
 // A name in the global namespace.
+#[derive(Debug)]
 pub enum Name<'a> {
     Static(Static<'a>),
     System(System<'a>),
@@ -37,6 +39,7 @@ pub enum Name<'a> {
     Resource(StructDef<'a>),
 }
 
+#[derive(Debug)]
 pub struct Static<'a> {
     pub ty: Type<'a>,
     pub value: Expr<'a>,

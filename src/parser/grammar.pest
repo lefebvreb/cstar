@@ -58,7 +58,7 @@ type_ = { primitive | ident }
 arg = { const_? ~ type_ ~ ident }
 entity_filter = { "Entity" ~ ident ~ ("," ~ arg)* ~ ","? }
 resource_filter = { arg }
-filter = _{ entity_filter | resource_filter }
+filter = { entity_filter | resource_filter }
 filter_list = { "(" ~ (filter ~ ";")* ~ filter? ~ ")" }
 
 
@@ -78,7 +78,7 @@ lvalue = { access | ident }
 
 // Values
 
-atom = _{ void | bool | int | float | char | string }
+atom = { void | bool | int | float | char | string }
 cast = { "(" ~ type_ ~ ")" ~ value }
 struct_init = { ident ~ "{" ~ (ident ~ ":" ~ expr ~ ";")* ~ "}" }
 value = { atom | call | cast | struct_init | assign | lvalue }
@@ -86,7 +86,7 @@ value = { atom | call | cast | struct_init | assign | lvalue }
 
 // Binary operators and expressions
 
-binop = _{ add | sub | mul | div | mod_ | and | or | xor | bitand | bitor | shl | shr | leq | geq | lt | gt | eq | neq }
+binop = { add | sub | mul | div | mod_ | and | or | xor | bitand | bitor | shl | shr | leq | geq | lt | gt | eq | neq }
 add = { "+" }  sub = { "-" }  mul = { "*" }  div = { "/" }    mod_ = { "%" }
 and = { "&&" } or = { "||" }  xor = { "^" }  bitand = { "&" } bitor = { "|" }
 shl = { "<<" } shr = { ">>" } leq = { "<=" } geq = { ">=" }   lt = { "<" }  
@@ -96,14 +96,14 @@ binexpr = { term ~ (binop ~ term)+ }
 
 // Unary operators and expressions
 
-unop = _{ pos | neg | not | bitnot }
+unop = { pos | neg | not | bitnot }
 pos = { "+" } neg = { "-" } not = { "!" } bitnot = { "~" }
 unexpr = { unop ~ term }
 
 
 // Terms and expressions
 
-term = _{ value | unexpr | "(" ~ expr ~ ")" }
+term = { value | unexpr | "(" ~ expr ~ ")" }
 expr = { binexpr | term }
 
 

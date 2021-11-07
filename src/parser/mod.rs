@@ -27,7 +27,7 @@ struct Grammar;
 
 /// Generates the Abstract Syntax Tree from the program's source code. 
 pub fn parse_program<'a>(path: &str, src: &'a mut Vec<String>) -> Result<ast::AST<'a>> {
-    let pairs = Grammar::parse(Rule::program, &src[0])?;
+    let pairs = Grammar::parse(Rule::program, &src[0])?.next().unwrap().into_inner();
 
     let mut ast = ast::AST::default();
 
@@ -39,6 +39,7 @@ pub fn parse_program<'a>(path: &str, src: &'a mut Vec<String>) -> Result<ast::AS
             },
             Rule::init => ast.init = parse_ident_list(element.into_inner()),
             Rule::run => ast.run = parse_ident_list(element.into_inner()),
+            Rule::EOI => (),
             _ => unreachable!(),
         }
     }

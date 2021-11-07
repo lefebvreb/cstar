@@ -101,7 +101,7 @@ pub fn parse_value<'a>(mut pairs: Pairs<'a, Rule>) -> ast::Expr<'a> {
         Rule::struct_init => parse_struct_init(pair.into_inner()),
         Rule::assign => parse_assign(pair.into_inner()),
         Rule::lvalue => ast::Expr::LValue(parse_lvalue(pair.into_inner())),
-        _ => unreachable!(),
+        x => unreachable!("{:?}", x),
     }
 }
 
