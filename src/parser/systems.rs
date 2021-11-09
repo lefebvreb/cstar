@@ -51,7 +51,8 @@ pub fn parse_entity_filter<'a>(mut pairs: Pairs<'a, Rule>) -> ast::Filter {
         args.push(parse_argument(pair.into_inner()));
     }
 
-    ast::Filter::Entity(name, args)
+    let filter = ast::EntityFilter {name, args};
+    ast::Filter::Entity(filter)
 }
 
 /// Parses a formal argument to a function or system call.

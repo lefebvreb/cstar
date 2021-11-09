@@ -1,10 +1,10 @@
 #![allow(unused)]
 
 mod ast;
-mod checker;
 mod ecs;
 mod parser;
-mod treewalker;
+mod eval;
+mod utils;
 
 use std::fs;
 use std::path::Path;
@@ -34,15 +34,8 @@ fn main() -> Result<()> {
     /// Parses the AST.
     let ast = parser::parse_program(&path, &mut src)?;
 
-    println!("{:?}", ast);
-
-    /*
-    /// Checks the AST.
-    checker::check(&ast)?;
-
-    /// Walks the AST.
-    treewalker::treewalk(&ast)?;
-    */
+    /// Evaluates the AST.
+    eval::eval(&ast)?;
 
     Ok(())
 }

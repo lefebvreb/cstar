@@ -1,14 +1,14 @@
 use super::*;
 
 /// Represents a type.
-#[derive(PartialEq, Debug)]
+#[derive(Debug)]
 pub enum Type<'a> {
     Primitive(Primitive),
     Composite(&'a str),
 }
 
 /// A primitive type.
-#[derive(PartialEq, Debug)]
+#[derive(Debug)]
 pub enum Primitive {
     Void,
     Bool,

@@ -1,6 +1,7 @@
 use pest::iterators::Pairs;
 
-use crate::ast::{self, Statement};
+use crate::ast;
+use crate::utils::*;
 
 use super::*;
 
@@ -61,11 +62,11 @@ pub fn parse_for<'a>(mut pairs: Pairs<'a, Rule>) -> ast::For<'a> {
 
     match pair.as_rule() {
         Rule::expr => {
-            res.init = Some(ast::Either::Left(parse_expr(pair.into_inner())));
+            res.init = Some(Either::Left(parse_expr(pair.into_inner())));
             pair = pairs.next().unwrap();
         },
         Rule::decl => {
-            res.init = Some(ast::Either::Right(parse_declaration(pair.into_inner())));
+            res.init = Some(Either::Right(parse_declaration(pair.into_inner())));
             pair = pairs.next().unwrap();
         },
         _ => (),

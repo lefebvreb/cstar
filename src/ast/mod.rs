@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use crate::utils::*;
 
 mod expressions;
 pub use expressions::*;
@@ -11,16 +11,6 @@ pub use systems::*;
 
 mod types;
 pub use types::*;
-
-/// Either a T or an U value.
-#[derive(Debug)]
-pub enum Either<T, U> {
-    Left(T),
-    Right(U),
-}
-
-/// Shorter name for a HashMap with &str as keys.
-pub type Map<'a, T> = HashMap<&'a str, T>;
 
 /// The main AST struct, representing a program.
 #[derive(Default, Debug)]

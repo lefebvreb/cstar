@@ -6,7 +6,8 @@ use pest::Parser;
 use pest::iterators::{Pair, Pairs};
 use pest_derive::Parser;
 
-use crate::ast::{self, Map, StructDef};
+use crate::ast;
+use crate::utils::*;
 
 mod expressions;
 use expressions::*;
@@ -27,7 +28,8 @@ struct Grammar;
 
 /// Generates the Abstract Syntax Tree from the program's source code. 
 pub fn parse_program<'a>(path: &str, src: &'a mut Vec<String>) -> Result<ast::AST<'a>> {
-    let pairs = Grammar::parse(Rule::program, &src[0])?.next().unwrap().into_inner();
+    let pairs = Grammar::parse(Rule::program, &src[0])?
+        .next().unwrap().into_inner();
 
     let mut ast = ast::AST::default();
 
