@@ -23,14 +23,7 @@ pub struct AST<'a> {
 // A name in the global namespace.
 #[derive(Debug)]
 pub enum Name<'a> {
-    Static(Static<'a>),
     System(System<'a>),
     Component(StructDef<'a>),
     Resource(StructDef<'a>),
-}
-
-#[derive(Debug)]
-pub struct Static<'a> {
-    pub ty: Type<'a>,
-    pub value: Expr<'a>,
 }

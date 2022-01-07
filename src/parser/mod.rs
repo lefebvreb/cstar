@@ -57,7 +57,6 @@ fn parse_element<'a>(mut pairs: Pairs<'a, Rule>) -> (&'a str, ast::Name<'a>) {
         Rule::component => parse_component(element.into_inner()),
         Rule::resource => parse_resource(element.into_inner()),
         Rule::system => parse_system(element.into_inner()),
-        Rule::static_ => parse_static(element.into_inner()),
         _ => unreachable!(),
     }
 }
@@ -74,15 +73,6 @@ fn parse_resource<'a>(mut pairs: Pairs<'a, Rule>) -> (&'a str, ast::Name<'a>) {
     let name = pairs.next().unwrap().as_str();
     let def = parse_struct_def(pairs.next().unwrap().into_inner());
     (name, ast::Name::Resource(def))
-}
-
-/// Parses a static declaration.
-fn parse_static<'a>(mut pairs: Pairs<'a, Rule>) -> (&'a str, ast::Name<'a>) {
-    let ty = parse_type(pairs.next().unwrap().into_inner());
-    let name = pairs.next().unwrap().as_str();
-    let value = parse_expr(pairs.next().unwrap().into_inner());
-    let static_var = ast::Static {ty, value};
-    (name, ast::Name::Static(static_var))
 }
 
 /// Parses a list of identifiers.

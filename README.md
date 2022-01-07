@@ -25,12 +25,12 @@ This will run the `hello, world!` example of the `examples` directory. There are
 ## TODO
 
 - [x] Finish first grammar
-- [ ] Use parser to build AST
-- [ ] Type validation
+- [x] Use parser to build AST
 - [ ] Treewalk the AST
 
 ## Bonus
 
+- [ ] Type validation
 - [ ] Increment/Decrement operators
 - [ ] Return statements
 - [ ] Functions and structs

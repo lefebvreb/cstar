@@ -24,7 +24,7 @@ run = { "Run" ~ "[" ~ (ident ~ ",")* ~ ident? ~ "]" ~ ";" }
 
 // Elements
 
-element = { component | resource | system | static_ }
+element = { component | resource | system }
 component = { "Component" ~ ident ~ struct_def }
 resource = { "Resource" ~ ident ~ struct_def }
 system = { "System" ~ ident ~ filter_list ~ block }
@@ -39,7 +39,6 @@ block = { "{" ~ stmt* ~ "}" }
 // Assignements and declarations
 
 assign = { lvalue ~ "=" ~ expr }
-static_ = { "static" ~ type_ ~ ident ~ "=" ~ expr ~ ";" }
 const_ = { "const" }
 decl = { const_? ~ type_ ~ ident ~ ("=" ~ expr)? }
 
