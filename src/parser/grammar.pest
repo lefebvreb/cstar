@@ -32,7 +32,7 @@ system = { "System" ~ ident ~ filter_list ~ block }
 
 // Curly braces and blocks
 
-struct_def = { "{" ~ (type_ ~ ident ~ ";")* ~ "}" }
+struct_def = { "{" ~ (ident ~ ";")* ~ "}" }
 block = { "{" ~ stmt* ~ "}" }
 
 
@@ -40,21 +40,11 @@ block = { "{" ~ stmt* ~ "}" }
 
 assign = { lvalue ~ "=" ~ expr }
 const_ = { "const" }
-decl = { const_? ~ type_ ~ ident ~ ("=" ~ expr)? }
-
-
-// Types
-
-void_t = { "void" } bool_t = { "bool" } int_t = { "int" }
-float_t = { "float" } char_t = { "char" } string_t = { "string" }
-system_t = { "System" } entity_t = { "entity" }
-primitive = { void_t | bool_t | int_t | float_t | char_t | string_t | system_t | entity_t }
-type_ = { primitive | ident }
 
 
 // Filters and queries
 
-arg = { const_? ~ type_ ~ ident }
+arg = { const_? ~ ident ~ ident }
 entity_filter = { "Entity" ~ ident ~ ("," ~ arg)* ~ ","? }
 resource_filter = { arg }
 filter = { entity_filter | resource_filter }
@@ -78,9 +68,8 @@ lvalue = { access | ident }
 // Values
 
 atom = { void | bool | int | float | char | string }
-cast = { "(" ~ type_ ~ ")" ~ value }
 struct_init = { ident ~ "{" ~ (ident ~ ":" ~ expr ~ ";")* ~ "}" }
-value = { atom | call | cast | struct_init | assign | lvalue }
+value = { atom | call | struct_init | assign | lvalue }
 
 
 // Binary operators and expressions
@@ -109,9 +98,9 @@ expr = { binexpr | term }
 // Statements
 
 if_ = { "if" ~ "(" ~ expr ~ ")" ~ block ~ ("else" ~ block)? }
-for_ = { "for" ~ "(" ~ (expr | decl)? ~ ";" ~ expr? ~ ";" ~ expr? ~ ")" ~ block }
+for_ = { "for" ~ "(" ~ expr? ~ ";" ~ expr? ~ ";" ~ expr? ~ ")" ~ block }
 while_ = { "while" ~ "(" ~ expr ~ ")" ~ block }
 query = { "query" ~ filter_list ~ block }
 break_ = { "break" }
 continue_ = { "continue" }
-stmt = { if_ | for_ | while_ | query | block | (expr | decl | break_ | continue_) ~ ";" }
+stmt = { if_ | for_ | while_ | query | block | (expr | break_ | continue_) ~ ";" | ";" }

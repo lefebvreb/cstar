@@ -16,7 +16,6 @@ pub fn parse_statement<'a>(mut pairs: Pairs<'a, Rule>) -> ast::Statement<'a> {
         Rule::query => ast::Statement::Query(parse_query(pair.into_inner())),
         Rule::block => ast::Statement::Block(parse_block(pair.into_inner())),
         Rule::expr => ast::Statement::Expr(parse_expr(pair.into_inner())),
-        Rule::decl => ast::Statement::Decl(parse_declaration(pair.into_inner())),
         Rule::break_ => ast::Statement::Break,
         Rule::continue_ => ast::Statement::Continue,
         _ => unreachable!(),
@@ -28,21 +27,6 @@ pub fn parse_block<'a>(mut pairs: Pairs<'a, Rule>) -> ast::Block<'a> {
     ast::Block {
         statements: pairs.map(|pair| parse_statement(pair.into_inner())).collect()
     }
-}
-
-/// Parses a declaration.
-pub fn parse_declaration<'a>(mut pairs: Pairs<'a, Rule>) -> ast::Decl<'a> {
-    let mut pair = pairs.next().unwrap();
-
-    let is_const = matches!(pair.as_rule(), Rule::const_);
-    if !is_const {
-        pair = pairs.next().unwrap();
-    }
-    let ty = parse_type(pair.into_inner());
-    let name = pairs.next().unwrap().as_str();
-    let init = pairs.next().map(|pair| parse_expr(pair.into_inner()));
-
-    ast::Decl {is_const, ty, name, init}
 }
 
 /// Parses a if.
@@ -60,32 +44,19 @@ pub fn parse_for<'a>(mut pairs: Pairs<'a, Rule>) -> ast::For<'a> {
 
     let mut pair = pairs.next().unwrap();
 
-    match pair.as_rule() {
-        Rule::expr => {
-            res.init = Some(Either::Left(parse_expr(pair.into_inner())));
-            pair = pairs.next().unwrap();
-        },
-        Rule::decl => {
-            res.init = Some(Either::Right(parse_declaration(pair.into_inner())));
-            pair = pairs.next().unwrap();
-        },
-        _ => (),
+    if let Rule::expr = pair.as_rule() {
+        res.init = Some(parse_expr(pair.into_inner()));
+        pair = pairs.next().unwrap();
     }
 
-    match pair.as_rule() {
-        Rule::expr => {
-            res.cond = Some(parse_expr(pair.into_inner()));
-            pair = pairs.next().unwrap();
-        },
-        _ => (),
+    if let Rule::expr = pair.as_rule() {
+        res.cond = Some(parse_expr(pair.into_inner()));
+        pair = pairs.next().unwrap();
     }
 
-    match pair.as_rule() {
-        Rule::expr => {
-            res.incr = Some(parse_expr(pair.into_inner()));
-            pair = pairs.next().unwrap();
-        },
-        _ => (),
+    if let Rule::expr = pair.as_rule() {
+        res.incr = Some(parse_expr(pair.into_inner()));
+        pair = pairs.next().unwrap();
     }
 
     res.code = parse_block(pair.into_inner());

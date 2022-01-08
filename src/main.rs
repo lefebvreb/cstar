@@ -34,8 +34,10 @@ fn main() -> Result<()> {
     /// Parses the AST.
     let ast = parser::parse_program(&path, &mut src)?;
 
+    dbg!(ast);
+
     /// Evaluates the AST.
-    eval::eval(&ast)?;
+    //eval::eval(&ast)?;
 
     Ok(())
 }

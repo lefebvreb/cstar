@@ -25,6 +25,6 @@ pub struct EntityFilter<'a> {
 #[derive(Debug)]
 pub struct Argument<'a> {
     pub is_const: bool,
-    pub ty: Type<'a>,
+    pub ty: &'a str,
     pub name: &'a str,
 }

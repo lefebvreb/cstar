@@ -13,8 +13,7 @@ pub fn eval_statement<'a>(scope: &mut Scope, ctx: &Context<'a>, stmt: &ast::Stat
         ast::Statement::If(if_) => return eval_if(scope, ctx, if_),
         ast::Statement::Block(block) => return eval_block(scope, ctx, block),
         ast::Statement::Break => return Ok(StmtRes::Break),
-        ast::Statement::Continue => return Ok(StmtRes::Continue),   
-        ast::Statement::Decl(decl) => eval_decl(scope, ctx, decl)?,
+        ast::Statement::Continue => return Ok(StmtRes::Continue),
         ast::Statement::Expr(expr) => eval_expr(scope, ctx, expr).map(mem::drop)?,
         ast::Statement::For(for_) => eval_for(scope, ctx, for_)?,
         ast::Statement::While(while_) => eval_while(scope, ctx, while_)?,
@@ -53,10 +52,6 @@ pub fn eval_if<'a>(scope: &mut Scope, ctx: &Context<'a>, if_: &ast::If<'a>) -> R
         },
         _ => return Err(anyhow!("A condition expression evaluated to a non-boolean value in an if statement.")),
     }
-}
-
-pub fn eval_decl<'a>(scope: &mut Scope, ctx: &Context<'a>, decl: &ast::Decl<'a>) -> Result<()> {
-    todo!()
 }
 
 pub fn eval_for<'a>(scope: &mut Scope, ctx: &Context<'a>, for_: &ast::For<'a>) -> Result<()> {

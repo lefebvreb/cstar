@@ -97,7 +97,6 @@ pub fn parse_value<'a>(mut pairs: Pairs<'a, Rule>) -> ast::Expr<'a> {
     match pair.as_rule() {
         Rule::atom => parse_atom(pair.into_inner()),
         Rule::call => parse_call(pair.into_inner()),
-        Rule::cast => parse_cast(pair.into_inner()),
         Rule::struct_init => parse_struct_init(pair.into_inner()),
         Rule::assign => parse_assign(pair.into_inner()),
         Rule::lvalue => ast::Expr::LValue(parse_lvalue(pair.into_inner())),
@@ -181,14 +180,6 @@ pub fn parse_builtin<'a>(mut pairs: Pairs<'a, Rule>) -> ast::BuiltIn {
         Rule::print => ast::BuiltIn::Print,
         _ => unreachable!(),
     }
-}
-
-/// Parses a cast.
-pub fn parse_cast<'a>(mut pairs: Pairs<'a, Rule>) -> ast::Expr<'a> {
-    ast::Expr::Cast(Box::new(ast::Cast {
-        ty: parse_type(pairs.next().unwrap().into_inner()),
-        expr: parse_expr(pairs.next().unwrap().into_inner()),
-    }))
 }
 
 /// Parses a struct initialization.

@@ -9,7 +9,6 @@ pub enum Statement<'a> {
     Query(Query<'a>),
     Block(Block<'a>),
     Expr(Expr<'a>),
-    Decl(Decl<'a>),
     Break,
     Continue,
 }
@@ -25,7 +24,7 @@ pub struct If<'a> {
 /// A for loop.
 #[derive(Default, Debug)]
 pub struct For<'a> {
-    pub init: Option<Either<Expr<'a>, Decl<'a>>>,
+    pub init: Option<Expr<'a>>,
     pub cond: Option<Expr<'a>>,
     pub incr: Option<Expr<'a>>,
     pub code: Block<'a>,
@@ -49,13 +48,4 @@ pub struct Query<'a> {
 #[derive(Default, Debug)]
 pub struct Block<'a> {
     pub statements: Vec<Statement<'a>>,
-}
-
-/// A declaration.
-#[derive(Debug)]
-pub struct Decl<'a> {
-    pub is_const: bool,
-    pub ty: Type<'a>,
-    pub name: &'a str,
-    pub init: Option<Expr<'a>>,
 }

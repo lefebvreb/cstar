@@ -8,7 +8,6 @@ pub enum Expr<'a> {
     Atom(Atom),
     LValue(LValue<'a>),
     StructInit(StructInit<'a>),
-    Cast(Box<Cast<'a>>),
     Call(Call<'a>),
     BinExpr(Box<BinExpr<'a>>),
     UnExpr(Box<UnExpr<'a>>),
@@ -52,13 +51,6 @@ pub enum Atom {
 pub struct Call<'a> {
     pub builtin: BuiltIn,
     pub args: Vec<Expr<'a>>,
-}
-
-/// A cast expression.
-#[derive(Debug)]
-pub struct Cast<'a> {
-    pub ty: Type<'a>,
-    pub expr: Expr<'a>,
 }
 
 /// A builtin function name.

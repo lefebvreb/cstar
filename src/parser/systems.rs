@@ -63,7 +63,7 @@ pub fn parse_argument<'a>(mut pairs: Pairs<'a, Rule>) -> ast::Argument<'a> {
     if !is_const {
         pair = pairs.next().unwrap();
     }
-    let ty = parse_type(pair.into_inner());
+    let ty = pairs.next().unwrap().as_str();
     let name = pairs.next().unwrap().as_str();
 
     ast::Argument {is_const, ty, name}
