@@ -9,7 +9,7 @@ pub enum Statement<'a> {
     Query(Query<'a>),
     Block(Block<'a>),
     Expr(Expr<'a>),
-    Decl(Declaration<'a>),
+    Decl(Decl<'a>),
     Break,
     Continue,
 }
@@ -25,7 +25,7 @@ pub struct If<'a> {
 /// A for loop.
 #[derive(Default, Debug)]
 pub struct For<'a> {
-    pub init: Option<Either<Expr<'a>, Declaration<'a>>>,
+    pub init: Option<Either<Expr<'a>, Decl<'a>>>,
     pub cond: Option<Expr<'a>>,
     pub incr: Option<Expr<'a>>,
     pub code: Block<'a>,
@@ -53,7 +53,7 @@ pub struct Block<'a> {
 
 /// A declaration.
 #[derive(Debug)]
-pub struct Declaration<'a> {
+pub struct Decl<'a> {
     pub is_const: bool,
     pub ty: Type<'a>,
     pub name: &'a str,

@@ -31,7 +31,7 @@ pub fn parse_block<'a>(mut pairs: Pairs<'a, Rule>) -> ast::Block<'a> {
 }
 
 /// Parses a declaration.
-pub fn parse_declaration<'a>(mut pairs: Pairs<'a, Rule>) -> ast::Declaration<'a> {
+pub fn parse_declaration<'a>(mut pairs: Pairs<'a, Rule>) -> ast::Decl<'a> {
     let mut pair = pairs.next().unwrap();
 
     let is_const = matches!(pair.as_rule(), Rule::const_);
@@ -42,7 +42,7 @@ pub fn parse_declaration<'a>(mut pairs: Pairs<'a, Rule>) -> ast::Declaration<'a>
     let name = pairs.next().unwrap().as_str();
     let init = pairs.next().map(|pair| parse_expr(pair.into_inner()));
 
-    ast::Declaration {is_const, ty, name, init}
+    ast::Decl {is_const, ty, name, init}
 }
 
 /// Parses a if.

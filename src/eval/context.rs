@@ -175,3 +175,11 @@ impl PartialEq for Type<'_> {
         }
     }
 }
+
+/// The result of the evaluation of a statement.
+#[derive(PartialEq, Eq, Debug)]
+pub enum StmtRes {
+    Ok,
+    Break,
+    Continue,
+}
