@@ -54,14 +54,58 @@ pub fn eval_if<'a>(scope: &mut Scope, ctx: &Context<'a>, if_: &ast::If<'a>) -> R
     }
 }
 
+/// Evaluates a for statement.
 pub fn eval_for<'a>(scope: &mut Scope, ctx: &Context<'a>, for_: &ast::For<'a>) -> Result<()> {
-    todo!()
+    scope.next();
+
+    if let Some(init) = &for_.init {
+        eval_expr(scope, ctx, init)?;
+    }
+
+    while {
+        if let Some(cond) = &for_.cond {
+            match eval_expr(scope, ctx, cond)? {
+                Var::Bool(b) => b,
+                _ => return Err(anyhow!("A condition expression evaluated to a non-boolean value in a for loop.")),
+            }
+        } else {
+            true
+        }
+    } {
+        eval_block(scope, ctx, &for_.code)?;
+
+        if let Some(incr) = &for_.incr {
+            eval_expr(scope, ctx, incr)?;
+        }
+    }
+
+    scope.back();
+
+    Ok(())
 }
 
+/// Evaluates a while statement.
 pub fn eval_while<'a>(scope: &mut Scope, ctx: &Context<'a>, while_: &ast::While<'a>) -> Result<()> {
-    todo!()
+    while {
+        match eval_expr(scope, ctx, &while_.cond)? {
+            Var::Bool(b) => b,
+            _ => return Err(anyhow!("A condition expression evaluated to a non-boolean value in a while loop.")),
+        }
+    } {
+        eval_block(scope, ctx, &while_.code)?;
+    }
+
+    Ok(())
 }
 
 pub fn eval_query<'a>(scope: &mut Scope, ctx: &Context<'a>, query: &ast::Query<'a>) -> Result<()> {
-    todo!()
+    scope.next();
+
+    todo!(); // Do filtering here !
+
+    eval_block(scope, ctx, &query.code)?;
+
+    todo!(); // Update the values of the entities here !
+
+    scope.back();
 }
