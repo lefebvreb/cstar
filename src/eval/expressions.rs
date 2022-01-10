@@ -17,22 +17,41 @@ pub fn eval_expr<'a>(scope: &'a Scope<'a>, ctx: &Context<'a>, expr: &ast::Expr<'
     }
 }
 
+/// Evaluates an assignment expression.
 pub fn eval_assign<'a>(scope: &'a Scope<'a>, ctx: &Context<'a>, assign: &ast::Assign<'a>) -> Result<Var<'a>> {
-    let var = eval_expr(scope, ctx, &assign.expr)?;
+    let val = eval_expr(scope, ctx, &assign.expr)?;
 
     match &assign.lvalue {
         ast::LValue::Ident(ident) => {
-            scope.set_var(ident, var.clone());
-        }
-        ast::LValue::Access(index) => {
-            /*let value = eval_expr(scope, ctx, &assign.expr)?;
-            let index = eval_expr(scope, ctx, &index.index)?;
-            scope.set_index(index, value);*/
-            todo!();
-        }
+            scope.set_var(ident, val.clone());
+        },
+        ast::LValue::Access(path) => {
+            let mut var = scope.get_var(&path[0])?;
+            let mut cur = &mut var;
+
+            for ident in &path[1 .. path.len()-1] {
+                match cur {
+                    Var::Struct(map) => cur = map.get_mut(ident).ok_or_else(|| anyhow::anyhow!("No field named {}.", ident))?,
+                    _ => return Err(anyhow!("{} is not a struct, cannot access it's fields.", ident)),
+                }
+            }
+
+            match cur {
+                Var::Struct(map) => {
+                    if let Some(var) = map.get_mut(&path[path.len()-1]) {
+                        *var = val.clone();
+                    } else {
+                        return Err(anyhow!("No field named {}.", path[path.len()-1]));
+                    }
+                },
+                _ => return Err(anyhow!("{} is not a struct, cannot access it's fields.", path[0])),
+            }
+
+            scope.set_var(&path[0], var);
+        },
     }
 
-    Ok(var)
+    Ok(val)
 }
 
 /// Evaluates an atom.
@@ -54,13 +73,10 @@ pub fn eval_lvalue<'a>(scope: &'a Scope<'a>, ctx: &Context<'a>, lvalue: &ast::LV
         ast::LValue::Access(path) => {
             let mut var = &scope.get_var(&path[0])?;
 
-            for i in 1..path.len() {
+            for ident in &path[1..] {
                 match var {
-                    Var::Struct(map) => {
-                        var = map.get(&path[i])
-                            .ok_or_else(|| anyhow!("{} has no field {}.", var, path[i]))?;
-                    },
-                    _ => return Err(anyhow!("{} is not a struct, cannot access it's fields.", path[i])),
+                    Var::Struct(map) => var = map.get(ident).ok_or_else(|| anyhow!("No field named {}.", ident))?,
+                    _ => return Err(anyhow!("{} is not a struct, cannot access it's fields.", ident)),
                 }
             }
 

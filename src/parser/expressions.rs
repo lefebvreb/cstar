@@ -136,7 +136,7 @@ pub fn escape_char(c: char) -> char {
         '\\' => '\\',
         '\'' => '\'',
         '\"' => '\"',
-        _ => panic!("Unknown character escape sequence: {}", c),
+        _ => '�',
     }
 }
 

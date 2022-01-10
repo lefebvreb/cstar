@@ -25,7 +25,7 @@ fn main() -> Result<()> {
             .required(true))
         .arg(Arg::with_name("ast")
             .long("ast")
-            .help("Prints the AST of the source file and quits without evaluating it."))
+            .help("Prints the AST of the source file and quits before evaluating it."))
         .get_matches();
 
     /// Reads the source file's path.

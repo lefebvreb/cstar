@@ -46,6 +46,11 @@ pub fn eval(ast: &ast::AST) -> Result<()> {
         run_system(name)?;
     }
 
+    // Exits if there are no systems to run in a loop.
+    if ast.run.is_empty() {
+        return Ok(());
+    }
+
     // Runs all "Run" systems in a loop.
     loop {
         for name in ast.run.iter() {

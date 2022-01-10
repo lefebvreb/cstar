@@ -71,7 +71,7 @@ pub struct BinExpr<'a> {
 }
 
 /// A binary operator.
-#[derive(Debug)]
+#[derive(Copy, Clone, Debug)]
 pub enum BinOp {
     Add, Sub, Mul, Div, Mod,
     And, Or, Xor, BitAnd, BitOr,
@@ -87,7 +87,7 @@ pub struct UnExpr<'a> {
 }
 
 /// An unary operator.
-#[derive(Debug)]
+#[derive(Copy, Clone, Debug)]
 pub enum UnOp {
     Pos, Neg, Not, BitNot,
 }

@@ -103,13 +103,17 @@ impl<'a> fmt::Display for Var<'a> {
             Var::Char(c) => write!(f, "{}", c),
             Var::String(s) => write!(f, "{}", s),
             Var::Entity(e) => todo!(),
-            Var::System(sys) => todo!(),
+            Var::System(sys) => write!(f, "System at {:p}", &sys),
             Var::Struct(st) => {
-                writeln!(f, "{{")?;
-                for (name, var) in st.iter() {
-                    writeln!(f, "\t{}: {}", name, var)?;
+                write!(f, "{{")?;
+                let mut iter = st.iter();
+                if let Some((name, var)) = iter.next() {
+                    write!(f, "\"{}\": {}", name, var)?;
                 }
-                writeln!(f, "}}")
+                for (name, var) in iter {
+                    write!(f, ", \"{}\": {}", name, var)?;
+                }
+                write!(f, "}}")
             },
         }
     }

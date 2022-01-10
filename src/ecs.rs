@@ -8,6 +8,6 @@ pub struct World {
 }
 
 // Need to finish:
-// - Printing entites in Var::Display
-// - Cloning, Deleting, Spawnin entites in eval::call
-// - Filtering in eval_query, eval_system
+// - Printing entites in Var::fmt()
+// - Cloning, Deleting, Spawning entites in eval_call()
+// - Filtering and looping in eval_query(), eval_system()
