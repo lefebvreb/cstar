@@ -7,7 +7,7 @@ use crate::ast;
 use super::*;
 
 /// Evaluates a statement.
-pub fn eval_statement<'a>(scope: &mut Scope, ctx: &Context<'a>, stmt: &ast::Statement<'a>) -> Result<StmtRes> {
+pub fn eval_statement<'a>(scope: &'a Scope<'a>, ctx: &Context<'a>, stmt: &ast::Statement<'a>) -> Result<StmtRes> {
     match stmt {
         ast::Statement::Assign(assign) => eval_assign(scope, ctx, assign)?,
         ast::Statement::If(if_) => return eval_if(scope, ctx, if_),
@@ -23,12 +23,26 @@ pub fn eval_statement<'a>(scope: &mut Scope, ctx: &Context<'a>, stmt: &ast::Stat
     Ok(StmtRes::Ok)
 }
 
-pub fn eval_assign<'a>(scope: &mut Scope, ctx: &Context<'a>, assign: &ast::Assign<'a>) -> Result<()> {
-    todo!()
+pub fn eval_assign<'a>(scope: &'a Scope<'a>, ctx: &Context<'a>, assign: &ast::Assign<'a>) -> Result<()> {
+    let var = eval_expr(scope, ctx, &assign.expr)?;
+
+    match &assign.lvalue {
+        ast::LValue::Ident(ident) => {
+            scope.set_var(ident, var);
+        }
+        ast::LValue::Access(index) => {
+            /*let value = eval_expr(scope, ctx, &assign.expr)?;
+            let index = eval_expr(scope, ctx, &index.index)?;
+            scope.set_index(index, value);*/
+            todo!();
+        }
+    }
+
+    Ok(())
 }
 
 /// Evaluates a block of statements.
-pub fn eval_block<'a>(scope: &mut Scope, ctx: &Context<'a>, block: &ast::Block<'a>) -> Result<StmtRes> {
+pub fn eval_block<'a>(scope: &'a Scope<'a>, ctx: &Context<'a>, block: &ast::Block<'a>) -> Result<StmtRes> {
     let mut res = StmtRes::Ok;
 
     scope.next();
@@ -44,7 +58,7 @@ pub fn eval_block<'a>(scope: &mut Scope, ctx: &Context<'a>, block: &ast::Block<'
 }
 
 /// Evaluates an if statement.
-pub fn eval_if<'a>(scope: &mut Scope, ctx: &Context<'a>, if_: &ast::If<'a>) -> Result<StmtRes> {
+pub fn eval_if<'a>(scope: &'a Scope<'a>, ctx: &Context<'a>, if_: &ast::If<'a>) -> Result<StmtRes> {
     match eval_expr(scope, ctx, &if_.cond)? {
         Var::Bool(true) => eval_block(scope, ctx, &if_.branch1),
         Var::Bool(false) => {
@@ -59,7 +73,7 @@ pub fn eval_if<'a>(scope: &mut Scope, ctx: &Context<'a>, if_: &ast::If<'a>) -> R
 }
 
 /// Evaluates a for statement.
-pub fn eval_for<'a>(scope: &mut Scope, ctx: &Context<'a>, for_: &ast::For<'a>) -> Result<()> {
+pub fn eval_for<'a>(scope: &'a Scope<'a>, ctx: &Context<'a>, for_: &ast::For<'a>) -> Result<()> {
     if let Some(init) = &for_.init {
         eval_assign(scope, ctx, init)?;
     }
@@ -84,7 +98,7 @@ pub fn eval_for<'a>(scope: &mut Scope, ctx: &Context<'a>, for_: &ast::For<'a>) -
 }
 
 /// Evaluates a while statement.
-pub fn eval_while<'a>(scope: &mut Scope, ctx: &Context<'a>, while_: &ast::While<'a>) -> Result<()> {
+pub fn eval_while<'a>(scope: &'a Scope<'a>, ctx: &Context<'a>, while_: &ast::While<'a>) -> Result<()> {
     loop {
         match eval_expr(scope, ctx, &while_.cond)? {
             Var::Bool(true) => (),
@@ -98,7 +112,7 @@ pub fn eval_while<'a>(scope: &mut Scope, ctx: &Context<'a>, while_: &ast::While<
     Ok(())
 }
 
-pub fn eval_query<'a>(scope: &mut Scope, ctx: &Context<'a>, query: &ast::Query<'a>) -> Result<()> {
+pub fn eval_query<'a>(scope: &'a Scope<'a>, ctx: &Context<'a>, query: &ast::Query<'a>) -> Result<()> {
     scope.next();
 
     todo!(); // Do filtering here !

@@ -1,0 +1,7 @@
+System main() {
+    x = 5;
+    Print(x);
+}
+
+Init [main];
+Run [];

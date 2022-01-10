@@ -1,4 +1,5 @@
-use core::fmt;
+use std::cell::RefCell;
+use std::fmt;
 
 use anyhow::{anyhow, Error, Result};
 
@@ -40,28 +41,29 @@ impl Default for Context<'_> {
 
 /// Holds all variables scopes.
 pub struct Scope<'a> {
-    vars: Vec<Map<'a, Var<'a>>>,
+    vars: RefCell<Vec<Map<'a, Var<'a>>>>,
+    //vars: Vec<Map<'a, Var<'a>>>,
 }
 
 impl<'a> Scope<'a> {
     /// Nests another new empty scope.
-    pub fn next(&mut self) {
-        self.vars.push(Map::new());
+    pub fn next(&self) {
+        self.vars.borrow_mut().push(Map::new());
     }
 
     /// Destroys the last created scope, freeing all of it's variables.
-    pub fn back(&mut self) {
-        self.vars.pop();
+    pub fn back(&self) {
+        self.vars.borrow_mut().pop();
     }
 
     /// Adds a new variable to the current scope.
-    pub fn set_var(&mut self, name: &'a str, var: Var<'a>) {
-        self.vars.last_mut().unwrap().insert(name, var);
+    pub fn set_var(&self, name: &'a str, var: Var<'a>) {
+        self.vars.borrow_mut().last_mut().unwrap().insert(name, var);
     }
 
     /// Gets a reference to a variable or constant from the current scope.
     pub fn get_var(&self, name: &str) -> Result<Var> {
-        self.vars.iter().rev()
+        self.vars.borrow().iter().rev()
             .find_map(|scope| scope.get(name))
             .ok_or_else(|| anyhow!("Variable {} does not exist in current scope.", name))
             .map(Var::clone)
@@ -72,7 +74,7 @@ impl Default for Scope<'_> {
     /// Creates a new empty scope object.
     fn default() -> Self {
         Self {
-            vars: vec![Map::new()],
+            vars: RefCell::new(vec![Map::new()]),
         }
     }
 }

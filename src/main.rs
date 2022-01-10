@@ -23,6 +23,9 @@ fn main() -> Result<()> {
             .value_name("SOURCE")
             .help("The path to the source file to be interpreted.")
             .required(true))
+        .arg(Arg::with_name("ast")
+            .long("ast")
+            .help("Prints the AST of the source file and quits without evaluating it."))
         .get_matches();
 
     /// Reads the source file's path.
@@ -33,7 +36,12 @@ fn main() -> Result<()> {
 
     /// Parses the AST.
     let ast = parser::parse_program(&path, &mut src)?;
-    // dbg!(&ast); // Prints the AST.
+
+    // Prints and exits
+    if args.is_present("ast") {
+        dbg!(&ast);
+        return Ok(());
+    }
 
     /// Evaluates the AST.
     eval::eval(&ast)?;

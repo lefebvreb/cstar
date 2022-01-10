@@ -32,16 +32,16 @@ pub fn eval_atom<'a>(scope: &Scope, ctx: &Context<'a>, atom: &ast::Atom) -> Resu
 pub fn eval_lvalue<'a>(scope: &'a Scope, ctx: &Context<'a>, lvalue: &ast::LValue<'a>) -> Result<Var<'a>> {
     match lvalue {
         ast::LValue::Ident(ident) => scope.get_var(ident),
-        ast::LValue::Access(access) => {
-            let mut var = &scope.get_var(&access[0])?;
+        ast::LValue::Access(path) => {
+            let mut var = &scope.get_var(&path[0])?;
 
-            for i in 1..access.len() {
+            for i in 1..path.len() {
                 match var {
                     Var::Struct(map) => {
-                        var = map.get(&access[i])
-                            .ok_or_else(|| anyhow!("{} has no field {}.", var, access[i]))?;
+                        var = map.get(&path[i])
+                            .ok_or_else(|| anyhow!("{} has no field {}.", var, path[i]))?;
                     },
-                    _ => return Err(anyhow!("{} is not a struct, cannot access it's fields.", access[i])),
+                    _ => return Err(anyhow!("{} is not a struct, cannot access it's fields.", path[i])),
                 }
             }
 

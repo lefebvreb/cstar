@@ -20,8 +20,6 @@ use systems::*;
 
 /// Walks the AST, interpreting the code.
 pub fn eval(ast: &ast::AST) -> Result<()> {
-    println!("{:?}", ast);
-
     let mut ctx = Context::default();
     let mut scope = Scope::default();
 
@@ -38,8 +36,8 @@ pub fn eval(ast: &ast::AST) -> Result<()> {
     }
 
     // Runs a system by it's name.
-    let mut run_system = |name| match ctx.get_def(name)? {
-        Def::System(sys) => eval_system(&mut scope, &ctx, sys),
+    let run_system = |name| match ctx.get_def(name)? {
+        Def::System(sys) => eval_system(&scope, &ctx, sys),
         _ => Err(anyhow!("{} is not a system", name)),
     };
 
