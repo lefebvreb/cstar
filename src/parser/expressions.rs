@@ -98,7 +98,6 @@ pub fn parse_value<'a>(mut pairs: Pairs<'a, Rule>) -> ast::Expr<'a> {
         Rule::atom => parse_atom(pair.into_inner()),
         Rule::call => parse_call(pair.into_inner()),
         Rule::struct_init => parse_struct_init(pair.into_inner()),
-        Rule::assign => parse_assign(pair.into_inner()),
         Rule::lvalue => ast::Expr::LValue(parse_lvalue(pair.into_inner())),
         x => unreachable!("{:?}", x),
     }
@@ -195,14 +194,6 @@ pub fn parse_struct_init<'a>(mut pairs: Pairs<'a, Rule>) -> ast::Expr<'a> {
     }
 
     ast::Expr::StructInit(ast::StructInit {name, fields})
-}
-
-/// Parses an assignement.
-pub fn parse_assign<'a>(mut pairs: Pairs<'a, Rule>) -> ast::Expr<'a> {
-    ast::Expr::Assign(Box::new(ast::Assign {
-        lvalue: parse_lvalue(pairs.next().unwrap().into_inner()),
-        expr: parse_expr(pairs.next().unwrap().into_inner()),
-    }))
 }
 
 /// Parses a left-value.

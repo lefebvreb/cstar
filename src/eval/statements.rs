@@ -9,6 +9,7 @@ use super::*;
 /// Evaluates a statement.
 pub fn eval_statement<'a>(scope: &mut Scope, ctx: &Context<'a>, stmt: &ast::Statement<'a>) -> Result<StmtRes> {
     match stmt {
+        ast::Statement::Assign(assign) => eval_assign(scope, ctx, assign)?,
         ast::Statement::If(if_) => return eval_if(scope, ctx, if_),
         ast::Statement::Block(block) => return eval_block(scope, ctx, block),
         ast::Statement::Break => return Ok(StmtRes::Break),
@@ -20,6 +21,10 @@ pub fn eval_statement<'a>(scope: &mut Scope, ctx: &Context<'a>, stmt: &ast::Stat
     }
 
     Ok(StmtRes::Ok)
+}
+
+pub fn eval_assign<'a>(scope: &mut Scope, ctx: &Context<'a>, assign: &ast::Assign<'a>) -> Result<()> {
+    todo!()
 }
 
 /// Evaluates a block of statements.

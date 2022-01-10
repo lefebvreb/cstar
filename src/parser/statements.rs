@@ -10,6 +10,7 @@ pub fn parse_statement<'a>(mut pairs: Pairs<'a, Rule>) -> ast::Statement<'a> {
     let pair = pairs.next().unwrap();
 
     match pair.as_rule() {
+        Rule::assign => ast::Statement::Assign(parse_assign(pair.into_inner())),
         Rule::if_ => ast::Statement::If(parse_if(pair.into_inner())),
         Rule::for_ => ast::Statement::For(parse_for(pair.into_inner())),
         Rule::while_ => ast::Statement::While(parse_while(pair.into_inner())),
@@ -19,6 +20,14 @@ pub fn parse_statement<'a>(mut pairs: Pairs<'a, Rule>) -> ast::Statement<'a> {
         Rule::break_ => ast::Statement::Break,
         Rule::continue_ => ast::Statement::Continue,
         _ => unreachable!(),
+    }
+}
+
+/// Parses an assignement.
+pub fn parse_assign<'a>(mut pairs: Pairs<'a, Rule>) -> ast::Assign<'a> {
+    ast::Assign {
+        lvalue: parse_lvalue(pairs.next().unwrap().into_inner()),
+        expr: parse_expr(pairs.next().unwrap().into_inner()),
     }
 }
 

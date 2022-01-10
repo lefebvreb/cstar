@@ -5,7 +5,7 @@ use crate::ast;
 use super::*;
 
 /// Evaluates an expression.
-pub fn eval_expr<'a>(scope: &'a mut Scope, ctx: &Context<'a>, expr: &ast::Expr<'a>) -> Result<Var<'a>> {
+pub fn eval_expr<'a>(scope: &'a Scope, ctx: &Context<'a>, expr: &ast::Expr<'a>) -> Result<Var<'a>> {
     match expr {
         ast::Expr::Atom(atom) => eval_atom(scope, ctx, atom),
         ast::Expr::LValue(lvalue) => eval_lvalue(scope, ctx, lvalue),
@@ -13,12 +13,11 @@ pub fn eval_expr<'a>(scope: &'a mut Scope, ctx: &Context<'a>, expr: &ast::Expr<'
         ast::Expr::Call(call) => eval_call(scope, ctx, call),
         ast::Expr::BinExpr(bin_expr) => eval_bin_expr(scope, ctx, bin_expr),
         ast::Expr::UnExpr(un_expr) => eval_un_expr(scope, ctx, un_expr),
-        ast::Expr::Assign(atom) => eval_assign(scope, ctx, atom),
     }
 }
 
 /// Evaluates an atom.
-pub fn eval_atom<'a>(scope: &mut Scope, ctx: &Context<'a>, atom: &ast::Atom) -> Result<Var<'a>> {
+pub fn eval_atom<'a>(scope: &Scope, ctx: &Context<'a>, atom: &ast::Atom) -> Result<Var<'a>> {
     Ok(match atom {
         ast::Atom::Void => Var::Void,
         ast::Atom::Bool(b) => Var::Bool(*b),
@@ -30,7 +29,7 @@ pub fn eval_atom<'a>(scope: &mut Scope, ctx: &Context<'a>, atom: &ast::Atom) -> 
 }
 
 /// Evaluates a left value.
-pub fn eval_lvalue<'a>(scope: &'a mut Scope, ctx: &Context<'a>, lvalue: &ast::LValue<'a>) -> Result<Var<'a>> {
+pub fn eval_lvalue<'a>(scope: &'a Scope, ctx: &Context<'a>, lvalue: &ast::LValue<'a>) -> Result<Var<'a>> {
     match lvalue {
         ast::LValue::Ident(ident) => scope.get_var(ident),
         ast::LValue::Access(access) => {
@@ -52,18 +51,15 @@ pub fn eval_lvalue<'a>(scope: &'a mut Scope, ctx: &Context<'a>, lvalue: &ast::LV
 }
 
 /// Evaluates a struct initialization.
-pub fn eval_struct_init<'a>(scope: &'a mut Scope, ctx: &Context<'a>, struct_init: &ast::StructInit<'a>) -> Result<Var<'a>> {
+pub fn eval_struct_init<'a>(scope: &'a Scope, ctx: &Context<'a>, struct_init: &ast::StructInit<'a>) -> Result<Var<'a>> {
     match ctx.get_def(struct_init.name)? {
         Def::Component(blueprint) | Def::Resource(blueprint) => {
-            let mut map = Map::<'a, Var>::with_capacity(blueprint.names.len());
+            let mut map = Map::with_capacity(blueprint.names.len());
 
             for (name, expr) in struct_init.fields.iter() {
                 if !blueprint.names.contains(name) {
                     return Err(anyhow!("{} is not a field of {}.", name, struct_init.name));
                 }
-
-                // UNSAFE: I really don't known what the borrow checker is complaining about here. Fuck them.
-                let scope = unsafe { &mut *(scope as *mut Scope) };
 
                 map.insert(name, eval_expr(scope, ctx, expr)?);
             }
@@ -78,7 +74,7 @@ pub fn eval_struct_init<'a>(scope: &'a mut Scope, ctx: &Context<'a>, struct_init
     }
 }
 
-pub fn eval_call<'a>(scope: &mut Scope, ctx: &Context<'a>, call: &ast::Call<'a>) -> Result<Var<'a>> {
+pub fn eval_call<'a>(scope: &Scope, ctx: &Context<'a>, call: &ast::Call<'a>) -> Result<Var<'a>> {
     let n = call.args.len();
 
     match call.builtin {
@@ -95,8 +91,4 @@ pub fn eval_call<'a>(scope: &mut Scope, ctx: &Context<'a>, call: &ast::Call<'a>)
     }
 
     Ok(Var::Void)
-}
-
-pub fn eval_assign<'a>(scope: &mut Scope, ctx: &Context<'a>, assign: &ast::Assign<'a>) -> Result<Var<'a>> {
-    todo!()
 }

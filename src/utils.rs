@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 
 /// Either a L or an R value.
 #[derive(Debug)]
@@ -9,3 +9,6 @@ pub enum Either<L, R> {
 
 /// Shorter name for a HashMap with &str as keys.
 pub type Map<'a, T> = HashMap<&'a str, T>;
+
+/// Shorter name for a HashSet with &str as keys.
+pub type Set<'a> = HashSet<&'a str>;

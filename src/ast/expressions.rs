@@ -11,7 +11,6 @@ pub enum Expr<'a> {
     Call(Call<'a>),
     BinExpr(Box<BinExpr<'a>>),
     UnExpr(Box<UnExpr<'a>>),
-    Assign(Box<Assign<'a>>),
 }
 
 /// A left-value, that can be assigned to.

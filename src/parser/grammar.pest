@@ -36,14 +36,9 @@ struct_def = { "{" ~ (ident ~ ";")* ~ "}" }
 block = { "{" ~ stmt* ~ "}" }
 
 
-// Assignements and declarations
-
-assign = { lvalue ~ "=" ~ expr }
-const_ = { "const" }
-
-
 // Filters and queries
 
+const_ = { "const" }
 arg = { const_? ~ ident ~ ident }
 entity_filter = { "Entity" ~ ident ~ ("," ~ arg)* ~ ","? }
 resource_filter = { arg }
@@ -97,10 +92,11 @@ expr = { binexpr | term }
 
 // Statements
 
+assign = { lvalue ~ "=" ~ expr }
 if_ = { "if" ~ "(" ~ expr ~ ")" ~ block ~ ("else" ~ block)? }
 for_ = { "for" ~ "(" ~ expr? ~ ";" ~ expr? ~ ";" ~ expr? ~ ")" ~ block }
 while_ = { "while" ~ "(" ~ expr ~ ")" ~ block }
 query = { "query" ~ filter_list ~ block }
 break_ = { "break" }
 continue_ = { "continue" }
-stmt = { if_ | for_ | while_ | query | block | (expr | break_ | continue_) ~ ";" | ";" }
+stmt = { if_ | for_ | while_ | query | block | (expr | assign | break_ | continue_) ~ ";" | ";" }

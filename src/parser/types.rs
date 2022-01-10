@@ -10,7 +10,7 @@ pub fn parse_struct_def<'a>(mut pairs: Pairs<'a, Rule>) -> ast::StructDef<'a> {
     
     while let Some(ty) = pairs.next() {
         let ident = pairs.next().unwrap();
-        def.names.push(ident.as_str());
+        def.names.insert(ident.as_str());
     }
 
     def

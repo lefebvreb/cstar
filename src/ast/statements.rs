@@ -3,6 +3,7 @@ use super::*;
 /// A statement.
 #[derive(Debug)]
 pub enum Statement<'a> {
+    Assign(Assign<'a>),
     If(If<'a>),
     For(For<'a>),
     While(While<'a>),
