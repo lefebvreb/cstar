@@ -8,6 +8,9 @@ use context::*;
 mod expressions;
 use expressions::*;
 
+mod operator;
+use operator::*;
+
 mod statements;
 use statements::*;
 

@@ -1,3 +1,5 @@
+use core::fmt;
+
 use anyhow::{anyhow, Error, Result};
 
 use crate::ast;
@@ -61,10 +63,11 @@ impl<'a> Scope<'a> {
     pub fn get_var(&self, name: &str) -> Result<Var> {
         self.vars.iter().rev()
             .find_map(|scope| scope.get(name))
-            .ok_or_else(|| anyhow!("Variable {} does not exist", name))
+            .ok_or_else(|| anyhow!("Variable {} does not exist in current scope.", name))
             .map(Var::clone)
     }
 
+    /*
     /// Sets the value of a struct's field.
     pub fn update_path(&mut self, path: Vec<&'a str>, var: Var<'a>) -> Result<()> {
         if path.is_empty() {
@@ -97,6 +100,7 @@ impl<'a> Scope<'a> {
 
         Ok(())
     }
+    */
 }
 
 impl Default for Scope<'_> {
@@ -119,25 +123,27 @@ pub enum Var<'a> {
     String(String),
     Entity(ecs::Entity),
     System(&'a ast::System<'a>),
-    Struct {
-        typ: Type<'a>,
-        val: Map<'a, Var<'a>>,
-    },
+    Struct(Map<'a, Var<'a>>),
 }
 
-impl<'a> Var<'a> {
-    /// Gets the type of this variable
-    pub fn get_type(&self) -> Type<'a> {
+impl<'a> fmt::Display for Var<'a> {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            Var::Void => Type::Void,
-            Var::Bool(_) => Type::Bool,
-            Var::Int(_) => Type::Int,
-            Var::Float(_) => Type::Float,
-            Var::Char(_) => Type::Char,
-            Var::String(_) => Type::String,
-            Var::Entity(_) => Type::Entity,
-            Var::System(_) => Type::System,
-            Var::Struct { typ, .. } => typ.clone(),
+            Var::Void => write!(f, "void"),
+            Var::Bool(b) => write!(f, "{}", b),
+            Var::Int(i) => write!(f, "{}", i),
+            Var::Float(x) => write!(f, "{}", x),
+            Var::Char(c) => write!(f, "{}", c),
+            Var::String(s) => write!(f, "{}", s),
+            Var::Entity(e) => todo!(),
+            Var::System(sys) => todo!(),
+            Var::Struct(st) => {
+                writeln!(f, "{{")?;
+                for (name, var) in st.iter() {
+                    writeln!(f, "\t{}: {}", name, var)?;
+                }
+                writeln!(f, "}}")
+            },
         }
     }
 }
@@ -148,32 +154,6 @@ pub enum Def<'a> {
     System(&'a ast::System<'a>),
     Component(&'a ast::StructDef<'a>),
     Resource(&'a ast::StructDef<'a>),
-}
-
-/// The type of a variable.
-#[derive(Clone, Debug)]
-pub enum Type<'a> {
-    Void,
-    Bool,
-    Int,
-    Float,
-    Char,
-    String,
-    Entity,
-    System,
-    Component(&'a ast::StructDef<'a>),
-    Resource(&'a ast::StructDef<'a>),
-}
-
-impl PartialEq for Type<'_> {
-    /// Tests for type equality. Struct-like types are only
-    /// equal to themselves.
-    fn eq(&self, other: &Self) -> bool {
-        match (self, other) {
-            (Type::Component(a), Type::Component(b)) | (Type::Resource(a), Type::Resource(b)) => ref_eq(a, b),
-            _ => matches!(self, other),
-        }
-    }
 }
 
 /// The result of the evaluation of a statement.
