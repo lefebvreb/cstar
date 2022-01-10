@@ -66,41 +66,6 @@ impl<'a> Scope<'a> {
             .ok_or_else(|| anyhow!("Variable {} does not exist in current scope.", name))
             .map(Var::clone)
     }
-
-    /*
-    /// Sets the value of a struct's field.
-    pub fn update_path(&mut self, path: Vec<&'a str>, var: Var<'a>) -> Result<()> {
-        if path.is_empty() {
-            return Err(anyhow!("Path is empty"));
-        }
-
-        // Get struct in global space
-        let name = path.first().unwrap();
-        let mut map = self.vars.iter_mut().rev()
-            .find(|scope| scope.get(name).is_some())
-            .ok_or_else(|| anyhow!("No such struct {}", path.first().unwrap()))?;
-
-        // Follow the path.
-        for &name in path[..path.len()-1].iter() {
-            // Get the entry corresponding to the next name.
-            let entry = map.get_mut(name)
-                .ok_or_else(|| anyhow!("Variable {} does not exist", name))?;
-
-            // If the entry is a struct, follow the path.
-            map = match entry {
-                Var::Struct {val, ..} => val,
-                _ => return Err(anyhow!("{} is not a struct", name)),
-            };
-        }
-
-        let entry = map.get_mut(path.last().unwrap())
-            .ok_or_else(|| anyhow!("Variable {} does not exist", name))?;
-        
-        *entry = var;
-
-        Ok(())
-    }
-    */
 }
 
 impl Default for Scope<'_> {

@@ -4,6 +4,7 @@ use crate::ast;
 
 use super::*;
 
+/// Evaluates an expression.
 pub fn eval_expr<'a>(scope: &'a mut Scope, ctx: &Context<'a>, expr: &ast::Expr<'a>) -> Result<Var<'a>> {
     match expr {
         ast::Expr::Atom(atom) => eval_atom(scope, ctx, atom),
@@ -16,6 +17,7 @@ pub fn eval_expr<'a>(scope: &'a mut Scope, ctx: &Context<'a>, expr: &ast::Expr<'
     }
 }
 
+/// Evaluates an atom.
 pub fn eval_atom<'a>(scope: &mut Scope, ctx: &Context<'a>, atom: &ast::Atom) -> Result<Var<'a>> {
     Ok(match atom {
         ast::Atom::Void => Var::Void,
@@ -27,6 +29,7 @@ pub fn eval_atom<'a>(scope: &mut Scope, ctx: &Context<'a>, atom: &ast::Atom) -> 
     })
 }
 
+/// Evaluates a left value.
 pub fn eval_lvalue<'a>(scope: &'a mut Scope, ctx: &Context<'a>, lvalue: &ast::LValue<'a>) -> Result<Var<'a>> {
     match lvalue {
         ast::LValue::Ident(ident) => scope.get_var(ident),
@@ -48,6 +51,7 @@ pub fn eval_lvalue<'a>(scope: &'a mut Scope, ctx: &Context<'a>, lvalue: &ast::LV
     }
 }
 
+/// Evaluates a struct initialization.
 pub fn eval_struct_init<'a>(scope: &'a mut Scope, ctx: &Context<'a>, struct_init: &ast::StructInit<'a>) -> Result<Var<'a>> {
     match ctx.get_def(struct_init.name)? {
         Def::Component(blueprint) | Def::Resource(blueprint) => {
@@ -75,7 +79,22 @@ pub fn eval_struct_init<'a>(scope: &'a mut Scope, ctx: &Context<'a>, struct_init
 }
 
 pub fn eval_call<'a>(scope: &mut Scope, ctx: &Context<'a>, call: &ast::Call<'a>) -> Result<Var<'a>> {
-    todo!()
+    let n = call.args.len();
+
+    match call.builtin {
+        ast::BuiltIn::Clone => todo!(),
+        ast::BuiltIn::Spawn => todo!(),
+        ast::BuiltIn::Delete => todo!(),
+        ast::BuiltIn::Print => {
+            if n != 1 {
+                return Err(anyhow!("{:?} takes exactly one argument.", call.builtin));
+            }
+
+            println!("{}", eval_expr(scope, ctx, &call.args[0])?);
+        }
+    }
+
+    Ok(Var::Void)
 }
 
 pub fn eval_assign<'a>(scope: &mut Scope, ctx: &Context<'a>, assign: &ast::Assign<'a>) -> Result<Var<'a>> {
