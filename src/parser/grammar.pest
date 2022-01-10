@@ -62,6 +62,7 @@ lvalue = { access | ident }
 
 // Values
 
+assign = { lvalue ~ "=" ~ expr }
 atom = { void | bool | int | float | char | string }
 struct_init = { ident ~ "{" ~ (ident ~ ":" ~ expr ~ ";")* ~ "}" }
 value = { atom | call | struct_init | assign | lvalue }
@@ -92,11 +93,10 @@ expr = { binexpr | term }
 
 // Statements
 
-assign = { lvalue ~ "=" ~ expr }
 if_ = { "if" ~ "(" ~ expr ~ ")" ~ block ~ ("else" ~ block)? }
-for_ = { "for" ~ "(" ~ assign? ~ ";" ~ expr? ~ ";" ~ assign? ~ ")" ~ block }
+for_ = { "for" ~ "(" ~ expr? ~ ";" ~ expr? ~ ";" ~ expr? ~ ")" ~ block }
 while_ = { "while" ~ "(" ~ expr ~ ")" ~ block }
 query = { "query" ~ filter_list ~ block }
 break_ = { "break" }
 continue_ = { "continue" }
-stmt = { if_ | for_ | while_ | query | block | (assign | expr | break_ | continue_) ~ ";" | ";" }
+stmt = { if_ | for_ | while_ | query | block | (expr | break_ | continue_) ~ ";" | ";" }

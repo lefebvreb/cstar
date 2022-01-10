@@ -5,8 +5,9 @@ use crate::ast;
 use super::*;
 
 /// Evaluates an expression.
-pub fn eval_expr<'a>(scope: &'a Scope, ctx: &Context<'a>, expr: &ast::Expr<'a>) -> Result<Var<'a>> {
+pub fn eval_expr<'a>(scope: &'a Scope<'a>, ctx: &Context<'a>, expr: &ast::Expr<'a>) -> Result<Var<'a>> {
     match expr {
+        ast::Expr::Assign(assign) => eval_assign(scope, ctx, assign),
         ast::Expr::Atom(atom) => eval_atom(scope, ctx, atom),
         ast::Expr::LValue(lvalue) => eval_lvalue(scope, ctx, lvalue),
         ast::Expr::StructInit(struct_init) => eval_struct_init(scope, ctx, struct_init),
@@ -16,8 +17,26 @@ pub fn eval_expr<'a>(scope: &'a Scope, ctx: &Context<'a>, expr: &ast::Expr<'a>) 
     }
 }
 
+pub fn eval_assign<'a>(scope: &'a Scope<'a>, ctx: &Context<'a>, assign: &ast::Assign<'a>) -> Result<Var<'a>> {
+    let var = eval_expr(scope, ctx, &assign.expr)?;
+
+    match &assign.lvalue {
+        ast::LValue::Ident(ident) => {
+            scope.set_var(ident, var.clone());
+        }
+        ast::LValue::Access(index) => {
+            /*let value = eval_expr(scope, ctx, &assign.expr)?;
+            let index = eval_expr(scope, ctx, &index.index)?;
+            scope.set_index(index, value);*/
+            todo!();
+        }
+    }
+
+    Ok(var)
+}
+
 /// Evaluates an atom.
-pub fn eval_atom<'a>(scope: &Scope, ctx: &Context<'a>, atom: &ast::Atom) -> Result<Var<'a>> {
+pub fn eval_atom<'a>(scope: &Scope<'a>, ctx: &Context<'a>, atom: &ast::Atom) -> Result<Var<'a>> {
     Ok(match atom {
         ast::Atom::Void => Var::Void,
         ast::Atom::Bool(b) => Var::Bool(*b),
@@ -29,7 +48,7 @@ pub fn eval_atom<'a>(scope: &Scope, ctx: &Context<'a>, atom: &ast::Atom) -> Resu
 }
 
 /// Evaluates a left value.
-pub fn eval_lvalue<'a>(scope: &'a Scope, ctx: &Context<'a>, lvalue: &ast::LValue<'a>) -> Result<Var<'a>> {
+pub fn eval_lvalue<'a>(scope: &'a Scope<'a>, ctx: &Context<'a>, lvalue: &ast::LValue<'a>) -> Result<Var<'a>> {
     match lvalue {
         ast::LValue::Ident(ident) => scope.get_var(ident),
         ast::LValue::Access(path) => {
@@ -51,7 +70,7 @@ pub fn eval_lvalue<'a>(scope: &'a Scope, ctx: &Context<'a>, lvalue: &ast::LValue
 }
 
 /// Evaluates a struct initialization.
-pub fn eval_struct_init<'a>(scope: &'a Scope, ctx: &Context<'a>, struct_init: &ast::StructInit<'a>) -> Result<Var<'a>> {
+pub fn eval_struct_init<'a>(scope: &'a Scope<'a>, ctx: &Context<'a>, struct_init: &ast::StructInit<'a>) -> Result<Var<'a>> {
     match ctx.get_def(struct_init.name)? {
         Def::Component(blueprint) | Def::Resource(blueprint) => {
             let mut map = Map::with_capacity(blueprint.names.len());
@@ -74,7 +93,7 @@ pub fn eval_struct_init<'a>(scope: &'a Scope, ctx: &Context<'a>, struct_init: &a
     }
 }
 
-pub fn eval_call<'a>(scope: &Scope, ctx: &Context<'a>, call: &ast::Call<'a>) -> Result<Var<'a>> {
+pub fn eval_call<'a>(scope: &'a Scope<'a>, ctx: &Context<'a>, call: &ast::Call<'a>) -> Result<Var<'a>> {
     let n = call.args.len();
 
     match call.builtin {
@@ -86,7 +105,7 @@ pub fn eval_call<'a>(scope: &Scope, ctx: &Context<'a>, call: &ast::Call<'a>) -> 
                 return Err(anyhow!("{:?} takes exactly one argument.", call.builtin));
             }
 
-            println!("{}", eval_expr(scope, ctx, &call.args[0])?);
+            print!("{}", eval_expr(scope, ctx, &call.args[0])?);
         }
     }
 

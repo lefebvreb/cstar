@@ -30,7 +30,7 @@ This will run the `hello, world!` example of the `examples` directory. There are
 
 ## Bonus
 
-- [ ] Type validation
+- [ ] Types and type checking
 - [ ] Increment/Decrement operators
 - [ ] Return statements
 - [ ] Functions and structs

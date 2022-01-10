@@ -5,6 +5,7 @@ use super::*;
 /// An expression.
 #[derive(Debug)]
 pub enum Expr<'a> {
+    Assign(Box<Assign<'a>>),
     Atom(Atom),
     LValue(LValue<'a>),
     StructInit(StructInit<'a>),

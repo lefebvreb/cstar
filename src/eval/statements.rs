@@ -9,7 +9,6 @@ use super::*;
 /// Evaluates a statement.
 pub fn eval_statement<'a>(scope: &'a Scope<'a>, ctx: &Context<'a>, stmt: &ast::Statement<'a>) -> Result<StmtRes> {
     match stmt {
-        ast::Statement::Assign(assign) => eval_assign(scope, ctx, assign)?,
         ast::Statement::If(if_) => return eval_if(scope, ctx, if_),
         ast::Statement::Block(block) => return eval_block(scope, ctx, block),
         ast::Statement::Break => return Ok(StmtRes::Break),
@@ -21,24 +20,6 @@ pub fn eval_statement<'a>(scope: &'a Scope<'a>, ctx: &Context<'a>, stmt: &ast::S
     }
 
     Ok(StmtRes::Ok)
-}
-
-pub fn eval_assign<'a>(scope: &'a Scope<'a>, ctx: &Context<'a>, assign: &ast::Assign<'a>) -> Result<()> {
-    let var = eval_expr(scope, ctx, &assign.expr)?;
-
-    match &assign.lvalue {
-        ast::LValue::Ident(ident) => {
-            scope.set_var(ident, var);
-        }
-        ast::LValue::Access(index) => {
-            /*let value = eval_expr(scope, ctx, &assign.expr)?;
-            let index = eval_expr(scope, ctx, &index.index)?;
-            scope.set_index(index, value);*/
-            todo!();
-        }
-    }
-
-    Ok(())
 }
 
 /// Evaluates a block of statements.
@@ -75,7 +56,7 @@ pub fn eval_if<'a>(scope: &'a Scope<'a>, ctx: &Context<'a>, if_: &ast::If<'a>) -
 /// Evaluates a for statement.
 pub fn eval_for<'a>(scope: &'a Scope<'a>, ctx: &Context<'a>, for_: &ast::For<'a>) -> Result<()> {
     if let Some(init) = &for_.init {
-        eval_assign(scope, ctx, init)?;
+        eval_expr(scope, ctx, init)?;
     }
 
     loop {
@@ -90,7 +71,7 @@ pub fn eval_for<'a>(scope: &'a Scope<'a>, ctx: &Context<'a>, for_: &ast::For<'a>
         eval_block(scope, ctx, &for_.code)?;
 
         if let Some(incr) = &for_.incr {
-            eval_assign(scope, ctx, incr)?;
+            eval_expr(scope, ctx, incr)?;
         }
     }
 
@@ -115,11 +96,13 @@ pub fn eval_while<'a>(scope: &'a Scope<'a>, ctx: &Context<'a>, while_: &ast::Whi
 pub fn eval_query<'a>(scope: &'a Scope<'a>, ctx: &Context<'a>, query: &ast::Query<'a>) -> Result<()> {
     scope.next();
 
-    todo!(); // Do filtering here !
+    //todo!(); // Do filtering here !
 
-    eval_block(scope, ctx, &query.code)?;
+    //eval_block(scope, ctx, &query.code)?; In a loop
 
-    todo!(); // Update the values of the entities here !
+    //todo!(); // Update the values of the entities here !
 
     scope.back();
+
+    Ok(())
 }

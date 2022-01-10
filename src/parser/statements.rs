@@ -10,7 +10,6 @@ pub fn parse_statement<'a>(mut pairs: Pairs<'a, Rule>) -> ast::Statement<'a> {
     let pair = pairs.next().unwrap();
 
     match pair.as_rule() {
-        Rule::assign => ast::Statement::Assign(parse_assign(pair.into_inner())),
         Rule::if_ => ast::Statement::If(parse_if(pair.into_inner())),
         Rule::for_ => ast::Statement::For(parse_for(pair.into_inner())),
         Rule::while_ => ast::Statement::While(parse_while(pair.into_inner())),
@@ -20,14 +19,6 @@ pub fn parse_statement<'a>(mut pairs: Pairs<'a, Rule>) -> ast::Statement<'a> {
         Rule::break_ => ast::Statement::Break,
         Rule::continue_ => ast::Statement::Continue,
         _ => unreachable!(),
-    }
-}
-
-/// Parses an assignement.
-pub fn parse_assign<'a>(mut pairs: Pairs<'a, Rule>) -> ast::Assign<'a> {
-    ast::Assign {
-        lvalue: parse_lvalue(pairs.next().unwrap().into_inner()),
-        expr: parse_expr(pairs.next().unwrap().into_inner()),
     }
 }
 
@@ -53,8 +44,8 @@ pub fn parse_for<'a>(mut pairs: Pairs<'a, Rule>) -> ast::For<'a> {
 
     let mut pair = pairs.next().unwrap();
 
-    if let Rule::assign = pair.as_rule() {
-        res.init = Some(parse_assign(pair.into_inner()));
+    if let Rule::expr = pair.as_rule() {
+        res.init = Some(parse_expr(pair.into_inner()));
         pair = pairs.next().unwrap();
     }
 
@@ -63,8 +54,8 @@ pub fn parse_for<'a>(mut pairs: Pairs<'a, Rule>) -> ast::For<'a> {
         pair = pairs.next().unwrap();
     }
 
-    if let Rule::assign = pair.as_rule() {
-        res.incr = Some(parse_assign(pair.into_inner()));
+    if let Rule::expr = pair.as_rule() {
+        res.incr = Some(parse_expr(pair.into_inner()));
         pair = pairs.next().unwrap();
     }
 

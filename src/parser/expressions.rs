@@ -95,12 +95,21 @@ pub fn parse_value<'a>(mut pairs: Pairs<'a, Rule>) -> ast::Expr<'a> {
     let pair = pairs.next().unwrap();
 
     match pair.as_rule() {
+        Rule::assign => parse_assign(pair.into_inner()),
         Rule::atom => parse_atom(pair.into_inner()),
         Rule::call => parse_call(pair.into_inner()),
         Rule::struct_init => parse_struct_init(pair.into_inner()),
         Rule::lvalue => ast::Expr::LValue(parse_lvalue(pair.into_inner())),
         x => unreachable!("{:?}", x),
     }
+}
+
+/// Parses an assignement.
+pub fn parse_assign<'a>(mut pairs: Pairs<'a, Rule>) -> ast::Expr<'a> {
+    ast::Expr::Assign(Box::new(ast::Assign {
+        lvalue: parse_lvalue(pairs.next().unwrap().into_inner()),
+        expr: parse_expr(pairs.next().unwrap().into_inner()),
+    }))
 }
 
 /// Parses an atom.
@@ -152,11 +161,11 @@ pub fn parse_string(s: &str) -> String {
     chars.next().unwrap();
 
     while let Some(c) = chars.next() {
-        string.push(if c == '\\' {
-            escape_char(chars.next().unwrap())
-        } else {
-            c
-        });
+        match c {
+            '\"' => (),
+            '\\' => string.push(escape_char(chars.next().unwrap())),
+            c => string.push(c),
+        }
     }
 
     string

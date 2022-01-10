@@ -3,7 +3,6 @@ use super::*;
 /// A statement.
 #[derive(Debug)]
 pub enum Statement<'a> {
-    Assign(Assign<'a>),
     If(If<'a>),
     For(For<'a>),
     While(While<'a>),
@@ -25,9 +24,9 @@ pub struct If<'a> {
 /// A for loop.
 #[derive(Default, Debug)]
 pub struct For<'a> {
-    pub init: Option<Assign<'a>>,
+    pub init: Option<Expr<'a>>,
     pub cond: Option<Expr<'a>>,
-    pub incr: Option<Assign<'a>>,
+    pub incr: Option<Expr<'a>>,
     pub code: Block<'a>,
 }
 
