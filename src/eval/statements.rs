@@ -61,7 +61,7 @@ pub fn eval_if<'a>(scope: &mut Scope, ctx: &Context<'a>, if_: &ast::If<'a>) -> R
 /// Evaluates a for statement.
 pub fn eval_for<'a>(scope: &mut Scope, ctx: &Context<'a>, for_: &ast::For<'a>) -> Result<()> {
     if let Some(init) = &for_.init {
-        eval_expr(scope, ctx, init)?;
+        eval_assign(scope, ctx, init)?;
     }
 
     loop {
@@ -76,7 +76,7 @@ pub fn eval_for<'a>(scope: &mut Scope, ctx: &Context<'a>, for_: &ast::For<'a>) -
         eval_block(scope, ctx, &for_.code)?;
 
         if let Some(incr) = &for_.incr {
-            eval_expr(scope, ctx, incr)?;
+            eval_assign(scope, ctx, incr)?;
         }
     }
 

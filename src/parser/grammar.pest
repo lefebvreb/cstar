@@ -94,7 +94,7 @@ expr = { binexpr | term }
 
 assign = { lvalue ~ "=" ~ expr }
 if_ = { "if" ~ "(" ~ expr ~ ")" ~ block ~ ("else" ~ block)? }
-for_ = { "for" ~ "(" ~ expr? ~ ";" ~ expr? ~ ";" ~ expr? ~ ")" ~ block }
+for_ = { "for" ~ "(" ~ assign? ~ ";" ~ expr? ~ ";" ~ assign? ~ ")" ~ block }
 while_ = { "while" ~ "(" ~ expr ~ ")" ~ block }
 query = { "query" ~ filter_list ~ block }
 break_ = { "break" }

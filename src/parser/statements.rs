@@ -53,8 +53,8 @@ pub fn parse_for<'a>(mut pairs: Pairs<'a, Rule>) -> ast::For<'a> {
 
     let mut pair = pairs.next().unwrap();
 
-    if let Rule::expr = pair.as_rule() {
-        res.init = Some(parse_expr(pair.into_inner()));
+    if let Rule::assign = pair.as_rule() {
+        res.init = Some(parse_assign(pair.into_inner()));
         pair = pairs.next().unwrap();
     }
 
@@ -63,8 +63,8 @@ pub fn parse_for<'a>(mut pairs: Pairs<'a, Rule>) -> ast::For<'a> {
         pair = pairs.next().unwrap();
     }
 
-    if let Rule::expr = pair.as_rule() {
-        res.incr = Some(parse_expr(pair.into_inner()));
+    if let Rule::assign = pair.as_rule() {
+        res.incr = Some(parse_assign(pair.into_inner()));
         pair = pairs.next().unwrap();
     }
 
