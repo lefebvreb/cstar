@@ -48,10 +48,31 @@ pub fn eval_lvalue<'a>(scope: &'a mut Scope, ctx: &Context<'a>, lvalue: &ast::LV
     }
 }
 
-pub fn eval_struct_init<'a>(scope: &mut Scope, ctx: &Context<'a>, lvalue: &ast::StructInit<'a>) -> Result<Var<'a>> {
-    todo!()
-}
+pub fn eval_struct_init<'a>(scope: &'a mut Scope, ctx: &Context<'a>, struct_init: &ast::StructInit<'a>) -> Result<Var<'a>> {
+    match ctx.get_def(struct_init.name)? {
+        Def::Component(blueprint) | Def::Resource(blueprint) => {
+            let mut map = Map::<'a, Var>::with_capacity(blueprint.names.len());
 
+            for (name, expr) in struct_init.fields.iter() {
+                if !blueprint.names.contains(name) {
+                    return Err(anyhow!("{} is not a field of {}.", name, struct_init.name));
+                }
+
+                // UNSAFE: I really don't known what the borrow checker is complaining about here. Fuck them.
+                let scope = unsafe { &mut *(scope as *mut Scope) };
+
+                map.insert(name, eval_expr(scope, ctx, expr)?);
+            }
+
+            if blueprint.names.len() != map.len() {
+                return Err(anyhow!("{} has {} fields, but {} fields were given.", struct_init.name, blueprint.names.len(), map.len()));
+            }
+
+            Ok(Var::Struct(map))
+        },
+        _ => return Err(anyhow!("{} is not a struct type.", struct_init.name)),
+    }
+}
 
 pub fn eval_call<'a>(scope: &mut Scope, ctx: &Context<'a>, call: &ast::Call<'a>) -> Result<Var<'a>> {
     todo!()
