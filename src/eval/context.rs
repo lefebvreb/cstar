@@ -55,18 +55,20 @@ impl<'a> Scope<'a> {
         self.vars.borrow_mut().pop();
     }
 
-    /// Adds or updates a variable to the current scope.
-    pub fn set_var(&self, name: &'a str, var: Var<'a>) {
-        let mut vars = self.vars.borrow_mut();
+    /// Adds a new variable to the topmost scope
+    pub fn new_var(&self, name: &'a str, var: Var<'a>) {
+        self.vars.borrow_mut().last_mut().unwrap().insert(name, var);
+    }
 
-        for scope in vars.iter_mut().rev() {
-            if let Some(old_var) = scope.get_mut(name) {
-                *old_var = var;
-                return;
-            }
-        }
-
-        vars.last_mut().unwrap().insert(name, var);
+    /// Updates a variable to the current scope.
+    pub fn set_var(&self, name: &'a str, var: Var<'a>) -> Result<()> {
+        self.vars.borrow_mut().iter_mut().rev()
+            .find_map(|scope| scope.get_mut(name))
+            .ok_or_else(|| anyhow!("Variable {} is not declared is current scope", name))
+            .and_then(|old_var| {
+                *old_var = var.clone();
+                Ok(())
+            })
     }
 
     /// Gets a reference to a variable or constant from the current scope.

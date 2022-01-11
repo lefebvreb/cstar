@@ -38,8 +38,7 @@ block = { "{" ~ stmt* ~ "}" }
 
 // Filters and queries
 
-const_ = { "const" }
-arg = { const_? ~ ident ~ ident }
+arg = { ident ~ ident }
 entity_filter = { "Entity" ~ ident ~ ("," ~ arg)* ~ ","? }
 resource_filter = { arg }
 filter = { entity_filter | resource_filter }
@@ -94,10 +93,11 @@ expr = { binexpr | ternary | term }
 
 // Statements
 
+decl = { "let" ~ ident ~ ("=" ~ expr)? }
 if_ = { "if" ~ "(" ~ expr ~ ")" ~ block ~ ("else" ~ block)? }
-for_ = { "for" ~ "(" ~ expr ~ ";" ~ expr ~ ";" ~ expr ~ ")" ~ block }
+for_ = { "for" ~ "(" ~ (decl | expr) ~ ";" ~ expr ~ ";" ~ expr ~ ")" ~ block }
 while_ = { "while" ~ "(" ~ expr ~ ")" ~ block }
 query = { "query" ~ filter_list ~ block }
 break_ = { "break" }
 continue_ = { "continue" }
-stmt = { if_ | for_ | while_ | query | block | (expr | break_ | continue_) ~ ";" | ";" }
+stmt = { if_ | for_ | while_ | query | block | (decl | expr | break_ | continue_) ~ ";" | ";" }

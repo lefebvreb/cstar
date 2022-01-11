@@ -1,6 +1,9 @@
+/* Systems are designed to contain the code of your programs */
 System hello() {
+    /* This prints the string "Hello, World!" to the screen. */
     Print("Hello, world!\n");
 }
 
+/* Init Systems are run once, at the start of the program. */
 Init [hello];
 Run [];

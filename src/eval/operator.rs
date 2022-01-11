@@ -34,6 +34,7 @@ pub fn eval_bin_expr<'a>(scope: &'a Scope<'a>, ctx: &Context<'a>, bin_expr: &ast
         (Int(i), Mul, Int(j)) => Int(i * j),
         (Float(x), Mul, Float(y)) => Float(x * y),
         (Int(i), Mul, Float(x)) | (Float(x), Mul, Int(i)) => Float(i as f64 * x),
+        (String(s), Mul, Int(i)) | (Int(i), Mul, String(s)) => String(s.repeat(i as usize)),
 
         (Int(i), Div, Int(j)) => Int(i / j),
         (Float(x), Div, Float(y)) => Float(x / y),

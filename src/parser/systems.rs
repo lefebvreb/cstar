@@ -57,14 +57,8 @@ pub fn parse_entity_filter<'a>(mut pairs: Pairs<'a, Rule>) -> ast::Filter {
 
 /// Parses a formal argument to a function or system call.
 pub fn parse_argument<'a>(mut pairs: Pairs<'a, Rule>) -> ast::Argument<'a> {
-    let mut pair = pairs.next().unwrap();
-
-    let is_const = matches!(pair.as_rule(), Rule::const_);
-    if !is_const {
-        pair = pairs.next().unwrap();
+    ast::Argument {
+        ty: pairs.next().unwrap().as_str(), 
+        name: pairs.next().unwrap().as_str(),
     }
-    let ty = pairs.next().unwrap().as_str();
-    let name = pairs.next().unwrap().as_str();
-
-    ast::Argument {is_const, ty, name}
 }

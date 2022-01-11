@@ -13,6 +13,7 @@ pub fn eval_statement<'a>(scope: &'a Scope<'a>, ctx: &Context<'a>, stmt: &ast::S
         ast::Statement::Block(block) => return eval_block(scope, ctx, block),
         ast::Statement::Break => return Ok(StmtRes::Break),
         ast::Statement::Continue => return Ok(StmtRes::Continue),
+        ast::Statement::Decl(decl) => eval_decl(scope, ctx, decl)?,
         ast::Statement::Expr(expr) => eval_expr(scope, ctx, expr).map(mem::drop)?,
         ast::Statement::For(for_) => eval_for(scope, ctx, for_)?,
         ast::Statement::While(while_) => eval_while(scope, ctx, while_)?,
@@ -56,7 +57,12 @@ pub fn eval_if<'a>(scope: &'a Scope<'a>, ctx: &Context<'a>, if_: &ast::If<'a>) -
 /// Evaluates a for statement.
 pub fn eval_for<'a>(scope: &'a Scope<'a>, ctx: &Context<'a>, for_: &ast::For<'a>) -> Result<()> {
     scope.next();
-    eval_expr(scope, ctx, &for_.init)?;
+
+    match &for_.init {
+        Either::Left(expr) => eval_expr(scope, ctx, &expr).map(mem::drop)?,
+        Either::Right(decl) => eval_decl(scope, ctx, &decl)?,
+    };
+    
     loop {
         match eval_expr(scope, ctx, &for_.cond)? {
             Var::Bool(true) => (),
@@ -66,7 +72,18 @@ pub fn eval_for<'a>(scope: &'a Scope<'a>, ctx: &Context<'a>, for_: &ast::For<'a>
         eval_block(scope, ctx, &for_.code)?;
         eval_expr(scope, ctx, &for_.incr)?;
     }
+
     scope.back();
+
+    Ok(())
+}
+
+/// Evaluates a declaration.
+pub fn eval_decl<'a>(scope: &'a Scope<'a>, ctx: &Context<'a>, decl: &ast::Decl<'a>) -> Result<()> {
+    match &decl.init {
+        Some(init) => scope.new_var(decl.ident, eval_expr(scope, ctx, &init)?),
+        None => scope.new_var(decl.ident, Var::Void),
+    };
 
     Ok(())
 }
@@ -74,6 +91,7 @@ pub fn eval_for<'a>(scope: &'a Scope<'a>, ctx: &Context<'a>, for_: &ast::For<'a>
 /// Evaluates a while statement.
 pub fn eval_while<'a>(scope: &'a Scope<'a>, ctx: &Context<'a>, while_: &ast::While<'a>) -> Result<()> {
     scope.next();
+
     loop {
         match eval_expr(scope, ctx, &while_.cond)? {
             Var::Bool(true) => (),
@@ -83,6 +101,7 @@ pub fn eval_while<'a>(scope: &'a Scope<'a>, ctx: &Context<'a>, while_: &ast::Whi
 
         eval_block(scope, ctx, &while_.code)?;
     }
+    
     scope.back();
 
     Ok(())

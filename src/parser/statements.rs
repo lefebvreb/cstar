@@ -10,6 +10,7 @@ pub fn parse_statement<'a>(mut pairs: Pairs<'a, Rule>) -> ast::Statement<'a> {
     let pair = pairs.next().unwrap();
 
     match pair.as_rule() {
+        Rule::decl => ast::Statement::Decl(parse_decl(pair.into_inner())),
         Rule::if_ => ast::Statement::If(parse_if(pair.into_inner())),
         Rule::for_ => ast::Statement::For(parse_for(pair.into_inner())),
         Rule::while_ => ast::Statement::While(parse_while(pair.into_inner())),
@@ -19,6 +20,14 @@ pub fn parse_statement<'a>(mut pairs: Pairs<'a, Rule>) -> ast::Statement<'a> {
         Rule::break_ => ast::Statement::Break,
         Rule::continue_ => ast::Statement::Continue,
         _ => unreachable!(),
+    }
+}
+
+/// Parses a declaration.
+pub fn parse_decl<'a>(mut pairs: Pairs<'a, Rule>) -> ast::Decl<'a> {
+    ast::Decl {
+        ident: pairs.next().unwrap().as_str(),
+        init: pairs.next().map(|pair| parse_expr(pair.into_inner())),
     }
 }
 
@@ -41,7 +50,14 @@ pub fn parse_if<'a>(mut pairs: Pairs<'a, Rule>) -> ast::If<'a> {
 /// Parses a for.
 pub fn parse_for<'a>(mut pairs: Pairs<'a, Rule>) -> ast::For<'a> {
     ast::For {
-        init: parse_expr(pairs.next().unwrap().into_inner()),
+        init: {
+            let pair = pairs.next().unwrap();
+            match pair.as_rule() {
+                Rule::expr => Either::Left(parse_expr(pair.into_inner())),
+                Rule::decl => Either::Right(parse_decl(pair.into_inner())),
+                _ => unreachable!(),
+            }
+        },
         cond: parse_expr(pairs.next().unwrap().into_inner()),
         incr: parse_expr(pairs.next().unwrap().into_inner()),
         code: parse_block(pairs.next().unwrap().into_inner())

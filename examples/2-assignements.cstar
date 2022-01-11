@@ -1,0 +1,25 @@
+System main() {
+    /* Use the let keyword to declare a new variable. */
+    let x = 42;
+    Print("x = " + x + "\n");
+
+    /* Declared variable may be reassigned with any value. */
+    x = "Hello, world!";
+    Print("x = " + x + "\n");
+
+    /* When no value is specified, a variable takes the value `void`. */
+    let y;
+    Print("y = " + x + "\n");
+
+    /* Variables must be declared before they are used, `z = 5` would produce an error. */
+
+    /* Variables are scoped. */
+    {
+        let x = 42;
+        y = 42;
+    }
+    Print("x = " + x + ", y = " + y + "\n");
+}
+
+Init [main];
+Run [];
