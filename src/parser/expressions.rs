@@ -47,15 +47,15 @@ pub fn parse_binexpr<'a>(mut pairs: Pairs<'a, Rule>) -> ast::Expr<'a> {
         |pair| parse_term(pair.into_inner()),
         |left, op, right| ast::Expr::BinExpr(Box::new(ast::BinExpr {
             left,
-            op: parse_binop(op.into_inner()),
+            op: parse_binop(op),
             right,
         })),
     )
 }
 
 /// Parses a binary operator.
-pub fn parse_binop<'a>(mut pairs: Pairs<'a, Rule>) -> ast::BinOp {
-    match pairs.next().unwrap().as_rule() {
+pub fn parse_binop<'a>(pair: Pair<'a, Rule>) -> ast::BinOp {
+    match pair.as_rule() {
         Rule::add => ast::BinOp::Add,
         Rule::sub => ast::BinOp::Sub,
         Rule::mul => ast::BinOp::Mul,

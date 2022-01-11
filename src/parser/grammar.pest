@@ -70,7 +70,7 @@ value = { atom | call | struct_init | assign | lvalue }
 
 // Binary operators and expressions
 
-binop = { add | sub | mul | div | mod_ | and | or | xor | bitand | bitor | shl | shr | leq | geq | lt | gt | eq | neq }
+binop = _{ add | sub | mul | div | mod_ | and | or | xor | bitand | bitor | shl | shr | leq | geq | lt | gt | eq | neq }
 add = { "+" }  sub = { "-" }  mul = { "*" }  div = { "/" }    mod_ = { "%" }
 and = { "&&" } or = { "||" }  xor = { "^" }  bitand = { "&" } bitor = { "|" }
 shl = { "<<" } shr = { ">>" } leq = { "<=" } geq = { ">=" }   lt = { "<" }  
