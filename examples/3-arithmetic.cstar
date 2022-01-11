@@ -1,6 +1,5 @@
 System main() {
-    x = 5;
-    Print(x + "\n");
+    
 }
 
 Init [main];

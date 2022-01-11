@@ -22,11 +22,11 @@ pub struct If<'a> {
 }
 
 /// A for loop.
-#[derive(Default, Debug)]
+#[derive(Debug)]
 pub struct For<'a> {
-    pub init: Option<Expr<'a>>,
-    pub cond: Option<Expr<'a>>,
-    pub incr: Option<Expr<'a>>,
+    pub init: Expr<'a>,
+    pub cond: Expr<'a>,
+    pub incr: Expr<'a>,
     pub code: Block<'a>,
 }
 

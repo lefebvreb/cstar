@@ -27,6 +27,7 @@ This will run the `hello, world!` example of the `examples` directory. There are
 - [x] Finish first grammar
 - [x] Use parser to build AST
 - [ ] Treewalk the AST
+- [ ] ECS
 
 ## Bonus
 

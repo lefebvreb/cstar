@@ -42,7 +42,6 @@ impl Default for Context<'_> {
 /// Holds all variables scopes.
 pub struct Scope<'a> {
     vars: RefCell<Vec<Map<'a, Var<'a>>>>,
-    //vars: Vec<Map<'a, Var<'a>>>,
 }
 
 impl<'a> Scope<'a> {
@@ -56,9 +55,18 @@ impl<'a> Scope<'a> {
         self.vars.borrow_mut().pop();
     }
 
-    /// Adds a new variable to the current scope.
+    /// Adds or updates a variable to the current scope.
     pub fn set_var(&self, name: &'a str, var: Var<'a>) {
-        self.vars.borrow_mut().last_mut().unwrap().insert(name, var);
+        let mut vars = self.vars.borrow_mut();
+
+        for scope in vars.iter_mut().rev() {
+            if let Some(old_var) = scope.get_mut(name) {
+                *old_var = var;
+                return;
+            }
+        }
+
+        vars.last_mut().unwrap().insert(name, var);
     }
 
     /// Gets a reference to a variable or constant from the current scope.

@@ -40,28 +40,12 @@ pub fn parse_if<'a>(mut pairs: Pairs<'a, Rule>) -> ast::If<'a> {
 
 /// Parses a for.
 pub fn parse_for<'a>(mut pairs: Pairs<'a, Rule>) -> ast::For<'a> {
-    let mut res = ast::For::default();
-
-    let mut pair = pairs.next().unwrap();
-
-    if let Rule::expr = pair.as_rule() {
-        res.init = Some(parse_expr(pair.into_inner()));
-        pair = pairs.next().unwrap();
+    ast::For {
+        init: parse_expr(pairs.next().unwrap().into_inner()),
+        cond: parse_expr(pairs.next().unwrap().into_inner()),
+        incr: parse_expr(pairs.next().unwrap().into_inner()),
+        code: parse_block(pairs.next().unwrap().into_inner())
     }
-
-    if let Rule::expr = pair.as_rule() {
-        res.cond = Some(parse_expr(pair.into_inner()));
-        pair = pairs.next().unwrap();
-    }
-
-    if let Rule::expr = pair.as_rule() {
-        res.incr = Some(parse_expr(pair.into_inner()));
-        pair = pairs.next().unwrap();
-    }
-
-    res.code = parse_block(pair.into_inner());
-
-    res
 }
 
 /// Parses a while loop.

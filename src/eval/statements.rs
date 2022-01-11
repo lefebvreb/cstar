@@ -55,31 +55,25 @@ pub fn eval_if<'a>(scope: &'a Scope<'a>, ctx: &Context<'a>, if_: &ast::If<'a>) -
 
 /// Evaluates a for statement.
 pub fn eval_for<'a>(scope: &'a Scope<'a>, ctx: &Context<'a>, for_: &ast::For<'a>) -> Result<()> {
-    if let Some(init) = &for_.init {
-        eval_expr(scope, ctx, init)?;
-    }
-
+    scope.next();
+    eval_expr(scope, ctx, &for_.init)?;
     loop {
-        if let Some(cond) = &for_.cond {
-            match eval_expr(scope, ctx, cond)? {
-                Var::Bool(true) => break,
-                Var::Bool(false) => (),
-                _ => return Err(anyhow!("A condition expression evaluated to a non-boolean value in a for loop.")),
-            }
+        match eval_expr(scope, ctx, &for_.cond)? {
+            Var::Bool(true) => break,
+            Var::Bool(false) => (),
+            _ => return Err(anyhow!("A condition expression evaluated to a non-boolean value in a for loop.")),
         }
-
         eval_block(scope, ctx, &for_.code)?;
-
-        if let Some(incr) = &for_.incr {
-            eval_expr(scope, ctx, incr)?;
-        }
+        eval_expr(scope, ctx, &for_.incr)?;
     }
+    scope.back();
 
     Ok(())
 }
 
 /// Evaluates a while statement.
 pub fn eval_while<'a>(scope: &'a Scope<'a>, ctx: &Context<'a>, while_: &ast::While<'a>) -> Result<()> {
+    scope.next();
     loop {
         match eval_expr(scope, ctx, &while_.cond)? {
             Var::Bool(true) => (),
@@ -89,6 +83,7 @@ pub fn eval_while<'a>(scope: &'a Scope<'a>, ctx: &Context<'a>, while_: &ast::Whi
 
         eval_block(scope, ctx, &while_.code)?;
     }
+    scope.back();
 
     Ok(())
 }

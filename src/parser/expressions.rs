@@ -26,16 +26,16 @@ lazy_static! {
         use Assoc::*;
 
         PrecClimber::new(vec![
+            Operator::new(or, Left),
+            Operator::new(and, Left),
+            Operator::new(bitor, Left),
+            Operator::new(xor, Left),
+            Operator::new(bitand, Left), 
+            Operator::new(eq, Left) | Operator::new(neq, Left),
+            Operator::new(leq, Left) | Operator::new(geq, Left) | Operator::new(lt, Left) | Operator::new(gt, Left),
+            Operator::new(shl, Left) | Operator::new(shr, Left),
             Operator::new(add, Left) | Operator::new(sub, Left),
             Operator::new(mul, Left) | Operator::new(div, Left) | Operator::new(mod_, Left),
-            Operator::new(shl, Left) | Operator::new(shr, Left),
-            Operator::new(leq, Left) | Operator::new(geq, Left) | Operator::new(lt, Left) | Operator::new(gt, Left),
-            Operator::new(eq, Left) | Operator::new(neq, Left),
-            Operator::new(bitand, Left), 
-            Operator::new(xor, Left),
-            Operator::new(bitor, Left),
-            Operator::new(and, Left),
-            Operator::new(or, Left),
         ])
     };
 }
