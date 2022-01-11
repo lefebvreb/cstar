@@ -36,7 +36,8 @@ pub fn eval_bin_expr<'a>(scope: &'a Scope<'a>, ctx: &Context<'a>, bin_expr: &ast
 
         (Int(i), Div, Int(j)) => Int(i / j),
         (Float(x), Div, Float(y)) => Float(x / y),
-        (Int(i), Div, Float(x)) | (Float(x), Div, Int(i)) => Float(i as f64 / x),
+        (Int(i), Div, Float(x)) => Float(i as f64 / x),
+        (Float(x), Div, Int(i)) => Float(x / i as f64),
 
         (Int(i), Mod, Int(j)) => Int(i % j),
 
@@ -54,22 +55,26 @@ pub fn eval_bin_expr<'a>(scope: &'a Scope<'a>, ctx: &Context<'a>, bin_expr: &ast
         (Int(i), Leq, Int(j)) => Bool(i <= j),
         (Float(x), Leq, Float(y)) => Bool(x <= y),
         (String(s), Leq, String(t)) => Bool(s <= t),
-        (Int(i), Leq, Float(x)) | (Float(x), Leq, Int(i)) => Bool(i as f64 <= x),
+        (Int(i), Leq, Float(x)) => Bool(i as f64 <= x),
+        (Float(x), Leq, Int(i)) => Bool(x <= i as f64),
 
         (Int(i), Geq, Int(j)) => Bool(i >= j),
         (Float(x), Geq, Float(y)) => Bool(x >= y),
         (String(s), Geq, String(t)) => Bool(s >= t),
-        (Int(i), Geq, Float(x)) | (Float(x), Geq, Int(i)) => Bool(i as f64 >= x),
+        (Int(i), Geq, Float(x)) => Bool(i as f64 >= x),
+        (Float(x), Geq, Int(i)) => Bool(x >= i as f64),
 
         (Int(i), Lt, Int(j)) => Bool(i < j),
         (Float(x), Lt, Float(y)) => Bool(x < y),
         (String(s), Lt, String(t)) => Bool(s < t),
-        (Int(i), Lt, Float(x)) | (Float(x), Lt, Int(i)) => Bool((i as f64) < x),
+        (Int(i), Lt, Float(x)) => Bool((i as f64) < x),
+        (Float(x), Lt, Int(i)) => Bool(x < i as f64),
 
         (Int(i), Gt, Int(j)) => Bool(i > j),
         (Float(x), Gt, Float(y)) => Bool(x > y),
         (String(s), Gt, String(t)) => Bool(s > t),
-        (Int(i), Gt, Float(x)) | (Float(x), Gt, Int(i)) => Bool(i as f64 > x),
+        (Int(i), Gt, Float(x)) => Bool((i as f64) > x),
+        (Float(x), Gt, Int(i)) => Bool(x > i as f64),
 
         (Int(i), Eq, Int(j)) => Bool(i == j),
         (Float(x), Eq, Float(y)) => Bool(x == y),
