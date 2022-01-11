@@ -59,8 +59,8 @@ pub fn eval_for<'a>(scope: &'a Scope<'a>, ctx: &Context<'a>, for_: &ast::For<'a>
     eval_expr(scope, ctx, &for_.init)?;
     loop {
         match eval_expr(scope, ctx, &for_.cond)? {
-            Var::Bool(true) => break,
-            Var::Bool(false) => (),
+            Var::Bool(true) => (),
+            Var::Bool(false) => break,
             _ => return Err(anyhow!("A condition expression evaluated to a non-boolean value in a for loop.")),
         }
         eval_block(scope, ctx, &for_.code)?;
