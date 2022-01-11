@@ -1,5 +1,7 @@
 [package]
 name = "cstar"
+description = "An ECS-based C-style language"
+author = "Benjamin Lefebvre"
 version = "0.1.0"
 edition = "2021"
 
