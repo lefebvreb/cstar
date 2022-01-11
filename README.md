@@ -41,3 +41,4 @@ This will run the `hello, world!` example of the `examples` directory. There are
 - [ ] Arrays
 - [ ] Imports and modules
 - [ ] Ternary operator
+- [ ] Span and proper errors

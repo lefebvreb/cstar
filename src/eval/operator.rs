@@ -16,10 +16,15 @@ pub fn eval_bin_expr<'a>(scope: &'a Scope<'a>, ctx: &Context<'a>, bin_expr: &ast
     Ok(match (lvar.clone(), bin_expr.op, rvar.clone()) {
         (Int(i), Add, Int(j)) => Int(i + j),
         (Float(x), Add, Float(y)) => Float(x + y),
-        (String(s), Add, String(t)) => String(s + &t),
+        (Char(c), Add, Char(d)) => String(format!("{}{}", c, d)),
+        (String(s), Add, String(t)) => String(format!("{}{}", s, t)),
         (Int(i), Add, Float(x)) | (Float(x), Add, Int(i)) => Float(i as f64 + x),
-        (Int(i), Add, String(s)) | (String(s), Add, Int(i)) => String(format!("{}{}", i, s)),
-        (Float(x), Add, String(s)) | (String(s), Add, Float(x)) => String(format!("{}{}", x, s)),
+        (Int(i), Add, String(s)) => String(format!("{}{}", i, s)),
+        (String(s), Add, Int(i)) => String(format!("{}{}", s, i)),
+        (Float(x), Add, String(s)) => String(format!("{}{}", x, s)),
+        (String(s), Add, Float(x)) => String(format!("{}{}", s, x)),
+        (Char(c), Add, String(s)) => String(format!("{}{}", c, s)),
+        (String(s), Add, Char(c)) => String(format!("{}{}", s, c)),
         
         (Int(i), Sub, Int(j)) => Int(i - j),
         (Float(x), Sub, Float(y)) => Float(x - y),

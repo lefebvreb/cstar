@@ -63,7 +63,7 @@ lvalue = { access | ident }
 // Values
 
 assign = { lvalue ~ "=" ~ expr }
-atom = { void | bool | int | float | char | string }
+atom = { void | bool | float | int | char | string }
 struct_init = { ident ~ "{" ~ (ident ~ ":" ~ expr ~ ";")* ~ "}" }
 value = { atom | call | struct_init | assign | lvalue }
 
