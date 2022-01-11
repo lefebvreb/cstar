@@ -6,6 +6,7 @@ use super::*;
 #[derive(Debug)]
 pub enum Expr<'a> {
     Assign(Box<Assign<'a>>),
+    Ternary(Box<Ternary<'a>>),
     Atom(Atom),
     LValue(LValue<'a>),
     StructInit(StructInit<'a>),
@@ -19,6 +20,14 @@ pub enum Expr<'a> {
 pub enum LValue<'a> {
     Ident(&'a str),
     Access(Vec<&'a str>),
+}
+
+/// A ternary expression.
+#[derive(Debug)]
+pub struct Ternary<'a> {
+    pub cond: Expr<'a>,
+    pub branch1: Expr<'a>,
+    pub branch2: Expr<'a>,
 }
 
 /// An assign expression.

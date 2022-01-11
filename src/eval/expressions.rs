@@ -7,6 +7,7 @@ use super::*;
 /// Evaluates an expression.
 pub fn eval_expr<'a>(scope: &'a Scope<'a>, ctx: &Context<'a>, expr: &ast::Expr<'a>) -> Result<Var<'a>> {
     match expr {
+        ast::Expr::Ternary(ternary) => eval_ternary(scope, ctx, ternary),
         ast::Expr::Assign(assign) => eval_assign(scope, ctx, assign),
         ast::Expr::Atom(atom) => eval_atom(scope, ctx, atom),
         ast::Expr::LValue(lvalue) => eval_lvalue(scope, ctx, lvalue),
@@ -52,6 +53,14 @@ pub fn eval_assign<'a>(scope: &'a Scope<'a>, ctx: &Context<'a>, assign: &ast::As
     }
 
     Ok(val)
+}
+
+pub fn eval_ternary<'a>(scope: &'a Scope<'a>, ctx: &Context<'a>, ternary: &ast::Ternary<'a>) -> Result<Var<'a>> {
+    match eval_expr(scope, ctx, &ternary.cond)? {
+        Var::Bool(true) => eval_expr(scope, ctx, &ternary.branch1),
+        Var::Bool(false) => eval_expr(scope, ctx, &ternary.branch2),
+        _ => return Err(anyhow!("A condition expression evaluated to a non-boolean value in an if statement.")),
+    }
 }
 
 /// Evaluates an atom.

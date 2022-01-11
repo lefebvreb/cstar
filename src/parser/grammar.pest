@@ -87,8 +87,9 @@ unexpr = { unop ~ term }
 
 // Terms and expressions
 
+ternary = { "(" ~ expr ~ ")" ~ "?" ~ expr ~ ":" ~ expr }
 term = { value | unexpr | "(" ~ expr ~ ")" }
-expr = { binexpr | term }
+expr = { binexpr | ternary | term }
 
 
 // Statements

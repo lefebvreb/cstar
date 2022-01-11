@@ -14,6 +14,7 @@ pub fn parse_expr<'a>(mut pairs: Pairs<'a, Rule>) -> ast::Expr<'a> {
 
     match pair.as_rule() {
         Rule::binexpr => parse_binexpr(pair.into_inner()),
+        Rule::ternary => parse_ternary(pair.into_inner()),
         Rule::term => parse_term(pair.into_inner()),
         _ => unreachable!(),
     }
@@ -76,6 +77,15 @@ pub fn parse_binop<'a>(pair: Pair<'a, Rule>) -> ast::BinOp {
         Rule::or => ast::BinOp::Or,
         _ => unreachable!(),
     }
+}
+
+/// Parses a ternary expression.
+pub fn parse_ternary<'a>(mut pairs: Pairs<'a, Rule>) -> ast::Expr<'a> {
+    ast::Expr::Ternary(Box::new(ast::Ternary {
+        cond: parse_expr(pairs.next().unwrap().into_inner()),
+        branch1: parse_expr(pairs.next().unwrap().into_inner()),
+        branch2: parse_expr(pairs.next().unwrap().into_inner()),
+    }))
 }
 
 /// Parses a term.
