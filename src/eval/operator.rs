@@ -28,7 +28,8 @@ pub fn eval_bin_expr<'a>(scope: &'a Scope<'a>, ctx: &Context<'a>, bin_expr: &ast
         
         (Int(i), Sub, Int(j)) => Int(i - j),
         (Float(x), Sub, Float(y)) => Float(x - y),
-        (Int(i), Sub, Float(x)) | (Float(x), Sub, Int(i)) => Float(i as f64 - x),
+        (Int(i), Sub, Float(x)) => Float(i as f64 - x),
+        (Float(x), Sub, Int(i)) => Float(x - i as f64),
 
         (Int(i), Mul, Int(j)) => Int(i * j),
         (Float(x), Mul, Float(y)) => Float(x * y),
