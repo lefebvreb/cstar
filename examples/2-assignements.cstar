@@ -1,5 +1,5 @@
 System main() {
-    /* Use the let keyword to declare a new variable. */
+    /* Use the let keyword to declare a new variable. Typing is dynamic. */
     let x = 42;
     Print("x = " + x + "\n");
 

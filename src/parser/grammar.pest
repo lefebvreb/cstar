@@ -100,4 +100,4 @@ while_ = { "while" ~ "(" ~ expr ~ ")" ~ block }
 query = { "query" ~ filter_list ~ block }
 break_ = { "break" }
 continue_ = { "continue" }
-stmt = { if_ | for_ | while_ | query | block | (decl | expr | break_ | continue_) ~ ";" | ";" }
+stmt = { if_ | for_ | while_ | query | block | (break_ | continue_ | decl | expr) ~ ";" | ";" }

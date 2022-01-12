@@ -7,47 +7,45 @@ use crate::ast;
 use super::*;
 
 /// Evaluates a statement.
-pub fn eval_statement<'a>(scope: &'a Scope<'a>, ctx: &Context<'a>, stmt: &ast::Statement<'a>) -> Result<StmtRes> {
+pub fn eval_statement<'a>(scope: &'a Scope<'a>, ctx: &Context<'a>, stmt: &ast::Statement<'a>) -> Result<Flow<'a>> {
     match stmt {
-        ast::Statement::If(if_) => return eval_if(scope, ctx, if_),
-        ast::Statement::Block(block) => return eval_block(scope, ctx, block),
-        ast::Statement::Break => return Ok(StmtRes::Break),
-        ast::Statement::Continue => return Ok(StmtRes::Continue),
-        ast::Statement::Decl(decl) => eval_decl(scope, ctx, decl)?,
-        ast::Statement::Expr(expr) => eval_expr(scope, ctx, expr).map(mem::drop)?,
-        ast::Statement::For(for_) => eval_for(scope, ctx, for_)?,
-        ast::Statement::While(while_) => eval_while(scope, ctx, while_)?,
-        ast::Statement::Query(query) => eval_query(scope, ctx, query)?,
+        ast::Statement::Break => Ok(Flow::Break),
+        ast::Statement::Continue => Ok(Flow::Continue),
+        ast::Statement::Expr(expr) => eval_expr(scope, ctx, expr).map(|_| Flow::Ok),
+        ast::Statement::If(if_) => eval_if(scope, ctx, if_),
+        ast::Statement::Block(block) => eval_block(scope, ctx, block),
+        ast::Statement::Decl(decl) => eval_decl(scope, ctx, decl),
+        ast::Statement::For(for_) => eval_for(scope, ctx, for_),
+        ast::Statement::While(while_) => eval_while(scope, ctx, while_),
+        ast::Statement::Query(query) => eval_query(scope, ctx, query),
     }
-
-    Ok(StmtRes::Ok)
 }
 
 /// Evaluates a block of statements.
-pub fn eval_block<'a>(scope: &'a Scope<'a>, ctx: &Context<'a>, block: &ast::Block<'a>) -> Result<StmtRes> {
-    let mut res = StmtRes::Ok;
+pub fn eval_block<'a>(scope: &'a Scope<'a>, ctx: &Context<'a>, block: &ast::Block<'a>) -> Result<Flow<'a>> {
+    let mut flow = Flow::Ok;
 
     scope.next();
     for stmt in &block.statements {
-        res = eval_statement(scope, ctx, stmt)?;
-        if res != StmtRes::Ok {
+        flow = eval_statement(scope, ctx, stmt)?;
+        if !matches!(flow, Flow::Ok) {
             break;
         }
     }
     scope.back();
 
-    Ok(res)
+    Ok(flow)
 }
 
 /// Evaluates an if statement.
-pub fn eval_if<'a>(scope: &'a Scope<'a>, ctx: &Context<'a>, if_: &ast::If<'a>) -> Result<StmtRes> {
+pub fn eval_if<'a>(scope: &'a Scope<'a>, ctx: &Context<'a>, if_: &ast::If<'a>) -> Result<Flow<'a>> {
     match eval_expr(scope, ctx, &if_.cond)? {
         Var::Bool(true) => eval_block(scope, ctx, &if_.branch1),
         Var::Bool(false) => {
             if let Some(ref branch2) = if_.branch2 {
                 eval_block(scope, ctx, branch2)
             } else {
-                Ok(StmtRes::Ok)
+                Ok(Flow::Ok)
             }
         },
         _ => return Err(anyhow!("A condition expression evaluated to a non-boolean value in an if statement.")),
@@ -55,12 +53,12 @@ pub fn eval_if<'a>(scope: &'a Scope<'a>, ctx: &Context<'a>, if_: &ast::If<'a>) -
 }
 
 /// Evaluates a for statement.
-pub fn eval_for<'a>(scope: &'a Scope<'a>, ctx: &Context<'a>, for_: &ast::For<'a>) -> Result<()> {
+pub fn eval_for<'a>(scope: &'a Scope<'a>, ctx: &Context<'a>, for_: &ast::For<'a>) -> Result<Flow<'a>> {
     scope.next();
 
     match &for_.init {
-        Either::Left(expr) => eval_expr(scope, ctx, &expr).map(mem::drop)?,
-        Either::Right(decl) => eval_decl(scope, ctx, &decl)?,
+        Either::Left(expr) => { eval_expr(scope, ctx, &expr)?; },
+        Either::Right(decl) => { eval_decl(scope, ctx, &decl)?; },
     };
     
     loop {
@@ -69,27 +67,34 @@ pub fn eval_for<'a>(scope: &'a Scope<'a>, ctx: &Context<'a>, for_: &ast::For<'a>
             Var::Bool(false) => break,
             _ => return Err(anyhow!("A condition expression evaluated to a non-boolean value in a for loop.")),
         }
-        eval_block(scope, ctx, &for_.code)?;
+
+        match eval_block(scope, ctx, &for_.code)? {
+            Flow::Break => break,
+            Flow::Return(var) => {
+                scope.back();
+                return Ok(Flow::Return(var));
+            },
+            _ => (),
+        }
+
         eval_expr(scope, ctx, &for_.incr)?;
     }
 
     scope.back();
-
-    Ok(())
+    Ok(Flow::Ok)
 }
 
 /// Evaluates a declaration.
-pub fn eval_decl<'a>(scope: &'a Scope<'a>, ctx: &Context<'a>, decl: &ast::Decl<'a>) -> Result<()> {
+pub fn eval_decl<'a>(scope: &'a Scope<'a>, ctx: &Context<'a>, decl: &ast::Decl<'a>) -> Result<Flow<'a>> {
     match &decl.init {
         Some(init) => scope.new_var(decl.ident, eval_expr(scope, ctx, &init)?),
         None => scope.new_var(decl.ident, Var::Void),
     };
-
-    Ok(())
+    Ok(Flow::Ok)
 }
 
 /// Evaluates a while statement.
-pub fn eval_while<'a>(scope: &'a Scope<'a>, ctx: &Context<'a>, while_: &ast::While<'a>) -> Result<()> {
+pub fn eval_while<'a>(scope: &'a Scope<'a>, ctx: &Context<'a>, while_: &ast::While<'a>) -> Result<Flow<'a>> {
     scope.next();
 
     loop {
@@ -99,15 +104,22 @@ pub fn eval_while<'a>(scope: &'a Scope<'a>, ctx: &Context<'a>, while_: &ast::Whi
             _ => return Err(anyhow!("A condition expression evaluated to a non-boolean value in a while loop.")),
         }
 
-        eval_block(scope, ctx, &while_.code)?;
+        match eval_block(scope, ctx, &while_.code)? {
+            Flow::Break => break,
+            Flow::Continue => continue,
+            Flow::Return(var) => {
+                scope.back();
+                return Ok(Flow::Return(var));
+            },
+            _ => (),
+        }
     }
     
     scope.back();
-
-    Ok(())
+    Ok(Flow::Ok)
 }
 
-pub fn eval_query<'a>(scope: &'a Scope<'a>, ctx: &Context<'a>, query: &ast::Query<'a>) -> Result<()> {
+pub fn eval_query<'a>(scope: &'a Scope<'a>, ctx: &Context<'a>, query: &ast::Query<'a>) -> Result<Flow<'a>> {
     scope.next();
 
     //todo!(); // Do filtering here !
@@ -117,6 +129,5 @@ pub fn eval_query<'a>(scope: &'a Scope<'a>, ctx: &Context<'a>, query: &ast::Quer
     //todo!(); // Update the values of the entities here !
 
     scope.back();
-
-    Ok(())
+    Ok(Flow::Ok)
 }

@@ -138,9 +138,10 @@ pub enum Def<'a> {
 }
 
 /// The result of the evaluation of a statement.
-#[derive(PartialEq, Eq, Debug)]
-pub enum StmtRes {
+#[derive(Debug)]
+pub enum Flow<'a> {
     Ok,
     Break,
     Continue,
+    Return(Var<'a>),
 }
