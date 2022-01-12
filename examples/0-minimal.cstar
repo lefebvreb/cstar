@@ -1,2 +1,5 @@
+/* This is a comment. */
+
+/* Every program in C* must declare an `Init` list, and a `Run` list. */
 Init [];
 Run [];

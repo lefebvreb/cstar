@@ -12,6 +12,7 @@ pub enum Statement<'a> {
     Expr(Expr<'a>),
     Break,
     Continue,
+    Return(Option<Expr<'a>>)
 }
 
 /// A variable declaration.

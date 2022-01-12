@@ -1,5 +1,17 @@
 System main() {
-    /* TODO */
+    let x = 42;
+
+    /* If statements may be used to branch the program's flow. */
+    if (x / 2 == 8) {
+        Print("x halved is 8\n");
+    } else {
+        Print("x halved is not 8, it is: " + x / 2 + "\n");
+    }
+
+    /* The else branch isn't necessary. */
+    if (x % 2 == 0) {
+        Print("x is even\n");
+    }
 }
 
 Init [main];

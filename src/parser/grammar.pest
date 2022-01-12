@@ -93,11 +93,12 @@ expr = { binexpr | ternary | term }
 
 // Statements
 
-decl = { "let" ~ ident ~ ("=" ~ expr)? }
 if_ = { "if" ~ "(" ~ expr ~ ")" ~ block ~ ("else" ~ block)? }
 for_ = { "for" ~ "(" ~ (decl | expr) ~ ";" ~ expr ~ ";" ~ expr ~ ")" ~ block }
 while_ = { "while" ~ "(" ~ expr ~ ")" ~ block }
 query = { "query" ~ filter_list ~ block }
 break_ = { "break" }
 continue_ = { "continue" }
-stmt = { if_ | for_ | while_ | query | block | (break_ | continue_ | decl | expr) ~ ";" | ";" }
+return_ = { "return" ~ expr? }
+decl = { "let" ~ ident ~ ("=" ~ expr)? }
+stmt = { if_ | for_ | while_ | query | block | (break_ | continue_ | return_ | decl | expr) ~ ";" | ";" }

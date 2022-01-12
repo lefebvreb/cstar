@@ -11,6 +11,8 @@ pub fn eval_statement<'a>(scope: &'a Scope<'a>, ctx: &Context<'a>, stmt: &ast::S
     match stmt {
         ast::Statement::Break => Ok(Flow::Break),
         ast::Statement::Continue => Ok(Flow::Continue),
+        ast::Statement::Return(Some(expr)) => Ok(Flow::Return(eval_expr(scope, ctx, expr)?)),
+        ast::Statement::Return(None) => Ok(Flow::Return(Var::Void)),
         ast::Statement::Expr(expr) => eval_expr(scope, ctx, expr).map(|_| Flow::Ok),
         ast::Statement::If(if_) => eval_if(scope, ctx, if_),
         ast::Statement::Block(block) => eval_block(scope, ctx, block),

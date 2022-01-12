@@ -19,6 +19,7 @@ pub fn parse_statement<'a>(mut pairs: Pairs<'a, Rule>) -> ast::Statement<'a> {
         Rule::expr => ast::Statement::Expr(parse_expr(pair.into_inner())),
         Rule::break_ => ast::Statement::Break,
         Rule::continue_ => ast::Statement::Continue,
+        Rule::return_ => ast::Statement::Return(parse_return(pair.into_inner())),
         _ => unreachable!(),
     }
 }
@@ -78,4 +79,9 @@ pub fn parse_query<'a>(mut pairs: Pairs<'a, Rule>) -> ast::Query<'a> {
         filters: parse_filter_list(pairs.next().unwrap().into_inner()),
         code: parse_block(pairs.next().unwrap().into_inner()),
     }
+}
+
+/// Parses a return statement.
+pub fn parse_return<'a>(mut pairs: Pairs<'a, Rule>) -> Option<ast::Expr<'a>> {
+    pairs.next().map(|pair| parse_expr(pair.into_inner()))
 }

@@ -10,6 +10,7 @@ pub fn eval_system<'a>(scope: &'a Scope<'a>, ctx: &Context<'a>, sys: &ast::Syste
     //todo!(); // Do filtering here !
 
     let flow = eval_block(scope, ctx, &sys.code)?;
+    // Check that system returns nothing.
 
     //todo!(); // Update the values of the entities here !
 
