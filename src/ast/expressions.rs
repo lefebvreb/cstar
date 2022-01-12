@@ -58,7 +58,7 @@ pub enum Atom {
 /// A call expression. Can only call builtins for now.
 #[derive(Debug)]
 pub struct Call<'a> {
-    pub builtin: BuiltIn,
+    pub function: Either<BuiltIn, &'a str>,
     pub args: Vec<Expr<'a>>,
 }
 

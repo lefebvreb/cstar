@@ -28,17 +28,18 @@ This will run the `hello, world!` example of the `examples` directory. There are
 - [x] Use parser to build AST
 - [x] Treewalk the AST
 - [ ] ECS
-- [ ] Automated tests
+- [ ] Examples and automated tests
 
 ## Bonus
 
 - [x] Ternary operator
 - [x] Types and type checking
-- [ ] Span and proper errors
+- [x] Functions
+- [ ] Vanilla structs
 - [ ] Increment/Decrement operators
-- [ ] Functions and return statements
+- [ ] Assignements operators
 - [ ] Switch statements
 - [ ] Imports and modules
 - [ ] Enums
-- [ ] Pointers
-- [ ] Arrays
+- [ ] Span and proper errors
+- [ ] Lists

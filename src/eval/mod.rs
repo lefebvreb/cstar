@@ -3,6 +3,9 @@ use anyhow::{anyhow, Result};
 use crate::ast;
 use crate::utils::*;
 
+mod builtins;
+use builtins::*;
+
 mod context;
 use context::*;
 
@@ -26,12 +29,15 @@ pub fn eval(ast: &ast::AST) -> Result<()> {
     // Gets all definitions.
     for (name, element) in ast.names.iter() {
         match element {
-            ast::Name::System(sys) => {
-                ctx.set_def(name, Def::System(sys.clone()))?;
-                scope.set_var(name, Var::System(sys.clone()));
+            ast::Name::Function(fun) => {
+                ctx.set_def(name, Def::Function(fun))?;
             },
-            ast::Name::Component(comp) => ctx.set_def(name, Def::Component(comp.clone()))?,
-            ast::Name::Resource(res) => ctx.set_def(name, Def::Resource(res.clone()))?,
+            ast::Name::System(sys) => {
+                ctx.set_def(name, Def::System(sys))?;
+                scope.set_var(name, Var::System(sys));
+            },
+            ast::Name::Component(comp) => ctx.set_def(name, Def::Component(comp))?,
+            ast::Name::Resource(res) => ctx.set_def(name, Def::Resource(res))?,
         }
     }
 

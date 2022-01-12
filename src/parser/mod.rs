@@ -56,6 +56,7 @@ fn parse_element<'a>(mut pairs: Pairs<'a, Rule>) -> Result<(&'a str, ast::Name<'
     match element.as_rule() {
         Rule::component => parse_component(element.into_inner()),
         Rule::resource => parse_resource(element.into_inner()),
+        Rule::function => Ok(parse_function(element.into_inner())),
         Rule::system => Ok(parse_system(element.into_inner())),
         _ => unreachable!(),
     }
@@ -73,6 +74,24 @@ fn parse_resource<'a>(mut pairs: Pairs<'a, Rule>) -> Result<(&'a str, ast::Name<
     let name = pairs.next().unwrap().as_str();
     let def = parse_struct_def(pairs.next().unwrap().into_inner())?;
     Ok((name, ast::Name::Resource(def)))
+}
+
+/// Parses a function definition.
+fn parse_function<'a>(mut pairs: Pairs<'a, Rule>) -> (&'a str, ast::Name<'a>) {
+    let name = pairs.next().unwrap().as_str();
+    let mut args = Vec::new();
+
+    for pair in pairs {
+        match pair.as_rule() {
+            Rule::ident => args.push(pair.as_str()),
+            Rule::block => return (name, ast::Name::Function(ast::Function {
+                args, body: parse_block(pair.into_inner()),
+            })),
+            _ => unreachable!(),
+        }
+    };
+
+    unreachable!();
 }
 
 /// Parses a list of identifiers.

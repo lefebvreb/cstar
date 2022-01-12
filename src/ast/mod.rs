@@ -23,7 +23,14 @@ pub struct AST<'a> {
 // A name in the global namespace.
 #[derive(Debug)]
 pub enum Name<'a> {
+    Function(Function<'a>),
     System(System<'a>),
     Component(StructDef<'a>),
     Resource(StructDef<'a>),
+}
+
+#[derive(Debug)]
+pub struct Function<'a> {
+    pub args: Vec<&'a str>,
+    pub body: Block<'a>,
 }

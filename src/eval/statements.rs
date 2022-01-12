@@ -7,7 +7,7 @@ use crate::ast;
 use super::*;
 
 /// Evaluates a statement.
-pub fn eval_statement<'a>(scope: &'a Scope<'a>, ctx: &Context<'a>, stmt: &ast::Statement<'a>) -> Result<Flow<'a>> {
+pub fn eval_statement<'a>(scope: &Scope<'a>, ctx: &'a Context<'a>, stmt: &ast::Statement<'a>) -> Result<Flow<'a>> {
     match stmt {
         ast::Statement::Break => Ok(Flow::Break),
         ast::Statement::Continue => Ok(Flow::Continue),
@@ -24,23 +24,23 @@ pub fn eval_statement<'a>(scope: &'a Scope<'a>, ctx: &Context<'a>, stmt: &ast::S
 }
 
 /// Evaluates a block of statements.
-pub fn eval_block<'a>(scope: &'a Scope<'a>, ctx: &Context<'a>, block: &ast::Block<'a>) -> Result<Flow<'a>> {
+pub fn eval_block<'a>(scope: &Scope<'a>, ctx: &'a Context<'a>, block: &ast::Block<'a>) -> Result<Flow<'a>> {
     let mut flow = Flow::Ok;
 
-    scope.next();
+    scope.next_local();
     for stmt in &block.statements {
         flow = eval_statement(scope, ctx, stmt)?;
         if !matches!(flow, Flow::Ok) {
             break;
         }
     }
-    scope.back();
+    scope.back_local();
 
     Ok(flow)
 }
 
 /// Evaluates an if statement.
-pub fn eval_if<'a>(scope: &'a Scope<'a>, ctx: &Context<'a>, if_: &ast::If<'a>) -> Result<Flow<'a>> {
+pub fn eval_if<'a>(scope: &Scope<'a>, ctx: &'a Context<'a>, if_: &ast::If<'a>) -> Result<Flow<'a>> {
     match eval_expr(scope, ctx, &if_.cond)? {
         Var::Bool(true) => eval_block(scope, ctx, &if_.branch1),
         Var::Bool(false) => {
@@ -55,8 +55,8 @@ pub fn eval_if<'a>(scope: &'a Scope<'a>, ctx: &Context<'a>, if_: &ast::If<'a>) -
 }
 
 /// Evaluates a for statement.
-pub fn eval_for<'a>(scope: &'a Scope<'a>, ctx: &Context<'a>, for_: &ast::For<'a>) -> Result<Flow<'a>> {
-    scope.next();
+pub fn eval_for<'a>(scope: &Scope<'a>, ctx: &'a Context<'a>, for_: &ast::For<'a>) -> Result<Flow<'a>> {
+    scope.next_local();
 
     match &for_.init {
         Either::Left(expr) => { eval_expr(scope, ctx, &expr)?; },
@@ -73,7 +73,7 @@ pub fn eval_for<'a>(scope: &'a Scope<'a>, ctx: &Context<'a>, for_: &ast::For<'a>
         match eval_block(scope, ctx, &for_.code)? {
             Flow::Break => break,
             Flow::Return(var) => {
-                scope.back();
+                scope.back_local();
                 return Ok(Flow::Return(var));
             },
             _ => (),
@@ -82,12 +82,12 @@ pub fn eval_for<'a>(scope: &'a Scope<'a>, ctx: &Context<'a>, for_: &ast::For<'a>
         eval_expr(scope, ctx, &for_.incr)?;
     }
 
-    scope.back();
+    scope.back_local();
     Ok(Flow::Ok)
 }
 
 /// Evaluates a declaration.
-pub fn eval_decl<'a>(scope: &'a Scope<'a>, ctx: &Context<'a>, decl: &ast::Decl<'a>) -> Result<Flow<'a>> {
+pub fn eval_decl<'a>(scope: &Scope<'a>, ctx: &'a Context<'a>, decl: &ast::Decl<'a>) -> Result<Flow<'a>> {
     match &decl.init {
         Some(init) => scope.new_var(decl.ident, eval_expr(scope, ctx, &init)?),
         None => scope.new_var(decl.ident, Var::Void),
@@ -96,8 +96,8 @@ pub fn eval_decl<'a>(scope: &'a Scope<'a>, ctx: &Context<'a>, decl: &ast::Decl<'
 }
 
 /// Evaluates a while statement.
-pub fn eval_while<'a>(scope: &'a Scope<'a>, ctx: &Context<'a>, while_: &ast::While<'a>) -> Result<Flow<'a>> {
-    scope.next();
+pub fn eval_while<'a>(scope: &Scope<'a>, ctx: &'a Context<'a>, while_: &ast::While<'a>) -> Result<Flow<'a>> {
+    scope.next_local();
 
     loop {
         match eval_expr(scope, ctx, &while_.cond)? {
@@ -110,19 +110,19 @@ pub fn eval_while<'a>(scope: &'a Scope<'a>, ctx: &Context<'a>, while_: &ast::Whi
             Flow::Break => break,
             Flow::Continue => continue,
             Flow::Return(var) => {
-                scope.back();
+                scope.back_local();
                 return Ok(Flow::Return(var));
             },
             _ => (),
         }
     }
     
-    scope.back();
+    scope.back_local();
     Ok(Flow::Ok)
 }
 
-pub fn eval_query<'a>(scope: &'a Scope<'a>, ctx: &Context<'a>, query: &ast::Query<'a>) -> Result<Flow<'a>> {
-    scope.next();
+pub fn eval_query<'a>(scope: &Scope<'a>, ctx: &'a Context<'a>, query: &ast::Query<'a>) -> Result<Flow<'a>> {
+    scope.next_local();
 
     //todo!(); // Do filtering here !
 
@@ -130,6 +130,6 @@ pub fn eval_query<'a>(scope: &'a Scope<'a>, ctx: &Context<'a>, query: &ast::Quer
 
     //todo!(); // Update the values of the entities here !
 
-    scope.back();
+    scope.back_local();
     Ok(Flow::Ok)
 }

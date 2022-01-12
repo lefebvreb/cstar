@@ -24,10 +24,11 @@ run = { "Run" ~ "[" ~ (ident ~ ",")* ~ ident? ~ "]" ~ ";" }
 
 // Elements
 
-element = { component | resource | system }
+element = { component |  resource | function | system }
 component = { "Component" ~ ident ~ struct_def }
 resource = { "Resource" ~ ident ~ struct_def }
 system = { "System" ~ ident ~ filter_list ~ block }
+function = { "function" ~ ident ~ "(" ~ (ident ~ ",")* ~ ident? ~ ")" ~ block }
 
 
 // Types
@@ -58,7 +59,7 @@ filter_list = { "(" ~ (filter ~ ";")* ~ filter? ~ ")" }
 builtin = { clone | delete | spawn | print }
 clone = { "Clone" } delete = { "Delete" }
 spawn = { "Spawn" } print = { "Print" }
-call = { builtin ~ "(" ~ (expr ~ ",")* ~ expr? ~ ")" }
+call = { (builtin | ident) ~ "(" ~ (expr ~ ",")* ~ expr? ~ ")" }
 
 
 // L-values

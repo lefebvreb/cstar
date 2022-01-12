@@ -4,9 +4,9 @@ use crate::ast;
 
 use super::*;
 
-pub fn eval_system<'a>(scope: &'a Scope<'a>, ctx: &Context<'a>, sys: &ast::System<'a>) -> Result<()> {
+pub fn eval_system<'a>(scope: &Scope<'a>, ctx: &'a Context<'a>, sys: &ast::System<'a>) -> Result<()> {
     // Use the scope trick to avoid overshadoing of structs.
-    scope.next();
+    scope.next_local();
     
     //todo!(); // Do filtering here !
 
@@ -15,7 +15,7 @@ pub fn eval_system<'a>(scope: &'a Scope<'a>, ctx: &Context<'a>, sys: &ast::Syste
 
     //todo!(); // Update the values of the entities here !
 
-    scope.back();
+    scope.back_local();
 
     Ok(())
 }

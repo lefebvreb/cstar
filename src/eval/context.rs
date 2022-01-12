@@ -46,12 +46,12 @@ pub struct Scope<'a> {
 
 impl<'a> Scope<'a> {
     /// Nests another new empty scope.
-    pub fn next(&self) {
+    pub fn next_local(&self) {
         self.vars.borrow_mut().push(Map::new());
     }
 
     /// Destroys the last created scope, freeing all of it's variables.
-    pub fn back(&self) {
+    pub fn back_local(&self) {
         self.vars.borrow_mut().pop();
     }
 
@@ -199,6 +199,7 @@ impl<'a> fmt::Display for Var<'a> {
 /// A definition of a struct-like or function-like object.
 #[derive(Clone, Debug)]
 pub enum Def<'a> {
+    Function(&'a ast::Function<'a>),
     System(&'a ast::System<'a>),
     Component(&'a ast::StructDef<'a>),
     Resource(&'a ast::StructDef<'a>),
