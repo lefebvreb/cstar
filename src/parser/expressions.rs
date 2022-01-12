@@ -184,7 +184,7 @@ pub fn parse_string(s: &str) -> String {
 /// Parses a call.
 pub fn parse_call<'a>(mut pairs: Pairs<'a, Rule>) -> ast::Expr<'a> {
     let pair = pairs.next().unwrap();
-    let function = match pairs.next().unwrap().as_rule() {
+    let function = match pair.as_rule() {
         Rule::builtin => Either::Left(parse_builtin(pair.into_inner())),
         Rule::ident => Either::Right(pair.as_str()),
         _ => unreachable!(),
