@@ -1,12 +1,15 @@
 Resource Res {
-    x; y;
+    int x; 
+    float y;
 }
 
 System main() {
     let r = Res {
         x: 42;
-        y: 7;
+        y: 3.14;
     };
+
+    r.x = r.x + 1;
 
     Print(r + "\n");
 }

@@ -32,8 +32,8 @@ This will run the `hello, world!` example of the `examples` directory. There are
 
 ## Bonus
 
-- [X] Ternary operator
-- [ ] Types and type checking
+- [x] Ternary operator
+- [x] Types and type checking
 - [ ] Span and proper errors
 - [ ] Increment/Decrement operators
 - [ ] Functions and return statements

@@ -1,5 +1,3 @@
-use anyhow::Result;
-
 use crate::ast;
 
 use ast::BinOp::*;

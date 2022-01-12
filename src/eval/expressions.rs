@@ -23,33 +23,8 @@ pub fn eval_assign<'a>(scope: &'a Scope<'a>, ctx: &Context<'a>, assign: &ast::As
     let val = eval_expr(scope, ctx, &assign.expr)?;
 
     match &assign.lvalue {
-        ast::LValue::Ident(ident) => {
-            scope.set_var(ident, val.clone());
-        },
-        ast::LValue::Access(path) => {
-            let mut var = scope.get_var(&path[0])?;
-            let mut cur = &mut var;
-
-            for ident in &path[1 .. path.len()-1] {
-                match cur {
-                    Var::Struct(map) => cur = map.get_mut(ident).ok_or_else(|| anyhow::anyhow!("No field named {}.", ident))?,
-                    _ => return Err(anyhow!("{} is not a struct, cannot access it's fields.", ident)),
-                }
-            }
-
-            match cur {
-                Var::Struct(map) => {
-                    if let Some(var) = map.get_mut(&path[path.len()-1]) {
-                        *var = val.clone();
-                    } else {
-                        return Err(anyhow!("No field named {}.", path[path.len()-1]));
-                    }
-                },
-                _ => return Err(anyhow!("{} is not a struct, cannot access it's fields.", path[0])),
-            }
-
-            scope.set_var(&path[0], var);
-        },
+        ast::LValue::Ident(ident) => scope.set_var(ident, val.clone())?,
+        ast::LValue::Access(path) => scope.set_path(path, val.clone())?,
     }
 
     Ok(val)
@@ -79,40 +54,31 @@ pub fn eval_atom<'a>(scope: &Scope<'a>, ctx: &Context<'a>, atom: &ast::Atom) -> 
 pub fn eval_lvalue<'a>(scope: &'a Scope<'a>, ctx: &Context<'a>, lvalue: &ast::LValue<'a>) -> Result<Var<'a>> {
     match lvalue {
         ast::LValue::Ident(ident) => scope.get_var(ident),
-        ast::LValue::Access(path) => {
-            let mut var = &scope.get_var(&path[0])?;
-
-            for ident in &path[1..] {
-                match var {
-                    Var::Struct(map) => var = map.get(ident).ok_or_else(|| anyhow!("No field named {}.", ident))?,
-                    _ => return Err(anyhow!("{} is not a struct, cannot access it's fields.", ident)),
-                }
-            }
-
-            Ok(var.clone())
-        },
+        ast::LValue::Access(path) => scope.get_path(path),
     }
 }
 
 /// Evaluates a struct initialization.
 pub fn eval_struct_init<'a>(scope: &'a Scope<'a>, ctx: &Context<'a>, struct_init: &ast::StructInit<'a>) -> Result<Var<'a>> {
     match ctx.get_def(struct_init.name)? {
-        Def::Component(blueprint) | Def::Resource(blueprint) => {
-            let mut map = Map::with_capacity(blueprint.names.len());
+        Def::Component(def) | Def::Resource(def) => {
+            let mut map = Map::with_capacity(def.fields.len());
 
             for (name, expr) in struct_init.fields.iter() {
-                if !blueprint.names.contains(name) {
+                if !def.fields.contains_key(name) {
                     return Err(anyhow!("{} is not a field of {}.", name, struct_init.name));
                 }
 
-                map.insert(name, eval_expr(scope, ctx, expr)?);
+                if map.insert(name, eval_expr(scope, ctx, expr)?).is_some() {
+                    return Err(anyhow!("{} is already initialized.", name));
+                }
             }
 
-            if blueprint.names.len() != map.len() {
-                return Err(anyhow!("{} has {} fields, but {} fields were given.", struct_init.name, blueprint.names.len(), map.len()));
+            if def.fields.len() != map.len() {
+                return Err(anyhow!("{} has {} fields, but {} fields were given.", struct_init.name, def.fields.len(), map.len()));
             }
 
-            Ok(Var::Struct(map))
+            Ok(Var::Struct {name: struct_init.name, map})
         },
         _ => return Err(anyhow!("{} is not a struct type.", struct_init.name)),
     }

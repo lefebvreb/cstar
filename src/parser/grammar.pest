@@ -30,9 +30,17 @@ resource = { "Resource" ~ ident ~ struct_def }
 system = { "System" ~ ident ~ filter_list ~ block }
 
 
+// Types
+
+void_t = { "void" } bool_t = { "bool" } int_t = { "int" }
+float_t = { "float" } char_t = { "char" } string_t = { "string" }
+system_t = { "System" } entity_t = { "entity" }
+type_ = { void_t | bool_t | int_t | float_t | char_t | string_t | entity_t | system_t | ident }
+
+
 // Curly braces and blocks
 
-struct_def = { "{" ~ (ident ~ ";")* ~ "}" }
+struct_def = { "{" ~ (type_ ~ ident ~ ";")* ~ "}" }
 block = { "{" ~ stmt* ~ "}" }
 
 
@@ -72,7 +80,7 @@ value = { atom | call | struct_init | assign | lvalue }
 binop = _{ add | sub | mul | div | mod_ | and | or | xor | bitand | bitor | shl | shr | leq | geq | lt | gt | eq | neq }
 add = { "+" }  sub = { "-" }  mul = { "*" }  div = { "/" }    mod_ = { "%" }
 and = { "&&" } or = { "||" }  xor = { "^" }  bitand = { "&" } bitor = { "|" }
-shl = { "<<" } shr = { ">>" } leq = { "<=" } geq = { ">=" }   lt = { "<" }  
+shl = { "<<" } shr = { ">>" } leq = { "<=" } geq = { ">=" }   lt = { "<" }
 gt = { ">" }   eq = { "==" }  neq = { "!=" }
 binexpr = { term ~ (binop ~ term)+ }
 

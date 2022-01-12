@@ -1,7 +1,7 @@
 use std::fs;
 use std::path::Path;
 
-use anyhow::{Error, Result};
+use anyhow::{anyhow, Error, Result};
 use pest::Parser;
 use pest::iterators::{Pair, Pairs};
 use pest_derive::Parser;
@@ -36,7 +36,7 @@ pub fn parse_program<'a>(path: &str, src: &'a mut Vec<String>) -> Result<ast::AS
     for element in pairs {
         match element.as_rule() {
             Rule::element => {
-                let (name, element) = parse_element(element.into_inner());
+                let (name, element) = parse_element(element.into_inner())?;
                 ast.names.insert(name, element);
             },
             Rule::init => ast.init = parse_ident_list(element.into_inner()),
@@ -50,29 +50,29 @@ pub fn parse_program<'a>(path: &str, src: &'a mut Vec<String>) -> Result<ast::AS
 }
 
 /// Parses an element.
-fn parse_element<'a>(mut pairs: Pairs<'a, Rule>) -> (&'a str, ast::Name<'a>) {
+fn parse_element<'a>(mut pairs: Pairs<'a, Rule>) -> Result<(&'a str, ast::Name<'a>)> {
     let element = pairs.next().unwrap();
 
     match element.as_rule() {
         Rule::component => parse_component(element.into_inner()),
         Rule::resource => parse_resource(element.into_inner()),
-        Rule::system => parse_system(element.into_inner()),
+        Rule::system => Ok(parse_system(element.into_inner())),
         _ => unreachable!(),
     }
 }
 
 /// Parses a componenet definition.
-fn parse_component<'a>(mut pairs: Pairs<'a, Rule>) -> (&'a str, ast::Name<'a>) {
+fn parse_component<'a>(mut pairs: Pairs<'a, Rule>) -> Result<(&'a str, ast::Name<'a>)> {
     let name = pairs.next().unwrap().as_str();
-    let def = parse_struct_def(pairs.next().unwrap().into_inner());
-    (name, ast::Name::Component(def))
+    let def = parse_struct_def(pairs.next().unwrap().into_inner())?;
+    Ok((name, ast::Name::Component(def)))
 }
 
 /// Parses a resource definition.
-fn parse_resource<'a>(mut pairs: Pairs<'a, Rule>) -> (&'a str, ast::Name<'a>) {
+fn parse_resource<'a>(mut pairs: Pairs<'a, Rule>) -> Result<(&'a str, ast::Name<'a>)> {
     let name = pairs.next().unwrap().as_str();
-    let def = parse_struct_def(pairs.next().unwrap().into_inner());
-    (name, ast::Name::Resource(def))
+    let def = parse_struct_def(pairs.next().unwrap().into_inner())?;
+    Ok((name, ast::Name::Resource(def)))
 }
 
 /// Parses a list of identifiers.

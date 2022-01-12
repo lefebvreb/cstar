@@ -55,28 +55,75 @@ impl<'a> Scope<'a> {
         self.vars.borrow_mut().pop();
     }
 
-    /// Adds a new variable to the topmost scope
-    pub fn new_var(&self, name: &'a str, var: Var<'a>) {
-        self.vars.borrow_mut().last_mut().unwrap().insert(name, var);
+    /// Adds a new variable to the topmost scope.
+    pub fn new_var(&self, name: &'a str, val: Var<'a>) {
+        self.vars.borrow_mut().last_mut().unwrap().insert(name, val);
     }
 
-    /// Updates a variable to the current scope.
-    pub fn set_var(&self, name: &'a str, var: Var<'a>) -> Result<()> {
-        self.vars.borrow_mut().iter_mut().rev()
+    /// Updates a variable in the current scope.
+    pub fn set_var(&self, name: &'a str, val: Var<'a>) -> Result<()> {
+        let mut vars = self.vars.borrow_mut();
+        let var = vars.iter_mut().rev()
             .find_map(|scope| scope.get_mut(name))
-            .ok_or_else(|| anyhow!("Variable {} is not declared is current scope", name))
-            .and_then(|old_var| {
-                *old_var = var.clone();
-                Ok(())
-            })
+            .ok_or_else(|| anyhow!("Variable {} is not declared is current scope", name))?;
+
+        if matches!(var, Var::Struct {..}) {
+            return Err(anyhow!("Cannot update a struct variable."));
+        }
+
+        *var = val;
+        Ok(())
     }
 
-    /// Gets a reference to a variable or constant from the current scope.
-    pub fn get_var(&self, name: &str) -> Result<Var> {
+    /// Gets a copy of a variable from the current scope.
+    pub fn get_var(&self, name: &'a str) -> Result<Var<'a>> {
         self.vars.borrow().iter().rev()
             .find_map(|scope| scope.get(name))
             .ok_or_else(|| anyhow!("Variable {} does not exist in current scope.", name))
             .map(Var::clone)
+    }
+
+    /// Gets a copy of the variable at the specified path.
+    pub fn get_path(&self, path: &[&'a str]) -> Result<Var<'a>> {
+        let vars = self.vars.borrow();
+        let mut var = vars.iter().rev()
+            .find_map(|scope| scope.get(path[0]))
+            .ok_or_else(|| anyhow!("Variable {} does not exist in current scope.", path[0]))?;
+
+        for ident in &path[1..] {
+            match var {
+                Var::Struct {map, ..} => var = map.get(ident).ok_or_else(|| anyhow!("Field {} does not exist in struct {}.", ident, var))?,
+                _ => return Err(anyhow!("Cannot access field {} of non-struct variable.", ident)),
+            }
+        }
+
+        Ok(var.clone())
+    }
+
+    /// Updates the value at the given path.
+    pub fn set_path(&self, path: &[&'a str], val: Var<'a>) -> Result<()> {
+        let mut vars = self.vars.borrow_mut();
+        let mut var = vars.iter_mut().rev()
+            .find_map(|scope| scope.get_mut(path[0]))
+            .ok_or_else(|| anyhow!("Variable {} does not exist in current scope.", path[0]))?;
+
+        for ident in &path[1..] {
+            match var {
+                Var::Struct {map, ..} => var = map.get_mut(ident).ok_or_else(|| anyhow!("Field {} does not exist.", ident))?,
+                _ => return Err(anyhow!("Cannot access field {} of non-struct variable.", ident)),
+            }
+        }
+
+        if matches!(var, Var::Struct {..}) {
+            return Err(anyhow!("Cannot update a struct variable."));
+        }
+
+        if val.get_type() != var.get_type() {
+            return Err(anyhow!("Type mismatch: cannot assign {} to {}.", val.get_type(), var.get_type()));
+        }
+
+        *var = val;
+        Ok(())
     }
 }
 
@@ -100,7 +147,27 @@ pub enum Var<'a> {
     String(String),
     Entity(ecs::Entity),
     System(&'a ast::System<'a>),
-    Struct(Map<'a, Var<'a>>),
+    Struct {
+        name: &'a str,
+        map: Map<'a, Var<'a>>,
+    },
+}
+
+impl<'a> Var<'a> {
+    /// Returns the variable's type.
+    pub fn get_type(&self) -> ast::Type<'a> {
+        match self {
+            Var::Void => ast::Type::Void,
+            Var::Bool(_) => ast::Type::Bool,
+            Var::Int(_) => ast::Type::Int,
+            Var::Float(_) => ast::Type::Float,
+            Var::Char(_) => ast::Type::Char,
+            Var::String(_) => ast::Type::String,
+            Var::Entity(_) => ast::Type::System,
+            Var::System(_) => ast::Type::System,
+            Var::Struct {name, ..} => ast::Type::Struct(name),
+        }
+    }
 }
 
 impl<'a> fmt::Display for Var<'a> {
@@ -114,9 +181,9 @@ impl<'a> fmt::Display for Var<'a> {
             Var::String(s) => write!(f, "{}", s),
             Var::Entity(e) => todo!(),
             Var::System(sys) => write!(f, "System at {:p}", &sys),
-            Var::Struct(st) => {
+            Var::Struct {map, ..} => {
                 write!(f, "{{")?;
-                let mut iter = st.iter();
+                let mut iter = map.iter();
                 if let Some((name, var)) = iter.next() {
                     write!(f, "\"{}\": {}", name, var)?;
                 }
