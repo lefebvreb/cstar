@@ -1,0 +1,28 @@
+System main() {
+    /* Switch statements are another, very powerful way to control the flow of your program. */
+    switch (2 * 21) {
+        case 30: {
+            Println("2*x = 30");
+        }
+        case 42: {
+            Println("2*x = The Ultimate Answer");
+        }
+        case 0: {
+            Println("x = 0");
+        }
+        default: {
+            Println("x is not 0, 30, or 42");
+        }
+    }
+
+    /*
+     * Note: contrary to types languages like C, Java, and C#,
+     * cases may be different types. They still need to be atomic values though,
+     * so it is not possible to witch on a variable or an expression for example.
+     * The default case is required, as well as the braces around each case.
+     * There is no fall-through.
+     */
+}
+
+Init [main];
+Run [];

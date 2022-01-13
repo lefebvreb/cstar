@@ -182,13 +182,29 @@ impl<'a> fmt::Display for Var<'a> {
                 write!(f, "{{")?;
                 let mut iter = map.iter();
                 if let Some((name, var)) = iter.next() {
-                    write!(f, "\"{}\": {}", name, var)?;
+                    write!(f, "{}: {}", name, var)?;
                 }
                 for (name, var) in iter {
-                    write!(f, ", \"{}\": {}", name, var)?;
+                    write!(f, ", {}: {}", name, var)?;
                 }
                 write!(f, "}}")
             },
+        }
+    }
+}
+
+impl PartialEq for Var<'_> {
+    // Compares two variables.
+    fn eq(&self, other: &Self) -> bool {
+        match (self, other) {
+            (Var::Bool(l), Var::Bool(r)) => l == r,
+            (Var::Int(l), Var::Int(r)) => l == r,
+            (Var::Float(l), Var::Float(r)) => l == r,
+            (Var::Char(l), Var::Char(r)) => l == r,
+            (Var::String(l), Var::String(r)) => l == r,
+            (Var::Entity(l), Var::Entity(r)) => l == r,
+            (Var::Struct {name: l_name, ..}, Self::Struct {name: r_name, ..}) => l_name == r_name,
+            _ => false,
         }
     }
 }

@@ -106,11 +106,11 @@ pub fn parse_value<'a>(mut pairs: Pairs<'a, Rule>) -> ast::Expr<'a> {
 
     match pair.as_rule() {
         Rule::assign => parse_assign(pair.into_inner()),
-        Rule::atom => parse_atom(pair.into_inner()),
+        Rule::atom => ast::Expr::Atom(parse_atom(pair.into_inner())),
         Rule::call => parse_call(pair.into_inner()),
         Rule::struct_init => parse_struct_init(pair.into_inner()),
         Rule::lvalue => ast::Expr::LValue(parse_lvalue(pair.into_inner())),
-        x => unreachable!("{:?}", x),
+        _ => unreachable!(),
     }
 }
 
@@ -123,10 +123,10 @@ pub fn parse_assign<'a>(mut pairs: Pairs<'a, Rule>) -> ast::Expr<'a> {
 }
 
 // Parses an atom.
-pub fn parse_atom<'a>(mut pairs: Pairs<'a, Rule>) -> ast::Expr<'a> {
+pub fn parse_atom<'a>(mut pairs: Pairs<'a, Rule>) -> ast::Atom {
     let pair = pairs.next().unwrap();
 
-    ast::Expr::Atom(match pair.as_rule() {
+    match pair.as_rule() {
         Rule::void => ast::Atom::Void,
         Rule::bool => ast::Atom::Bool(bool::from_str(pair.as_str()).unwrap()),
         Rule::int => ast::Atom::Int(i64::from_str(pair.as_str()).expect("Cannot parse integer")),
@@ -134,7 +134,7 @@ pub fn parse_atom<'a>(mut pairs: Pairs<'a, Rule>) -> ast::Expr<'a> {
         Rule::char => ast::Atom::Char(parse_char(pair.as_str())),
         Rule::string => ast::Atom::String(parse_string(pair.as_str())),
         _ => unreachable!(),
-    })
+    }
 }
 
 // Escapes a character.

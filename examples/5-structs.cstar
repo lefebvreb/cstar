@@ -10,7 +10,7 @@ struct Marriage {
     Person wife;
 }
 
-System hello() {
+System main() {
     /* Declare a new variable of type `Person`. */
     let john = Person {
         name: "John Doe";
@@ -40,9 +40,9 @@ System hello() {
      * Nota bene: structs variables may not be reassigned to. 
      * They can be over-shadowed, however.
      * Struct field's types are checked at runtime. It is not possible
-     * to assign an `int` to a `string`-typed field for example.
+     * to assign an `int` value to a `string` typed field for example.
      */
 }
 
-Init [hello];
+Init [main];
 Run [];

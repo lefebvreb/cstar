@@ -49,35 +49,38 @@ pub fn eval_bin_expr<'a>(scope: &Scope<'a>, ctx: &'a Context<'a>, bin_expr: &ast
 
         (Int(i), Leq, Int(j)) => Bool(i <= j),
         (Float(x), Leq, Float(y)) => Bool(x <= y),
+        (Char(c), Leq, Char(d)) => Bool(c <= d),
         (String(s), Leq, String(t)) => Bool(s <= t),
         (Int(i), Leq, Float(x)) => Bool(i as f64 <= x),
         (Float(x), Leq, Int(i)) => Bool(x <= i as f64),
 
         (Int(i), Geq, Int(j)) => Bool(i >= j),
         (Float(x), Geq, Float(y)) => Bool(x >= y),
+        (Char(c), Geq, Char(d)) => Bool(c >= d),
         (String(s), Geq, String(t)) => Bool(s >= t),
         (Int(i), Geq, Float(x)) => Bool(i as f64 >= x),
         (Float(x), Geq, Int(i)) => Bool(x >= i as f64),
 
         (Int(i), Lt, Int(j)) => Bool(i < j),
         (Float(x), Lt, Float(y)) => Bool(x < y),
+        (Char(c), Lt, Char(d)) => Bool(c < d),
         (String(s), Lt, String(t)) => Bool(s < t),
         (Int(i), Lt, Float(x)) => Bool((i as f64) < x),
         (Float(x), Lt, Int(i)) => Bool(x < i as f64),
 
         (Int(i), Gt, Int(j)) => Bool(i > j),
         (Float(x), Gt, Float(y)) => Bool(x > y),
+        (Char(c), Gt, Char(d)) => Bool(c > d),
         (String(s), Gt, String(t)) => Bool(s > t),
         (Int(i), Gt, Float(x)) => Bool((i as f64) > x),
         (Float(x), Gt, Int(i)) => Bool(x > i as f64),
 
-        (Int(i), Eq, Int(j)) => Bool(i == j),
-        (Float(x), Eq, Float(y)) => Bool(x == y),
-        (String(s), Eq, String(t)) => Bool(s == t),
         (Int(i), Eq, Float(x)) | (Float(x), Eq, Int(i)) => Bool(i as f64 == x),
+        (var1, Eq, var2) => Bool(var1 == var2),
 
         (Int(i), Neq, Int(j)) => Bool(i != j),
         (Float(x), Neq, Float(y)) => Bool(x != y),
+        (Char(c), Neq, Char(d)) => Bool(c != d),
         (String(s), Neq, String(t)) => Bool(s != t),
         (Int(i), Neq, Float(x)) | (Float(x), Neq, Int(i)) => Bool(i as f64 != x),
         

@@ -8,6 +8,7 @@ pub enum Statement<'a> {
     For(For<'a>),
     While(While<'a>),
     Query(Query<'a>),
+    Switch(Switch<'a>),
     Block(Block<'a>),
     Expr(Expr<'a>),
     Break,
@@ -51,6 +52,21 @@ pub struct While<'a> {
 pub struct Query<'a> {
     pub filters: Vec<Filter<'a>>,
     pub code: Block<'a>,
+}
+
+// A switch block.
+#[derive(Debug)]
+pub struct Switch<'a> {
+    pub expr: Expr<'a>,
+    pub cases: Vec<SwitchCase<'a>>,
+    pub default: Block<'a>,
+}
+
+// A switch case.
+#[derive(Debug)]
+pub struct SwitchCase<'a> {
+    pub val: Atom,
+    pub block: Block<'a>,
 }
 
 // A code block.

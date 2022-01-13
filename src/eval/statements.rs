@@ -20,6 +20,7 @@ pub fn eval_statement<'a>(scope: &Scope<'a>, ctx: &'a Context<'a>, stmt: &ast::S
         ast::Statement::For(for_) => eval_for(scope, ctx, for_),
         ast::Statement::While(while_) => eval_while(scope, ctx, while_),
         ast::Statement::Query(query) => eval_query(scope, ctx, query),
+        ast::Statement::Switch(switch) => eval_switch(scope, ctx, switch),
     }
 }
 
@@ -119,6 +120,19 @@ pub fn eval_while<'a>(scope: &Scope<'a>, ctx: &'a Context<'a>, while_: &ast::Whi
     
     scope.back_local();
     Ok(Flow::Ok)
+}
+
+// Evaluates an if statement.
+pub fn eval_switch<'a>(scope: &Scope<'a>, ctx: &'a Context<'a>, switch: &ast::Switch<'a>) -> Result<Flow<'a>> {
+    let var = eval_expr(scope, ctx, &switch.expr)?;
+
+    for case in &switch.cases {
+        if var == eval_atom(scope, ctx, &case.val)? {
+            return eval_block(scope, ctx, &case.block);
+        }
+    }
+
+    eval_block(scope, ctx, &switch.default)
 }
 
 pub fn eval_query<'a>(scope: &Scope<'a>, ctx: &'a Context<'a>, query: &ast::Query<'a>) -> Result<Flow<'a>> {

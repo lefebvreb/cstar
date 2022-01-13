@@ -15,6 +15,7 @@ pub fn parse_statement<'a>(mut pairs: Pairs<'a, Rule>) -> ast::Statement<'a> {
         Rule::for_ => ast::Statement::For(parse_for(pair.into_inner())),
         Rule::while_ => ast::Statement::While(parse_while(pair.into_inner())),
         Rule::query => ast::Statement::Query(parse_query(pair.into_inner())),
+        Rule::switch => ast::Statement::Switch(parse_switch(pair.into_inner())),
         Rule::block => ast::Statement::Block(parse_block(pair.into_inner())),
         Rule::expr => ast::Statement::Expr(parse_expr(pair.into_inner())),
         Rule::break_ => ast::Statement::Break,
@@ -78,6 +79,37 @@ pub fn parse_query<'a>(mut pairs: Pairs<'a, Rule>) -> ast::Query<'a> {
     ast::Query {
         filters: parse_filter_list(pairs.next().unwrap().into_inner()),
         code: parse_block(pairs.next().unwrap().into_inner()),
+    }
+}
+
+// Parses a switch block.
+pub fn parse_switch<'a>(mut pairs: Pairs<'a, Rule>) -> ast::Switch<'a> {
+    let expr = parse_expr(pairs.next().unwrap().into_inner());
+    let mut cases = Vec::new();
+
+    while let Some(pair) = pairs.next() {
+        match pair.as_rule() {
+            Rule::atom => cases.push(ast::SwitchCase {
+                val: parse_atom(pair.into_inner()),
+                block: parse_block(pairs.next().unwrap().into_inner()),
+            }),
+            Rule::block => return ast::Switch {
+                expr,
+                cases,
+                default: parse_block(pair.into_inner()),
+            },
+            _ => unreachable!(),
+        }
+    }
+
+    unreachable!()
+}
+
+// Parses a switch block.
+pub fn parse_case<'a>(mut pairs: Pairs<'a, Rule>) -> ast::SwitchCase<'a> {
+    ast::SwitchCase {
+        val: parse_atom(pairs.next().unwrap().into_inner()),
+        block: parse_block(pairs.next().unwrap().into_inner()),
     }
 }
 
