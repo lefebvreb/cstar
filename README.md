@@ -6,6 +6,8 @@
 
 An interpreter for an [ECS](https://en.wikipedia.org/wiki/Entity_component_system)-based [C](https://en.wikipedia.org/wiki/C_(programming_language))-style language.
 
+Similarly to the legendary origin of javascript, this interpreter was rushed to completion in a matter of workdays. Expect about the same level of quality as the first iteration of javascript. 
+
 ## Compiling
 
 Install the [Rust](https://www.rust-lang.org/) programming language's toolchain, then place yourself at the root of the repository and do:
@@ -35,11 +37,11 @@ This will run the `hello, world!` example of the `examples` directory. There are
 - [x] Ternary operator
 - [x] Types and type checking
 - [x] Functions
-- [ ] Vanilla structs
+- [x] Vanilla structs
+- [x] Switch statements
+- [ ] Lists
 - [ ] Increment/Decrement operators
 - [ ] Assignements operators
-- [ ] Switch statements
 - [ ] Imports and modules
 - [ ] Enums
 - [ ] Span and proper errors
-- [ ] Lists
