@@ -6,7 +6,7 @@ use crate::ast;
 
 use super::*;
 
-/// Evaluates a statement.
+// Evaluates a statement.
 pub fn eval_statement<'a>(scope: &Scope<'a>, ctx: &'a Context<'a>, stmt: &ast::Statement<'a>) -> Result<Flow<'a>> {
     match stmt {
         ast::Statement::Break => Ok(Flow::Break),
@@ -23,7 +23,7 @@ pub fn eval_statement<'a>(scope: &Scope<'a>, ctx: &'a Context<'a>, stmt: &ast::S
     }
 }
 
-/// Evaluates a block of statements.
+// Evaluates a block of statements.
 pub fn eval_block<'a>(scope: &Scope<'a>, ctx: &'a Context<'a>, block: &ast::Block<'a>) -> Result<Flow<'a>> {
     let mut flow = Flow::Ok;
 
@@ -39,7 +39,7 @@ pub fn eval_block<'a>(scope: &Scope<'a>, ctx: &'a Context<'a>, block: &ast::Bloc
     Ok(flow)
 }
 
-/// Evaluates an if statement.
+// Evaluates an if statement.
 pub fn eval_if<'a>(scope: &Scope<'a>, ctx: &'a Context<'a>, if_: &ast::If<'a>) -> Result<Flow<'a>> {
     match eval_expr(scope, ctx, &if_.cond)? {
         Var::Bool(true) => eval_block(scope, ctx, &if_.branch1),
@@ -54,7 +54,7 @@ pub fn eval_if<'a>(scope: &Scope<'a>, ctx: &'a Context<'a>, if_: &ast::If<'a>) -
     }
 }
 
-/// Evaluates a for statement.
+// Evaluates a for statement.
 pub fn eval_for<'a>(scope: &Scope<'a>, ctx: &'a Context<'a>, for_: &ast::For<'a>) -> Result<Flow<'a>> {
     scope.next_local();
 
@@ -86,7 +86,7 @@ pub fn eval_for<'a>(scope: &Scope<'a>, ctx: &'a Context<'a>, for_: &ast::For<'a>
     Ok(Flow::Ok)
 }
 
-/// Evaluates a declaration.
+// Evaluates a declaration.
 pub fn eval_decl<'a>(scope: &Scope<'a>, ctx: &'a Context<'a>, decl: &ast::Decl<'a>) -> Result<Flow<'a>> {
     match &decl.init {
         Some(init) => scope.new_var(decl.ident, eval_expr(scope, ctx, &init)?),
@@ -95,7 +95,7 @@ pub fn eval_decl<'a>(scope: &Scope<'a>, ctx: &'a Context<'a>, decl: &ast::Decl<'
     Ok(Flow::Ok)
 }
 
-/// Evaluates a while statement.
+// Evaluates a while statement.
 pub fn eval_while<'a>(scope: &Scope<'a>, ctx: &'a Context<'a>, while_: &ast::While<'a>) -> Result<Flow<'a>> {
     scope.next_local();
 

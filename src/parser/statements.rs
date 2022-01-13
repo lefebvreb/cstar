@@ -5,7 +5,7 @@ use crate::utils::*;
 
 use super::*;
 
-/// Parses a statement.
+// Parses a statement.
 pub fn parse_statement<'a>(mut pairs: Pairs<'a, Rule>) -> ast::Statement<'a> {
     let pair = pairs.next().unwrap();
 
@@ -24,7 +24,7 @@ pub fn parse_statement<'a>(mut pairs: Pairs<'a, Rule>) -> ast::Statement<'a> {
     }
 }
 
-/// Parses a declaration.
+// Parses a declaration.
 pub fn parse_decl<'a>(mut pairs: Pairs<'a, Rule>) -> ast::Decl<'a> {
     ast::Decl {
         ident: pairs.next().unwrap().as_str(),
@@ -32,14 +32,14 @@ pub fn parse_decl<'a>(mut pairs: Pairs<'a, Rule>) -> ast::Decl<'a> {
     }
 }
 
-/// Parses a block.
+// Parses a block.
 pub fn parse_block<'a>(mut pairs: Pairs<'a, Rule>) -> ast::Block<'a> {
     ast::Block {
         statements: pairs.map(|pair| parse_statement(pair.into_inner())).collect()
     }
 }
 
-/// Parses a if.
+// Parses a if.
 pub fn parse_if<'a>(mut pairs: Pairs<'a, Rule>) -> ast::If<'a> {
     ast::If {
         cond: parse_expr(pairs.next().unwrap().into_inner()),
@@ -48,7 +48,7 @@ pub fn parse_if<'a>(mut pairs: Pairs<'a, Rule>) -> ast::If<'a> {
     }
 }
 
-/// Parses a for.
+// Parses a for.
 pub fn parse_for<'a>(mut pairs: Pairs<'a, Rule>) -> ast::For<'a> {
     ast::For {
         init: {
@@ -65,7 +65,7 @@ pub fn parse_for<'a>(mut pairs: Pairs<'a, Rule>) -> ast::For<'a> {
     }
 }
 
-/// Parses a while loop.
+// Parses a while loop.
 pub fn parse_while<'a>(mut pairs: Pairs<'a, Rule>) -> ast::While<'a> {
     ast::While {
         cond: parse_expr(pairs.next().unwrap().into_inner()),
@@ -73,7 +73,7 @@ pub fn parse_while<'a>(mut pairs: Pairs<'a, Rule>) -> ast::While<'a> {
     }
 }
 
-/// Parses a query loop.
+// Parses a query loop.
 pub fn parse_query<'a>(mut pairs: Pairs<'a, Rule>) -> ast::Query<'a> {
     ast::Query {
         filters: parse_filter_list(pairs.next().unwrap().into_inner()),
@@ -81,7 +81,7 @@ pub fn parse_query<'a>(mut pairs: Pairs<'a, Rule>) -> ast::Query<'a> {
     }
 }
 
-/// Parses a return statement.
+// Parses a return statement.
 pub fn parse_return<'a>(mut pairs: Pairs<'a, Rule>) -> Option<ast::Expr<'a>> {
     pairs.next().map(|pair| parse_expr(pair.into_inner()))
 }

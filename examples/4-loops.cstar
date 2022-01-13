@@ -1,14 +1,14 @@
 System main() {
     /* For loops are as in C */
     for (let i = 0; i < 3; i = i + 1) {
-        Print("for#1: " + i + "\n");
+        Println("for#1: ", i);
     }
 
     /* It is not necessary to use let in the first statement of a for loop. */
     /* However, it is necessary for the second statement to evaluate to a boolean. */
     let j;
     for (j = 2; j >= 0; j = j - 2) {
-        Print("for#2: " + j + "\n");
+        Println("for#2: ", j);
     }
 
     /* You can use `break` and `continue` to alter the program's flow in loops. */
@@ -16,7 +16,7 @@ System main() {
         if (j == 1) {
             continue;
         }
-        Print("for#3: " + j + "\n");
+        Println("for#3: ", j);
         if (j == 3) {
             break;
         }
@@ -25,7 +25,7 @@ System main() {
     /* While loops are as in C */
     let x = 1;
     while (x != 64) {
-        Print("while: " + x + "\n");
+        Println("while: ", x);
         x = x * 2;
     }
 }

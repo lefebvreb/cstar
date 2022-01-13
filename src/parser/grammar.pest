@@ -24,9 +24,10 @@ run = { "Run" ~ "[" ~ (ident ~ ",")* ~ ident? ~ "]" ~ ";" }
 
 // Elements
 
-element = { component |  resource | function | system }
+element = { component |  resource | function | struct_ | system }
 component = { "Component" ~ ident ~ struct_def }
 resource = { "Resource" ~ ident ~ struct_def }
+struct_ = { "struct" ~ ident ~ struct_def }
 system = { "System" ~ ident ~ filter_list ~ block }
 function = { "function" ~ ident ~ "(" ~ (ident ~ ",")* ~ ident? ~ ")" ~ block }
 
@@ -35,8 +36,8 @@ function = { "function" ~ ident ~ "(" ~ (ident ~ ",")* ~ ident? ~ ")" ~ block }
 
 void_t = { "void" } bool_t = { "bool" } int_t = { "int" }
 float_t = { "float" } char_t = { "char" } string_t = { "string" }
-system_t = { "System" } entity_t = { "entity" }
-type_ = { void_t | bool_t | int_t | float_t | char_t | string_t | entity_t | system_t | ident }
+entity_t = { "entity" }
+type_ = { void_t | bool_t | int_t | float_t | char_t | string_t | entity_t | ident }
 
 
 // Curly braces and blocks
@@ -56,9 +57,9 @@ filter_list = { "(" ~ (filter ~ ";")* ~ filter? ~ ")" }
 
 // Builtins and calls
 
-builtin = { clone | delete | spawn | print }
 clone = { "Clone" } delete = { "Delete" }
-spawn = { "Spawn" } print = { "Print" }
+spawn = { "Spawn" } print = { "Print" } println = { "Println" }
+builtin = { clone | delete | spawn | println | print }
 call = { (builtin | ident) ~ "(" ~ (expr ~ ",")* ~ expr? ~ ")" }
 
 

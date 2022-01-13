@@ -12,7 +12,7 @@ pub use systems::*;
 mod types;
 pub use types::*;
 
-/// The main AST struct, representing a program.
+// The main AST struct, representing a program.
 #[derive(Default, Debug)]
 pub struct AST<'a> {
     pub names: Map<'a, Name<'a>>,
@@ -27,6 +27,7 @@ pub enum Name<'a> {
     System(System<'a>),
     Component(StructDef<'a>),
     Resource(StructDef<'a>),
+    Struct(StructDef<'a>),
 }
 
 #[derive(Debug)]

@@ -1,0 +1,48 @@
+/* Structs are used to group related variables together. */
+struct Person {
+    string name;
+    int age;
+}
+
+/* Structs can be nested. */
+struct Marriage {
+    Person husband;
+    Person wife;
+}
+
+System hello() {
+    /* Declare a new variable of type `Person`. */
+    let john = Person {
+        name: "John Doe";
+        age: 42;
+    };
+
+    /* Structs may be printed, just like any other variable. */
+    Println(john);
+
+    /* Happy birthday, John! */
+    john.age = john.age + 1;
+
+    let does = Marriage {
+        husband: john;
+        wife: Person {
+            name: "Jane Doe";
+            age: 45;
+        };
+    };
+
+    /* Happy birthday, Jane! */
+    does.wife.age = does.wife.age + 1;
+
+    Println(does);
+
+    /*
+     * Nota bene: structs variables may not be reassigned to. 
+     * They can be over-shadowed, however.
+     * Struct field's types are checked at runtime. It is not possible
+     * to assign an `int` to a `string`-typed field for example.
+     */
+}
+
+Init [hello];
+Run [];

@@ -7,7 +7,7 @@ pub struct StructDef<'a> {
     pub fields: Map<'a, Type<'a>>,
 }
 
-/// A primitive type.
+// A primitive type.
 #[derive(PartialEq, Eq, Debug)]
 pub enum Type<'a>  {
     Void,
@@ -16,7 +16,6 @@ pub enum Type<'a>  {
     Float,
     Char,
     String,
-    System,
     Entity,
     Struct(&'a str),
 }
@@ -30,7 +29,6 @@ impl fmt::Display for Type<'_> {
             Type::Float => write!(f, "float"),
             Type::Char => write!(f, "char"),
             Type::String => write!(f, "string"),
-            Type::System => write!(f, "system"),
             Type::Entity => write!(f, "entity"),
             Type::Struct(name) => write!(f, "{}", name),
         }

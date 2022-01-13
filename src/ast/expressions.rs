@@ -2,7 +2,7 @@ use pest::prec_climber::Operator;
 
 use super::*;
 
-/// An expression.
+// An expression.
 #[derive(Debug)]
 pub enum Expr<'a> {
     Assign(Box<Assign<'a>>),
@@ -15,14 +15,14 @@ pub enum Expr<'a> {
     UnExpr(Box<UnExpr<'a>>),
 }
 
-/// A left-value, that can be assigned to.
+// A left-value, that can be assigned to.
 #[derive(Debug)]
 pub enum LValue<'a> {
     Ident(&'a str),
     Access(Vec<&'a str>),
 }
 
-/// A ternary expression.
+// A ternary expression.
 #[derive(Debug)]
 pub struct Ternary<'a> {
     pub cond: Expr<'a>,
@@ -30,21 +30,21 @@ pub struct Ternary<'a> {
     pub branch2: Expr<'a>,
 }
 
-/// An assign expression.
+// An assign expression.
 #[derive(Debug)]
 pub struct Assign<'a> {
     pub lvalue: LValue<'a>,
     pub expr: Expr<'a>,
 }
 
-/// A struct initialization.
+// A struct initialization.
 #[derive(Debug)]
 pub struct StructInit<'a> {
     pub name: &'a str,
     pub fields: Vec<(&'a str, Expr<'a>)>,
 }
 
-/// The atomic value of a primitive.
+// The atomic value of a primitive.
 #[derive(Debug)]
 pub enum Atom {
     Void,
@@ -55,23 +55,24 @@ pub enum Atom {
     String(String),
 }
 
-/// A call expression. Can only call builtins for now.
+// A call expression. Can only call builtins for now.
 #[derive(Debug)]
 pub struct Call<'a> {
     pub function: Either<BuiltIn, &'a str>,
     pub args: Vec<Expr<'a>>,
 }
 
-/// A builtin function name.
+// A builtin function name.
 #[derive(Debug)]
 pub enum BuiltIn {
     Clone,
     Spawn,
     Delete,
+    Println,
     Print,
 }
 
-/// A binary expression.
+// A binary expression.
 #[derive(Debug)]
 pub struct BinExpr<'a> {
     pub left: Expr<'a>,
@@ -79,7 +80,7 @@ pub struct BinExpr<'a> {
     pub right: Expr<'a>,
 }
 
-/// A binary operator.
+// A binary operator.
 #[derive(Copy, Clone, Debug)]
 pub enum BinOp {
     Add, Sub, Mul, Div, Mod,
@@ -88,14 +89,14 @@ pub enum BinOp {
     Gt, Eq, Neq,
 }
 
-/// An unary expression.
+// An unary expression.
 #[derive(Debug)]
 pub struct UnExpr<'a> {
     pub op: UnOp,
     pub expr: Expr<'a>,
 }
 
-/// An unary operator.
+// An unary operator.
 #[derive(Copy, Clone, Debug)]
 pub enum UnOp {
     Pos, Neg, Not, BitNot,

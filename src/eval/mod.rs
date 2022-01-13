@@ -21,24 +21,20 @@ use statements::*;
 mod systems;
 use systems::*;
 
-/// Walks the AST, interpreting the code.
+// Walks the AST, interpreting the code.
 pub fn eval(ast: &ast::AST) -> Result<()> {
     let mut ctx = Context::default();
     let mut scope = Scope::default();
 
     // Gets all definitions.
     for (name, element) in ast.names.iter() {
-        match element {
-            ast::Name::Function(fun) => {
-                ctx.set_def(name, Def::Function(fun))?;
-            },
-            ast::Name::System(sys) => {
-                ctx.set_def(name, Def::System(sys))?;
-                scope.set_var(name, Var::System(sys));
-            },
-            ast::Name::Component(comp) => ctx.set_def(name, Def::Component(comp))?,
-            ast::Name::Resource(res) => ctx.set_def(name, Def::Resource(res))?,
-        }
+        ctx.set_def(name, match element {
+            ast::Name::Function(fun) => Def::Function(fun),
+            ast::Name::System(sys) => Def::System(sys),
+            ast::Name::Component(comp) => Def::Component(comp),
+            ast::Name::Resource(res) => Def::Resource(res),
+            ast::Name::Struct(struct_) => Def::Struct(struct_),
+        })?;
     }
 
     // Runs a system by it's name.

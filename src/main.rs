@@ -13,7 +13,7 @@ use anyhow::Result;
 use clap::{App, Arg};
 
 fn main() -> Result<()> {
-    /// Parses the CLI arguments.
+    // Parses the CLI arguments.
     let args = App::new("C* interpreter")
         .version(env!("CARGO_PKG_VERSION"))
         .author("Benjamin Lefebvre")
@@ -28,13 +28,13 @@ fn main() -> Result<()> {
             .help("Prints the AST of the source file and quits before evaluating it."))
         .get_matches();
 
-    /// Reads the source file's path.
+    // Reads the source file's path.
     let path = args.value_of("source").unwrap();
 
-    /// Reads the source code.
+    // Reads the source code.
     let mut src = vec![fs::read_to_string(path)?];
 
-    /// Parses the AST.
+    // Parses the AST.
     let ast = parser::parse_program(&path, &mut src)?;
 
     // Prints and exits
@@ -43,7 +43,7 @@ fn main() -> Result<()> {
         return Ok(());
     }
 
-    /// Evaluates the AST.
+    // Evaluates the AST.
     eval::eval(&ast)?;
 
     Ok(())

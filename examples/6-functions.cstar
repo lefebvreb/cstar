@@ -1,0 +1,29 @@
+/* Declare a function with the `function` keyword, it's name and it's parameters. */
+function max(a, b) {
+    /* You can use the ternary operator to return the larger of two values. */
+    return (a > b) ? a : b;
+}
+
+/* Functions are not required to return a value. */
+function greet(name) {
+    Print("Hello, ", name, "!\n");
+}
+
+System main() {
+    /* Call the function by it's name followed by it's arguments parameters. */
+    Print("max(2, 1) = ", max(2, 1), "\n");
+
+    /* Argument typing is dynamic, si it is possible to pass anything as an argument. */
+    Print("max(\"Hello\", \"World\") = ", max("Hello", "World"), "\n");
+
+    /* Calls to functions with no return will return `void`. */
+    let res = greet("John Doe");
+    Print("Greet function returned: ", res, "\n");
+
+    /*
+     * Note: arguments to functions are always passed by value. 
+     */
+}
+
+Init [main];
+Run [];

@@ -7,22 +7,22 @@ use crate::ast;
 use crate::ecs;
 use crate::utils::*;
 
-/// Holds definitions of function-like and struct-like objects.
+// Holds definitions of function-like and struct-like objects.
 pub struct Context<'a> {
     defs: Map<'a, Def<'a>>,
 }
 
 impl<'a> Context<'a> {
-    /// Defines a new object in the context, retunrns an error if an
-    /// object with the same name already exists.
+    // Defines a new object in the context, retunrns an error if an
+    // object with the same name already exists.
     pub fn set_def(&mut self, name: &'a str, def: Def<'a>) -> Result<()> {
         self.defs.insert(name, def)
             .is_none().then(|| ())
             .ok_or_else(|| anyhow!("object with name '{}' already exists", name))
     }
 
-    /// Returns the definition corresponding to the given name, or an
-    /// error if no such definition exists.
+    // Returns the definition corresponding to the given name, or an
+    // error if no such definition exists.
     pub fn get_def(&self, name: &str) -> Result<Def> {
         self.defs.get(name)
             .ok_or_else(|| anyhow!("Definition {} does not exist", name))
@@ -31,7 +31,7 @@ impl<'a> Context<'a> {
 }
 
 impl Default for Context<'_> {
-    /// Creates a new empty context object.
+    // Creates a new empty context object.
     fn default() -> Self {
         Self {
             defs: Map::new(),  
@@ -39,28 +39,28 @@ impl Default for Context<'_> {
     }
 }
 
-/// Holds all variables scopes.
+// Holds all variables scopes.
 pub struct Scope<'a> {
     vars: RefCell<Vec<Map<'a, Var<'a>>>>,
 }
 
 impl<'a> Scope<'a> {
-    /// Nests another new empty scope.
+    // Nests another new empty scope.
     pub fn next_local(&self) {
         self.vars.borrow_mut().push(Map::new());
     }
 
-    /// Destroys the last created scope, freeing all of it's variables.
+    // Destroys the last created scope, freeing all of it's variables.
     pub fn back_local(&self) {
         self.vars.borrow_mut().pop();
     }
 
-    /// Adds a new variable to the topmost scope.
+    // Adds a new variable to the topmost scope.
     pub fn new_var(&self, name: &'a str, val: Var<'a>) {
         self.vars.borrow_mut().last_mut().unwrap().insert(name, val);
     }
 
-    /// Updates a variable in the current scope.
+    // Updates a variable in the current scope.
     pub fn set_var(&self, name: &'a str, val: Var<'a>) -> Result<()> {
         let mut vars = self.vars.borrow_mut();
         let var = vars.iter_mut().rev()
@@ -75,7 +75,7 @@ impl<'a> Scope<'a> {
         Ok(())
     }
 
-    /// Gets a copy of a variable from the current scope.
+    // Gets a copy of a variable from the current scope.
     pub fn get_var(&self, name: &'a str) -> Result<Var<'a>> {
         self.vars.borrow().iter().rev()
             .find_map(|scope| scope.get(name))
@@ -83,7 +83,7 @@ impl<'a> Scope<'a> {
             .map(Var::clone)
     }
 
-    /// Gets a copy of the variable at the specified path.
+    // Gets a copy of the variable at the specified path.
     pub fn get_path(&self, path: &[&'a str]) -> Result<Var<'a>> {
         let vars = self.vars.borrow();
         let mut var = vars.iter().rev()
@@ -100,7 +100,7 @@ impl<'a> Scope<'a> {
         Ok(var.clone())
     }
 
-    /// Updates the value at the given path.
+    // Updates the value at the given path.
     pub fn set_path(&self, path: &[&'a str], val: Var<'a>) -> Result<()> {
         let mut vars = self.vars.borrow_mut();
         let mut var = vars.iter_mut().rev()
@@ -128,7 +128,7 @@ impl<'a> Scope<'a> {
 }
 
 impl Default for Scope<'_> {
-    /// Creates a new empty scope object.
+    // Creates a new empty scope object.
     fn default() -> Self {
         Self {
             vars: RefCell::new(vec![Map::new()]),
@@ -136,7 +136,7 @@ impl Default for Scope<'_> {
     }
 }
 
-/// A variable's value.
+// A variable's value.
 #[derive(Clone, Debug)]
 pub enum Var<'a> {
     Void,
@@ -146,7 +146,6 @@ pub enum Var<'a> {
     Char(char),
     String(String),
     Entity(ecs::Entity),
-    System(&'a ast::System<'a>),
     Struct {
         name: &'a str,
         map: Map<'a, Var<'a>>,
@@ -154,7 +153,7 @@ pub enum Var<'a> {
 }
 
 impl<'a> Var<'a> {
-    /// Returns the variable's type.
+    // Returns the variable's type.
     pub fn get_type(&self) -> ast::Type<'a> {
         match self {
             Var::Void => ast::Type::Void,
@@ -163,8 +162,7 @@ impl<'a> Var<'a> {
             Var::Float(_) => ast::Type::Float,
             Var::Char(_) => ast::Type::Char,
             Var::String(_) => ast::Type::String,
-            Var::Entity(_) => ast::Type::System,
-            Var::System(_) => ast::Type::System,
+            Var::Entity(_) => ast::Type::Entity,
             Var::Struct {name, ..} => ast::Type::Struct(name),
         }
     }
@@ -180,7 +178,6 @@ impl<'a> fmt::Display for Var<'a> {
             Var::Char(c) => write!(f, "{}", c),
             Var::String(s) => write!(f, "{}", s),
             Var::Entity(e) => todo!(),
-            Var::System(sys) => write!(f, "System at {:p}", &sys),
             Var::Struct {map, ..} => {
                 write!(f, "{{")?;
                 let mut iter = map.iter();
@@ -196,16 +193,17 @@ impl<'a> fmt::Display for Var<'a> {
     }
 }
 
-/// A definition of a struct-like or function-like object.
+// A definition of a struct-like or function-like object.
 #[derive(Clone, Debug)]
 pub enum Def<'a> {
     Function(&'a ast::Function<'a>),
     System(&'a ast::System<'a>),
     Component(&'a ast::StructDef<'a>),
     Resource(&'a ast::StructDef<'a>),
+    Struct(&'a ast::StructDef<'a>),
 }
 
-/// The result of the evaluation of a statement.
+// The result of the evaluation of a statement.
 #[derive(Debug)]
 pub enum Flow<'a> {
     Ok,

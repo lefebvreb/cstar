@@ -5,6 +5,13 @@ pub fn eval_builtin<'a>(scope: &Scope<'a>, ctx: &'a Context<'a>, builtin: &ast::
         ast::BuiltIn::Clone => todo!(),
         ast::BuiltIn::Spawn => todo!(),
         ast::BuiltIn::Delete => todo!(),
+        ast::BuiltIn::Println => {
+            for expr in args {
+                print!("{}", eval_expr(scope, ctx, expr)?);
+            }
+            println!();
+            Ok(Var::Void)
+        },
         ast::BuiltIn::Print => {
             for expr in args {
                 print!("{}", eval_expr(scope, ctx, expr)?);

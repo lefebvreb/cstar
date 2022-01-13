@@ -11,13 +11,12 @@ pub fn parse_type<'a>(mut pairs: Pairs<'a, Rule>) -> ast::Type<'a> {
         Rule::float_t => ast::Type::Float,
         Rule::char_t => ast::Type::Char,
         Rule::string_t => ast::Type::String,
-        Rule::system_t => ast::Type::System,
         Rule::ident => ast::Type::Struct(pair.as_str()),
         _ => unreachable!(),
     }
 }
 
-/// Parses a structure definition.
+// Parses a structure definition.
 pub fn parse_struct_def<'a>(mut pairs: Pairs<'a, Rule>) -> Result<ast::StructDef<'a>> {
     let mut def = ast::StructDef::default();
     

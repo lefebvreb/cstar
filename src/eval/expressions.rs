@@ -4,7 +4,7 @@ use crate::ast;
 
 use super::*;
 
-/// Evaluates an expression.
+// Evaluates an expression.
 pub fn eval_expr<'a>(scope: &Scope<'a>, ctx: &'a Context<'a>, expr: &ast::Expr<'a>) -> Result<Var<'a>> {
     match expr {
         ast::Expr::Ternary(ternary) => eval_ternary(scope, ctx, ternary),
@@ -18,7 +18,7 @@ pub fn eval_expr<'a>(scope: &Scope<'a>, ctx: &'a Context<'a>, expr: &ast::Expr<'
     }
 }
 
-/// Evaluates an assignment expression.
+// Evaluates an assignment expression.
 pub fn eval_assign<'a>(scope: &Scope<'a>, ctx: &'a Context<'a>, assign: &ast::Assign<'a>) -> Result<Var<'a>> {
     let val = eval_expr(scope, ctx, &assign.expr)?;
 
@@ -30,7 +30,7 @@ pub fn eval_assign<'a>(scope: &Scope<'a>, ctx: &'a Context<'a>, assign: &ast::As
     Ok(val)
 }
 
-/// Evaluates a ternary expression.
+// Evaluates a ternary expression.
 pub fn eval_ternary<'a>(scope: &Scope<'a>, ctx: &'a Context<'a>, ternary: &ast::Ternary<'a>) -> Result<Var<'a>> {
     match eval_expr(scope, ctx, &ternary.cond)? {
         Var::Bool(true) => eval_expr(scope, ctx, &ternary.branch1),
@@ -39,7 +39,7 @@ pub fn eval_ternary<'a>(scope: &Scope<'a>, ctx: &'a Context<'a>, ternary: &ast::
     }
 }
 
-/// Evaluates an atom.
+// Evaluates an atom.
 pub fn eval_atom<'a>(scope: &Scope<'a>, ctx: &'a Context<'a>, atom: &ast::Atom) -> Result<Var<'a>> {
     Ok(match atom {
         ast::Atom::Void => Var::Void,
@@ -51,7 +51,7 @@ pub fn eval_atom<'a>(scope: &Scope<'a>, ctx: &'a Context<'a>, atom: &ast::Atom) 
     })
 }
 
-/// Evaluates a left value.
+// Evaluates a left value.
 pub fn eval_lvalue<'a>(scope: &Scope<'a>, ctx: &'a Context<'a>, lvalue: &ast::LValue<'a>) -> Result<Var<'a>> {
     match lvalue {
         ast::LValue::Ident(ident) => scope.get_var(ident),
@@ -59,10 +59,10 @@ pub fn eval_lvalue<'a>(scope: &Scope<'a>, ctx: &'a Context<'a>, lvalue: &ast::LV
     }
 }
 
-/// Evaluates a struct initialization.
+// Evaluates a struct initialization.
 pub fn eval_struct_init<'a>(scope: &Scope<'a>, ctx: &'a Context<'a>, struct_init: &ast::StructInit<'a>) -> Result<Var<'a>> {
     match ctx.get_def(struct_init.name)? {
-        Def::Component(def) | Def::Resource(def) => {
+        Def::Component(def) | Def::Resource(def) | Def::Struct(def) => {
             let mut map = Map::with_capacity(def.fields.len());
 
             for (name, expr) in struct_init.fields.iter() {
@@ -85,7 +85,7 @@ pub fn eval_struct_init<'a>(scope: &Scope<'a>, ctx: &'a Context<'a>, struct_init
     }
 }
 
-/// Evaluates a call expression.
+// Evaluates a call expression.
 pub fn eval_call<'a>(scope: &Scope<'a>, ctx: &'a Context<'a>, call: &ast::Call<'a>) -> Result<Var<'a>> {
     match &call.function {
         Either::Left(builtin) => eval_builtin(scope, ctx, builtin, &call.args),
