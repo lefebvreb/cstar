@@ -1,0 +1,7 @@
+System main() {
+    let fib = [1, 1, 2, 3];
+    println(fib);
+}
+
+Init [main];
+Run [];

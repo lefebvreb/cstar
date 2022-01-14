@@ -11,6 +11,7 @@ pub fn parse_type<'a>(mut pairs: Pairs<'a, Rule>) -> ast::Type<'a> {
         Rule::float_t => ast::Type::Float,
         Rule::char_t => ast::Type::Char,
         Rule::string_t => ast::Type::String,
+        Rule::list_t => ast::Type::List,
         Rule::ident => ast::Type::Struct(pair.as_str()),
         _ => unreachable!(),
     }

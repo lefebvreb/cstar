@@ -9,6 +9,7 @@ pub enum Expr<'a> {
     Ternary(Box<Ternary<'a>>),
     Atom(Atom),
     LValue(LValue<'a>),
+    ListInit(ListInit<'a>),
     StructInit(StructInit<'a>),
     Call(Call<'a>),
     BinExpr(Box<BinExpr<'a>>),
@@ -36,6 +37,13 @@ pub struct Assign<'a> {
     pub lvalue: LValue<'a>,
     pub expr: Expr<'a>,
 }
+
+// A list initialization.
+#[derive(Debug)]
+pub struct ListInit<'a> {
+    pub exprs: Vec<Expr<'a>>,
+}
+
 
 // A struct initialization.
 #[derive(Debug)]

@@ -36,7 +36,7 @@ function = { "function" ~ ident ~ "(" ~ (ident ~ ",")* ~ ident? ~ ")" ~ block }
 
 void_t = { "void" } bool_t = { "bool" } int_t = { "int" }
 float_t = { "float" } char_t = { "char" } string_t = { "string" }
-entity_t = { "entity" }
+list_t = { "list" } entity_t = { "entity" }
 type_ = { void_t | bool_t | int_t | float_t | char_t | string_t | entity_t | ident }
 
 
@@ -69,8 +69,9 @@ lvalue = { ident ~ ("." ~ ident)* ~ ("[" ~ expr ~ "]")* }
 
 assign = { lvalue ~ "=" ~ expr }
 atom = { void | bool | float | int | char | string }
+list_init = { "[" ~ (expr ~ ",")* ~ expr? ~ "]" }
 struct_init = { ident ~ "{" ~ (ident ~ ":" ~ expr ~ ";")* ~ "}" }
-value = { atom | call | struct_init | assign | lvalue }
+value = { atom | call | list_init | struct_init | assign | lvalue }
 
 
 // Binary operators and expressions

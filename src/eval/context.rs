@@ -61,12 +61,12 @@ impl<'a> Scope<'a> {
     }
 
     // Runs a closure on a requested variable.
-    pub fn get_var(&self, path: &[&'a str], reader: impl FnOnce(&Var<'a>) -> Result<Var<'a>>) -> Result<Var<'a>> {
-        self.mutate_var(path, |var| reader(var))
+    pub fn get_var(&self, path: &[&'a str], index: &[usize], reader: impl FnOnce(&Var<'a>) -> Result<Var<'a>>) -> Result<Var<'a>> {
+        self.mutate_var(path, index, |var| reader(var))
     }
 
     // Runs a mutable closure on a requested variable.
-    pub fn mutate_var(&self, path: &[&'a str], mutator: impl FnOnce(&mut Var<'a>) -> Result<Var<'a>>) -> Result<Var<'a>> {
+    pub fn mutate_var(&self, path: &[&'a str], index: &[usize], mutator: impl FnOnce(&mut Var<'a>) -> Result<Var<'a>>) -> Result<Var<'a>> {
         let mut vars = self.vars.borrow_mut();
         let mut var = vars.iter_mut().rev()
             .find_map(|scope| scope.get_mut(path[0]))
@@ -76,6 +76,13 @@ impl<'a> Scope<'a> {
             match var {
                 Var::Struct {map, ..} => var = map.get_mut(ident).ok_or_else(|| anyhow!("Field {} does not exist.", ident))?,
                 _ => return Err(anyhow!("Cannot access field {} of non-struct variable.", ident)),
+            }
+        }
+
+        for i in index {
+            match var {
+                Var::List(list) => var = list.get_mut(*i).ok_or_else(|| anyhow!("Out of bound index: {}.", i))?,
+                _ => return Err(anyhow!("Cannot access index non-list variable.")),
             }
         }
 
@@ -101,6 +108,7 @@ pub enum Var<'a> {
     Float(f64),
     Char(char),
     String(String),
+    List(Vec<Var<'a>>),
     Entity(ecs::Entity),
     Struct {
         name: &'a str,
@@ -118,6 +126,7 @@ impl<'a> Var<'a> {
             Var::Float(_) => ast::Type::Float,
             Var::Char(_) => ast::Type::Char,
             Var::String(_) => ast::Type::String,
+            Var::List(_) => ast::Type::List,
             Var::Entity(_) => ast::Type::Entity,
             Var::Struct {name, ..} => ast::Type::Struct(name),
         }
@@ -134,6 +143,17 @@ impl<'a> fmt::Display for Var<'a> {
             Var::Char(c) => write!(f, "{}", c),
             Var::String(s) => write!(f, "{}", s),
             Var::Entity(e) => todo!(),
+            Var::List(list) => {
+                write!(f, "[")?;
+                let mut iter = list.iter();
+                if let Some(var) = iter.next() {
+                    write!(f, "{}", var)?;
+                }
+                for var in iter {
+                    write!(f, ", {}", var)?;
+                }
+                write!(f, "]")
+            },
             Var::Struct {map, ..} => {
                 write!(f, "{{")?;
                 let mut iter = map.iter();

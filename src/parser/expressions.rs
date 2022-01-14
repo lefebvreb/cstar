@@ -108,6 +108,7 @@ pub fn parse_value<'a>(mut pairs: Pairs<'a, Rule>) -> ast::Expr<'a> {
         Rule::assign => parse_assign(pair.into_inner()),
         Rule::atom => ast::Expr::Atom(parse_atom(pair.into_inner())),
         Rule::call => parse_call(pair.into_inner()),
+        Rule::list_init => parse_list_init(pair.into_inner()),
         Rule::struct_init => parse_struct_init(pair.into_inner()),
         Rule::lvalue => ast::Expr::LValue(parse_lvalue(pair.into_inner())),
         _ => unreachable!(),
@@ -186,6 +187,13 @@ pub fn parse_call<'a>(mut pairs: Pairs<'a, Rule>) -> ast::Expr<'a> {
     ast::Expr::Call(ast::Call {
         name: pairs.next().unwrap().as_str(),
         args: pairs.map(|pair| parse_expr(pair.into_inner())).collect(),
+    })
+}
+
+// Parses a list initialization.
+pub fn parse_list_init<'a>(mut pairs: Pairs<'a, Rule>) -> ast::Expr<'a> {
+    ast::Expr::ListInit(ast::ListInit {
+        exprs: pairs.map(|pair| parse_expr(pair.into_inner())).collect(),
     })
 }
 

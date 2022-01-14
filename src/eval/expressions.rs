@@ -11,6 +11,7 @@ pub fn eval_expr<'a>(scope: &Scope<'a>, ctx: &'a Context<'a>, expr: &ast::Expr<'
         ast::Expr::Assign(assign) => eval_assign(scope, ctx, assign),
         ast::Expr::Atom(atom) => eval_atom(scope, ctx, atom),
         ast::Expr::LValue(lvalue) => eval_lvalue(scope, ctx, lvalue),
+        ast::Expr::ListInit(list_init) => eval_list_init(scope, ctx, list_init),
         ast::Expr::StructInit(struct_init) => eval_struct_init(scope, ctx, struct_init),
         ast::Expr::Call(call) => eval_call(scope, ctx, call),
         ast::Expr::BinExpr(bin_expr) => eval_bin_expr(scope, ctx, bin_expr),
@@ -18,18 +19,33 @@ pub fn eval_expr<'a>(scope: &Scope<'a>, ctx: &'a Context<'a>, expr: &ast::Expr<'
     }
 }
 
+// Evaluates a list of expressions that should each evaluate to an int.
+fn eval_index<'a>(scope: &Scope<'a>, ctx: &'a Context<'a>, index: &[ast::Expr<'a>]) -> Result<Vec<usize>> {
+    Ok(index.iter().map(|expr| match eval_expr(scope, &ctx, expr)? {
+        Var::Int(i) => Ok(i as usize),
+        _ => Err(anyhow!("Index must be of type int.")),
+    }).collect::<Result<_>>()?)
+}
+
+// Evaluates a left value.
+pub fn eval_lvalue<'a>(scope: &Scope<'a>, ctx: &'a Context<'a>, lvalue: &ast::LValue<'a>) -> Result<Var<'a>> {
+    let index = eval_index(scope, &ctx, &lvalue.index)?;
+    scope.get_var(&lvalue.path, &index, |var| Ok(Var::clone(var)))
+}
+
 // Evaluates an assignment expression.
 pub fn eval_assign<'a>(scope: &Scope<'a>, ctx: &'a Context<'a>, assign: &ast::Assign<'a>) -> Result<Var<'a>> {
     let val = eval_expr(scope, ctx, &assign.expr)?;
+    let index = eval_index(scope, &ctx, &assign.lvalue.index)?;
     
-    scope.mutate_var(&assign.lvalue.path, |var| {
+    scope.mutate_var(&assign.lvalue.path, &index, |var| {
         // Structs can't be reassigned to.
         if matches!(var, Var::Struct {..}) {
             return Err(anyhow!("Cannot reassign to struct."));
         }
 
-        // In structs, types must be checked.
-        if assign.lvalue.path.len() > 1 && val.get_type() != var.get_type() {
+        // In structs, types must be checked, except in lists.
+        if assign.lvalue.path.len() > 1 && index.len() != 0 && val.get_type() != var.get_type() {
             return Err(anyhow!("Type mismatch: cannot assign {} to {}.", val.get_type(), var.get_type()));
         }
 
@@ -59,9 +75,9 @@ pub fn eval_atom<'a>(scope: &Scope<'a>, ctx: &'a Context<'a>, atom: &ast::Atom) 
     })
 }
 
-// Evaluates a left value.
-pub fn eval_lvalue<'a>(scope: &Scope<'a>, ctx: &'a Context<'a>, lvalue: &ast::LValue<'a>) -> Result<Var<'a>> {
-    scope.get_var(&lvalue.path, |var| Ok(Var::clone(var)))
+// Evaluates a list initialization.
+pub fn eval_list_init<'a>(scope: &Scope<'a>, ctx: &'a Context<'a>, list_init: &ast::ListInit<'a>) -> Result<Var<'a>> {
+    Ok(Var::List(list_init.exprs.iter().map(|expr| eval_expr(scope, ctx, expr)).collect::<Result<_>>()?))
 }
 
 // Evaluates a struct initialization.

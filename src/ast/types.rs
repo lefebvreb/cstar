@@ -16,6 +16,7 @@ pub enum Type<'a>  {
     Float,
     Char,
     String,
+    List,
     Entity,
     Struct(&'a str),
 }
@@ -29,6 +30,7 @@ impl fmt::Display for Type<'_> {
             Type::Float => write!(f, "float"),
             Type::Char => write!(f, "char"),
             Type::String => write!(f, "string"),
+            Type::List => write!(f, "list"),
             Type::Entity => write!(f, "entity"),
             Type::Struct(name) => write!(f, "{}", name),
         }

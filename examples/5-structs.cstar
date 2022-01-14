@@ -41,6 +41,9 @@ System main() {
      * They can be over-shadowed, however.
      * Struct field's types are checked at runtime. It is not possible
      * to assign an `int` value to a `string` typed field for example.
+     *
+     * Available types are: `void`, `bool`, `int`, `float`, `string`, `list` and
+     * any struct name defined.
      */
 }
 
