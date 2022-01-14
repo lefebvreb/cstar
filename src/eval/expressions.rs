@@ -21,7 +21,7 @@ pub fn eval_expr<'a>(scope: &Scope<'a>, ctx: &'a Context<'a>, expr: &ast::Expr<'
 // Evaluates an assignment expression.
 pub fn eval_assign<'a>(scope: &Scope<'a>, ctx: &'a Context<'a>, assign: &ast::Assign<'a>) -> Result<Var<'a>> {
     let val = eval_expr(scope, ctx, &assign.expr)?;
-
+    
     scope.mutate_var(&assign.lvalue.path, |var| {
         // Structs can't be reassigned to.
         if matches!(var, Var::Struct {..}) {
@@ -34,10 +34,8 @@ pub fn eval_assign<'a>(scope: &Scope<'a>, ctx: &'a Context<'a>, assign: &ast::As
         }
 
         *var = val.clone();
-        Ok(())
-    })?;
-
-    Ok(val)
+        Ok(val)
+    })
 }
 
 // Evaluates a ternary expression.

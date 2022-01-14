@@ -60,25 +60,13 @@ impl<'a> Scope<'a> {
         self.vars.borrow_mut().last_mut().unwrap().insert(name, val);
     }
 
-    // Returns a copy of the value requested.
+    // Runs a closure on a requested variable.
     pub fn get_var(&self, path: &[&'a str], reader: impl FnOnce(&Var<'a>) -> Result<Var<'a>>) -> Result<Var<'a>> {
-        let vars = self.vars.borrow();
-        let mut var = vars.iter().rev()
-            .find_map(|scope| scope.get(path[0]))
-            .ok_or_else(|| anyhow!("Variable {} does not exist in current scope.", path[0]))?;
-
-        for ident in &path[1..] {
-            match var {
-                Var::Struct {map, ..} => var = map.get(ident).ok_or_else(|| anyhow!("Field {} does not exist.", ident))?,
-                _ => return Err(anyhow!("Cannot access field {} of non-struct variable.", ident)),
-            }
-        }
-
-        reader(&var)
+        self.mutate_var(path, |var| reader(var))
     }
 
-    // Runs a closure on a requested variable.
-    pub fn mutate_var(&self, path: &[&'a str], mutator: impl FnOnce(&mut Var<'a>) -> Result<()>) -> Result<()> {
+    // Runs a mutable closure on a requested variable.
+    pub fn mutate_var(&self, path: &[&'a str], mutator: impl FnOnce(&mut Var<'a>) -> Result<Var<'a>>) -> Result<Var<'a>> {
         let mut vars = self.vars.borrow_mut();
         let mut var = vars.iter_mut().rev()
             .find_map(|scope| scope.get_mut(path[0]))
