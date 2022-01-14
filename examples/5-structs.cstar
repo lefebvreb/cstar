@@ -13,28 +13,28 @@ struct Marriage {
 System main() {
     /* Declare a new variable of type `Person`. */
     let john = Person {
-        name: "John Doe";
+        name: "John Smith";
         age: 42;
     };
 
     /* Structs may be printed, just like any other variable. */
-    Println(john);
+    println(john);
 
     /* Happy birthday, John! */
     john.age = john.age + 1;
 
-    let does = Marriage {
+    let smiths = Marriage {
         husband: john;
         wife: Person {
-            name: "Jane Doe";
+            name: "Jane Smith";
             age: 45;
         };
     };
 
     /* Happy birthday, Jane! */
-    does.wife.age = does.wife.age + 1;
+    smiths.wife.age = smiths.wife.age + 1;
 
-    Println(does);
+    println(smiths);
 
     /*
      * Nota bene: structs variables may not be reassigned to. 

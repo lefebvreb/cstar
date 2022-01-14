@@ -1,7 +1,7 @@
 /* Systems are designed to contain the code of your programs. */
 System hello() {
     /* This prints the string "Hello, World!" to the screen. */
-    Println("Hello, world!");
+    println("Hello, world!");
 }
 
 /* Init Systems are run once, at the start of the program. */

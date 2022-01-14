@@ -2,16 +2,16 @@ System main() {
     /* Switch statements are another, very powerful way to control the flow of your program. */
     switch (2 * 21) {
         case 30: {
-            Println("2*x = 30");
+            println("2*x = 30");
         }
         case 42: {
-            Println("2*x = The Ultimate Answer");
+            println("2*x = The Ultimate Answer");
         }
         case 0: {
-            Println("x = 0");
+            println("x = 0");
         }
         default: {
-            Println("x is not 0, 30, or 42");
+            println("x is not 0, 30, or 42");
         }
     }
 

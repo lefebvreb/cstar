@@ -58,7 +58,7 @@ filter_list = { "(" ~ (filter ~ ";")* ~ filter? ~ ")" }
 // Builtins and calls
 
 clone = { "Clone" } delete = { "Delete" }
-spawn = { "Spawn" } print = { "Print" } println = { "Println" }
+spawn = { "Spawn" } print = { "print" } println = { "println" }
 builtin = { clone | delete | spawn | println | print }
 call = { (builtin | ident) ~ "(" ~ (expr ~ ",")* ~ expr? ~ ")" }
 

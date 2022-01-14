@@ -6,19 +6,19 @@ function max(a, b) {
 
 /* Functions are not required to return a value. */
 function greet(name) {
-    Print("Hello, ", name, "!\n");
+    println("Hello, ", name, "!");
 }
 
 System main() {
     /* Call the function by it's name followed by it's arguments parameters. */
-    Print("max(2, 1) = ", max(2, 1), "\n");
+    println("max(2, 1) = ", max(2, 1));
 
     /* Argument typing is dynamic, si it is possible to pass anything as an argument. */
-    Print("max(\"Hello\", \"World\") = ", max("Hello", "World"), "\n");
+    println("max(\"Hello\", \"World\") = ", max("Hello", "World"));
 
-    /* Calls to functions with no return will return `void`. */
+    /* Calls to functions with no return will yield `void`. */
     let res = greet("John Doe");
-    Print("Greet function returned: ", res, "\n");
+    println("Greet function returned: ", res);
 
     /*
      * Note: arguments to functions are always passed by value. 
