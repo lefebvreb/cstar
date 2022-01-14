@@ -60,31 +60,8 @@ impl<'a> Scope<'a> {
         self.vars.borrow_mut().last_mut().unwrap().insert(name, val);
     }
 
-    // Updates a variable in the current scope.
-    pub fn set_var(&self, name: &'a str, val: Var<'a>) -> Result<()> {
-        let mut vars = self.vars.borrow_mut();
-        let var = vars.iter_mut().rev()
-            .find_map(|scope| scope.get_mut(name))
-            .ok_or_else(|| anyhow!("Variable {} is not declared is current scope", name))?;
-
-        if matches!(var, Var::Struct {..}) {
-            return Err(anyhow!("Cannot update a struct variable."));
-        }
-
-        *var = val;
-        Ok(())
-    }
-
-    // Gets a copy of a variable from the current scope.
-    pub fn get_var(&self, name: &'a str) -> Result<Var<'a>> {
-        self.vars.borrow().iter().rev()
-            .find_map(|scope| scope.get(name))
-            .ok_or_else(|| anyhow!("Variable {} does not exist in current scope.", name))
-            .map(Var::clone)
-    }
-
-    // Gets a copy of the variable at the specified path.
-    pub fn get_path(&self, path: &[&'a str]) -> Result<Var<'a>> {
+    // Returns a copy of the value requested.
+    pub fn get_var(&self, path: &[&'a str], reader: impl FnOnce(&Var<'a>) -> Result<Var<'a>>) -> Result<Var<'a>> {
         let vars = self.vars.borrow();
         let mut var = vars.iter().rev()
             .find_map(|scope| scope.get(path[0]))
@@ -92,16 +69,16 @@ impl<'a> Scope<'a> {
 
         for ident in &path[1..] {
             match var {
-                Var::Struct {map, ..} => var = map.get(ident).ok_or_else(|| anyhow!("Field {} does not exist in struct {}.", ident, var))?,
+                Var::Struct {map, ..} => var = map.get(ident).ok_or_else(|| anyhow!("Field {} does not exist.", ident))?,
                 _ => return Err(anyhow!("Cannot access field {} of non-struct variable.", ident)),
             }
         }
 
-        Ok(var.clone())
+        reader(&var)
     }
 
-    // Updates the value at the given path.
-    pub fn set_path(&self, path: &[&'a str], val: Var<'a>) -> Result<()> {
+    // Runs a closure on a requested variable.
+    pub fn mutate_var(&self, path: &[&'a str], mutator: impl FnOnce(&mut Var<'a>) -> Result<()>) -> Result<()> {
         let mut vars = self.vars.borrow_mut();
         let mut var = vars.iter_mut().rev()
             .find_map(|scope| scope.get_mut(path[0]))
@@ -114,16 +91,7 @@ impl<'a> Scope<'a> {
             }
         }
 
-        if matches!(var, Var::Struct {..}) {
-            return Err(anyhow!("Cannot update a struct variable."));
-        }
-
-        if val.get_type() != var.get_type() {
-            return Err(anyhow!("Type mismatch: cannot assign {} to {}.", val.get_type(), var.get_type()));
-        }
-
-        *var = val;
-        Ok(())
+        mutator(var)
     }
 }
 

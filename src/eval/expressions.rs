@@ -22,10 +22,20 @@ pub fn eval_expr<'a>(scope: &Scope<'a>, ctx: &'a Context<'a>, expr: &ast::Expr<'
 pub fn eval_assign<'a>(scope: &Scope<'a>, ctx: &'a Context<'a>, assign: &ast::Assign<'a>) -> Result<Var<'a>> {
     let val = eval_expr(scope, ctx, &assign.expr)?;
 
-    match &assign.lvalue {
-        ast::LValue::Ident(ident) => scope.set_var(ident, val.clone())?,
-        ast::LValue::Access(path) => scope.set_path(path, val.clone())?,
-    }
+    scope.mutate_var(&assign.lvalue.path, |var| {
+        // Structs can't be reassigned to.
+        if matches!(var, Var::Struct {..}) {
+            return Err(anyhow!("Cannot reassign to struct."));
+        }
+
+        // In structs, types must be checked.
+        if assign.lvalue.path.len() > 1 && val.get_type() != var.get_type() {
+            return Err(anyhow!("Type mismatch: cannot assign {} to {}.", val.get_type(), var.get_type()));
+        }
+
+        *var = val.clone();
+        Ok(())
+    })?;
 
     Ok(val)
 }
@@ -53,10 +63,7 @@ pub fn eval_atom<'a>(scope: &Scope<'a>, ctx: &'a Context<'a>, atom: &ast::Atom) 
 
 // Evaluates a left value.
 pub fn eval_lvalue<'a>(scope: &Scope<'a>, ctx: &'a Context<'a>, lvalue: &ast::LValue<'a>) -> Result<Var<'a>> {
-    match lvalue {
-        ast::LValue::Ident(ident) => scope.get_var(ident),
-        ast::LValue::Access(path) => scope.get_path(path),
-    }
+    scope.get_var(&lvalue.path, |var| Ok(Var::clone(var)))
 }
 
 // Evaluates a struct initialization.

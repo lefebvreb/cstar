@@ -17,9 +17,9 @@ pub enum Expr<'a> {
 
 // A left-value, that can be assigned to.
 #[derive(Debug)]
-pub enum LValue<'a> {
-    Ident(&'a str),
-    Access(Vec<&'a str>),
+pub struct LValue<'a> {
+    pub path: Vec<&'a str>,
+    pub index: Vec<Expr<'a>>,
 }
 
 // A ternary expression.

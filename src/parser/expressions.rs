@@ -206,13 +206,18 @@ pub fn parse_struct_init<'a>(mut pairs: Pairs<'a, Rule>) -> ast::Expr<'a> {
 
 // Parses a left-value.
 pub fn parse_lvalue<'a>(mut pairs: Pairs<'a, Rule>) -> ast::LValue<'a> {
-    let pair = pairs.next().unwrap();
+    let mut path = Vec::new();
+    let mut index = Vec::new();
 
-    match pair.as_rule() {
-        Rule::access => ast::LValue::Access(parse_ident_list(pair.into_inner())),
-        Rule::ident => ast::LValue::Ident(pair.as_str()),
-        _ => unreachable!(),
+    for pair in pairs {
+        match pair.as_rule() {
+            Rule::ident => path.push(pair.as_str()),
+            Rule::expr => index.push(parse_expr(pair.into_inner())),
+            _ => unreachable!(),
+        }
     }
+
+    ast::LValue {path, index}
 }
 
 // Parses a unary expression.

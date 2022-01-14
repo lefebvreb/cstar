@@ -43,7 +43,7 @@ This will run the `hello, world!` example of the `examples` directory. There are
 - [ ] Imports and modules
 - [ ] Increment/Decrement operators
 - [ ] User input
-- [ ] Global constants
+- [ ] Global variables
 - [ ] Assignements operators
 - [ ] Enums
 - [ ] Span and proper errors
