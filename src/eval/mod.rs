@@ -3,8 +3,8 @@ use anyhow::{anyhow, Result};
 use crate::ast;
 use crate::utils::*;
 
-mod builtins;
-use builtins::*;
+mod calls;
+use calls::*;
 
 mod context;
 use context::*;

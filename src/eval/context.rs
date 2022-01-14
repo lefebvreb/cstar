@@ -46,12 +46,12 @@ pub struct Scope<'a> {
 
 impl<'a> Scope<'a> {
     // Nests another new empty scope.
-    pub fn next_local(&self) {
+    pub fn next(&self) {
         self.vars.borrow_mut().push(Map::new());
     }
 
     // Destroys the last created scope, freeing all of it's variables.
-    pub fn back_local(&self) {
+    pub fn back(&self) {
         self.vars.borrow_mut().pop();
     }
 

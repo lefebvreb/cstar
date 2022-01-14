@@ -40,8 +40,10 @@ This will run the `hello, world!` example of the `examples` directory. There are
 - [x] Vanilla structs
 - [x] Switch statements
 - [ ] Lists
-- [ ] Increment/Decrement operators
-- [ ] Assignements operators
 - [ ] Imports and modules
+- [ ] Increment/Decrement operators
+- [ ] User input
+- [ ] Global constants
+- [ ] Assignements operators
 - [ ] Enums
 - [ ] Span and proper errors

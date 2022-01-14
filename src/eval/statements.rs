@@ -28,14 +28,14 @@ pub fn eval_statement<'a>(scope: &Scope<'a>, ctx: &'a Context<'a>, stmt: &ast::S
 pub fn eval_block<'a>(scope: &Scope<'a>, ctx: &'a Context<'a>, block: &ast::Block<'a>) -> Result<Flow<'a>> {
     let mut flow = Flow::Ok;
 
-    scope.next_local();
+    scope.next();
     for stmt in &block.statements {
         flow = eval_statement(scope, ctx, stmt)?;
         if !matches!(flow, Flow::Ok) {
             break;
         }
     }
-    scope.back_local();
+    scope.back();
 
     Ok(flow)
 }
@@ -57,7 +57,7 @@ pub fn eval_if<'a>(scope: &Scope<'a>, ctx: &'a Context<'a>, if_: &ast::If<'a>) -
 
 // Evaluates a for statement.
 pub fn eval_for<'a>(scope: &Scope<'a>, ctx: &'a Context<'a>, for_: &ast::For<'a>) -> Result<Flow<'a>> {
-    scope.next_local();
+    scope.next();
 
     match &for_.init {
         Either::Left(expr) => { eval_expr(scope, ctx, &expr)?; },
@@ -74,7 +74,7 @@ pub fn eval_for<'a>(scope: &Scope<'a>, ctx: &'a Context<'a>, for_: &ast::For<'a>
         match eval_block(scope, ctx, &for_.code)? {
             Flow::Break => break,
             Flow::Return(var) => {
-                scope.back_local();
+                scope.back();
                 return Ok(Flow::Return(var));
             },
             _ => (),
@@ -83,7 +83,7 @@ pub fn eval_for<'a>(scope: &Scope<'a>, ctx: &'a Context<'a>, for_: &ast::For<'a>
         eval_expr(scope, ctx, &for_.incr)?;
     }
 
-    scope.back_local();
+    scope.back();
     Ok(Flow::Ok)
 }
 
@@ -98,7 +98,7 @@ pub fn eval_decl<'a>(scope: &Scope<'a>, ctx: &'a Context<'a>, decl: &ast::Decl<'
 
 // Evaluates a while statement.
 pub fn eval_while<'a>(scope: &Scope<'a>, ctx: &'a Context<'a>, while_: &ast::While<'a>) -> Result<Flow<'a>> {
-    scope.next_local();
+    scope.next();
 
     loop {
         match eval_expr(scope, ctx, &while_.cond)? {
@@ -111,14 +111,14 @@ pub fn eval_while<'a>(scope: &Scope<'a>, ctx: &'a Context<'a>, while_: &ast::Whi
             Flow::Break => break,
             Flow::Continue => continue,
             Flow::Return(var) => {
-                scope.back_local();
+                scope.back();
                 return Ok(Flow::Return(var));
             },
             _ => (),
         }
     }
     
-    scope.back_local();
+    scope.back();
     Ok(Flow::Ok)
 }
 
@@ -136,7 +136,7 @@ pub fn eval_switch<'a>(scope: &Scope<'a>, ctx: &'a Context<'a>, switch: &ast::Sw
 }
 
 pub fn eval_query<'a>(scope: &Scope<'a>, ctx: &'a Context<'a>, query: &ast::Query<'a>) -> Result<Flow<'a>> {
-    scope.next_local();
+    scope.next();
 
     //todo!(); // Do filtering here !
 
@@ -144,6 +144,6 @@ pub fn eval_query<'a>(scope: &Scope<'a>, ctx: &'a Context<'a>, query: &ast::Quer
 
     //todo!(); // Update the values of the entities here !
 
-    scope.back_local();
+    scope.back();
     Ok(Flow::Ok)
 }

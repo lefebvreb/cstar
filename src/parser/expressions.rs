@@ -183,29 +183,10 @@ pub fn parse_string(s: &str) -> String {
 
 // Parses a call.
 pub fn parse_call<'a>(mut pairs: Pairs<'a, Rule>) -> ast::Expr<'a> {
-    let pair = pairs.next().unwrap();
-    let function = match pair.as_rule() {
-        Rule::builtin => Either::Left(parse_builtin(pair.into_inner())),
-        Rule::ident => Either::Right(pair.as_str()),
-        _ => unreachable!(),
-    };
-
     ast::Expr::Call(ast::Call {
-        function,
+        name: pairs.next().unwrap().as_str(),
         args: pairs.map(|pair| parse_expr(pair.into_inner())).collect(),
     })
-}
-
-// Parses a builtin function name.
-pub fn parse_builtin<'a>(mut pairs: Pairs<'a, Rule>) -> ast::BuiltIn {
-    match pairs.next().unwrap().as_rule() {
-        Rule::clone => ast::BuiltIn::Clone,
-        Rule::delete => ast::BuiltIn::Delete,
-        Rule::spawn => ast::BuiltIn::Spawn,
-        Rule::println => ast::BuiltIn::Println,
-        Rule::print => ast::BuiltIn::Print,
-        _ => unreachable!(),
-    }
 }
 
 // Parses a struct initialization.

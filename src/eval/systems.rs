@@ -6,7 +6,7 @@ use super::*;
 
 pub fn eval_system<'a>(scope: &Scope<'a>, ctx: &'a Context<'a>, sys: &ast::System<'a>) -> Result<()> {
     // Use the scope trick to avoid overshadoing of structs.
-    scope.next_local();
+    scope.next();
     
     //todo!(); // Do filtering here !
 
@@ -15,7 +15,7 @@ pub fn eval_system<'a>(scope: &Scope<'a>, ctx: &'a Context<'a>, sys: &ast::Syste
 
     //todo!(); // Update the values of the entities here !
 
-    scope.back_local();
+    scope.back();
 
     Ok(())
 }
