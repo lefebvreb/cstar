@@ -9,7 +9,7 @@ function greet(name) {
     println("Hello, ", name, "!");
 }
 
-System main() {
+System basic() {
     /* Call the function by it's name followed by it's arguments parameters. */
     println("max(2, 1) = ", max(2, 1));
 
@@ -19,13 +19,33 @@ System main() {
     /* Calls to functions with no return will yield `void`. */
     let res = greet("John Doe");
     println("Greet function returned: ", res);
-
-    /*
-     * Note: arguments to functions are always passed by value., except for structs and list
-     * which are passed by reference.
-     * Remark that strings are immutable.
-     */
 }
 
-Init [main];
+/*
+ * Note: arguments to functions are always passed by value., except for structs and list
+ * which are passed by reference.
+ * Remark that strings are immutable.
+ */
+
+struct Complex {
+    float re;
+    float im;
+}
+
+/* Structs and list may be mutated in-place. This can be used to build procedures such as the following : */
+function conjugate(z) {
+    z.im = -z.im;
+}
+
+System advanced() {
+    let z = Complex {
+        re: 2.0;
+        im: 3.0;
+    };
+
+    conjugate(z);
+    println("z = ", z);
+}
+
+Init [basic, advanced];
 Run [];

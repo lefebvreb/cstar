@@ -35,6 +35,7 @@ pub fn eval_call<'a>(scope: &Scope<'a>, ctx: &'a Context<'a>, call: &ast::Call<'
             for (name, arg) in def.args.iter().zip(args) {
                 func_scope.new_var(name, eval_expr(scope, ctx, arg)?);
             }
+            func_scope.next();
         
             match eval_block(&func_scope, ctx, &def.body)? {
                 Flow::Return(val) => Ok(val),
