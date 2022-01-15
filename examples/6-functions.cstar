@@ -21,7 +21,9 @@ System main() {
     println("Greet function returned: ", res);
 
     /*
-     * Note: arguments to functions are always passed by value. 
+     * Note: arguments to functions are always passed by value., except for structs and list
+     * which are passed by reference.
+     * Remark that strings are immutable.
      */
 }
 

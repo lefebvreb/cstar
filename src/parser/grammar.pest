@@ -62,7 +62,8 @@ call = { ident ~ "(" ~ (expr ~ ",")* ~ expr? ~ ")" }
 
 // L-values
 
-lvalue = { ident ~ ("." ~ ident)* ~ ("[" ~ expr ~ "]")* }
+index = { ("[" ~ expr ~ "]")* }
+lvalue = { ident ~ index ~ ("." ~ ident ~ index)* }
 
 
 // Values

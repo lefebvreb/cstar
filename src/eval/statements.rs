@@ -91,7 +91,7 @@ pub fn eval_for<'a>(scope: &Scope<'a>, ctx: &'a Context<'a>, for_: &ast::For<'a>
 pub fn eval_decl<'a>(scope: &Scope<'a>, ctx: &'a Context<'a>, decl: &ast::Decl<'a>) -> Result<Flow<'a>> {
     match &decl.init {
         Some(init) => scope.new_var(decl.ident, eval_expr(scope, ctx, &init)?),
-        None => scope.new_var(decl.ident, Var::Void),
+        _ => scope.new_var(decl.ident, Var::Void),
     };
     Ok(Flow::Ok)
 }

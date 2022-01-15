@@ -212,20 +212,29 @@ pub fn parse_struct_init<'a>(mut pairs: Pairs<'a, Rule>) -> ast::Expr<'a> {
     ast::Expr::StructInit(ast::StructInit {name, fields})
 }
 
+// Parses an index.
+pub fn parse_index<'a>(mut pairs: Pairs<'a, Rule>) -> ast::Index<'a> {
+    ast::Index {
+        exprs: pairs.map(|pair| parse_expr(pair.into_inner())).collect(),
+    }
+}
+
 // Parses a left-value.
 pub fn parse_lvalue<'a>(mut pairs: Pairs<'a, Rule>) -> ast::LValue<'a> {
-    let mut path = Vec::new();
-    let mut index = Vec::new();
+    let mut res = ast::LValue {
+        name: pairs.next().unwrap().as_str(),
+        first_index: parse_index(pairs.next().unwrap().into_inner()),
+        path: Vec::new(),
+    };
 
-    for pair in pairs {
-        match pair.as_rule() {
-            Rule::ident => path.push(pair.as_str()),
-            Rule::expr => index.push(parse_expr(pair.into_inner())),
-            _ => unreachable!(),
-        }
+    while let Some(pair) = pairs.next() {
+        res.path.push((
+            pair.as_str(), 
+            parse_index(pairs.next().unwrap().into_inner())
+        ));
     }
 
-    ast::LValue {path, index}
+    res
 }
 
 // Parses a unary expression.

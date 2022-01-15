@@ -19,41 +19,6 @@ pub fn eval_expr<'a>(scope: &Scope<'a>, ctx: &'a Context<'a>, expr: &ast::Expr<'
     }
 }
 
-// Evaluates a list of expressions that should each evaluate to an int.
-fn eval_index<'a>(scope: &Scope<'a>, ctx: &'a Context<'a>, index: &[ast::Expr<'a>]) -> Result<Vec<usize>> {
-    Ok(index.iter().map(|expr| match eval_expr(scope, &ctx, expr)? {
-        Var::Int(i) => Ok(i as usize),
-        _ => Err(anyhow!("Index must be of type int.")),
-    }).collect::<Result<_>>()?)
-}
-
-// Evaluates a left value.
-pub fn eval_lvalue<'a>(scope: &Scope<'a>, ctx: &'a Context<'a>, lvalue: &ast::LValue<'a>) -> Result<Var<'a>> {
-    let index = eval_index(scope, &ctx, &lvalue.index)?;
-    scope.get_var(&lvalue.path, &index, |var| Ok(Var::clone(var)))
-}
-
-// Evaluates an assignment expression.
-pub fn eval_assign<'a>(scope: &Scope<'a>, ctx: &'a Context<'a>, assign: &ast::Assign<'a>) -> Result<Var<'a>> {
-    let val = eval_expr(scope, ctx, &assign.expr)?;
-    let index = eval_index(scope, &ctx, &assign.lvalue.index)?;
-    
-    scope.mutate_var(&assign.lvalue.path, &index, |var| {
-        // Structs can't be reassigned to.
-        if matches!(var, Var::Struct {..}) {
-            return Err(anyhow!("Cannot reassign to struct."));
-        }
-
-        // In structs, types must be checked, except in lists.
-        if assign.lvalue.path.len() > 1 && index.len() != 0 && val.get_type() != var.get_type() {
-            return Err(anyhow!("Type mismatch: cannot assign {} to {}.", val.get_type(), var.get_type()));
-        }
-
-        *var = val.clone();
-        Ok(val)
-    })
-}
-
 // Evaluates a ternary expression.
 pub fn eval_ternary<'a>(scope: &Scope<'a>, ctx: &'a Context<'a>, ternary: &ast::Ternary<'a>) -> Result<Var<'a>> {
     match eval_expr(scope, ctx, &ternary.cond)? {
@@ -77,7 +42,7 @@ pub fn eval_atom<'a>(scope: &Scope<'a>, ctx: &'a Context<'a>, atom: &ast::Atom) 
 
 // Evaluates a list initialization.
 pub fn eval_list_init<'a>(scope: &Scope<'a>, ctx: &'a Context<'a>, list_init: &ast::ListInit<'a>) -> Result<Var<'a>> {
-    Ok(Var::List(list_init.exprs.iter().map(|expr| eval_expr(scope, ctx, expr)).collect::<Result<_>>()?))
+    Ok(Var::List(as_ref(list_init.exprs.iter().map(|expr| eval_expr(scope, ctx, expr)).collect::<Result<_>>()?)))
 }
 
 // Evaluates a struct initialization.
@@ -100,7 +65,10 @@ pub fn eval_struct_init<'a>(scope: &Scope<'a>, ctx: &'a Context<'a>, struct_init
                 return Err(anyhow!("{} has {} fields, but {} fields were given.", struct_init.name, def.fields.len(), map.len()));
             }
 
-            Ok(Var::Struct {name: struct_init.name, map})
+            Ok(Var::Struct(as_ref(Struct {
+                name: struct_init.name, 
+                map
+            })))
         },
         _ => return Err(anyhow!("{} is not a struct type.", struct_init.name)),
     }

@@ -60,34 +60,58 @@ impl<'a> Scope<'a> {
         self.vars.borrow_mut().last_mut().unwrap().insert(name, val);
     }
 
-    // Runs a closure on a requested variable.
-    pub fn get_var(&self, path: &[&'a str], index: &[usize], reader: impl FnOnce(&Var<'a>) -> Result<Var<'a>>) -> Result<Var<'a>> {
-        self.mutate_var(path, index, |var| reader(var))
+    // Gets a copy of the requested variable.
+    pub fn get_var(&self, name: &'a str) -> Result<Var<'a>> {
+        self.vars.borrow().iter().rev()
+            .find_map(|scope| scope.get(name))
+            .map(Var::clone)
+            .ok_or_else(|| anyhow!("Variable {} does not exist in current scope.", name))
     }
 
-    // Runs a mutable closure on a requested variable.
-    pub fn mutate_var(&self, path: &[&'a str], index: &[usize], mutator: impl FnOnce(&mut Var<'a>) -> Result<Var<'a>>) -> Result<Var<'a>> {
-        let mut vars = self.vars.borrow_mut();
-        let mut var = vars.iter_mut().rev()
-            .find_map(|scope| scope.get_mut(path[0]))
+    // Sets the value of the requested variable.
+    pub fn set_var(&self, name: &'a str, val: Var<'a>) -> Result<()> {
+        let mut borrow = self.vars.borrow_mut();
+        let var = borrow.iter_mut().rev()
+            .find_map(|scope| scope.get_mut(name))
+            .ok_or_else(|| anyhow!("Variable {} does not exist in current scope.", name))?;
+
+        if matches!(var, Var::Struct(_) | Var::List(_)) {
+            return Err(anyhow!("Cannot reassign to a struct or list variable in a scope."));
+        }
+
+        *var = val;
+        Ok(())
+    }
+
+    /*// Runs a closure on a requested variable.
+    pub fn get_var(&self, path: &[&'a str], index: &[usize], reader: impl FnOnce(&Var<'a>) -> Result<Var<'a>>) -> Result<Var<'a>> {
+        //self.mutate_var(path, index, |var| reader(var))
+        todo!()
+    }*/
+
+    /*// Runs a mutable closure on a requested variable.
+    pub fn get_var(&self, path: &[&'a str], index: &[usize]) -> Result<Var<'a>> {
+        let mut var = self.vars.borrow().iter().rev()
+            .find_map(|scope| scope.get(path[0]))
+            .map(Var::clone)
             .ok_or_else(|| anyhow!("Variable {} does not exist in current scope.", path[0]))?;
 
-        for ident in &path[1..] {
+        for &ident in &path[1..] {
             match var {
-                Var::Struct {map, ..} => var = map.get_mut(ident).ok_or_else(|| anyhow!("Field {} does not exist.", ident))?,
+                Var::Struct {map, ..} => var = map.get(ident).ok_or_else(|| anyhow!("Field {} does not exist.", ident))?.clone(),
                 _ => return Err(anyhow!("Cannot access field {} of non-struct variable.", ident)),
             }
         }
 
-        for i in index {
+        for &i in index {
             match var {
-                Var::List(list) => var = list.get_mut(*i).ok_or_else(|| anyhow!("Out of bound index: {}.", i))?,
-                _ => return Err(anyhow!("Cannot access index non-list variable.")),
+                Var::List(list) => var = list.borrow().get(i).ok_or_else(|| anyhow!("Out of bound index: {}.", i))?.clone(),
+                _ => return Err(anyhow!("Cannot access index {} of non-list variable.", i)),
             }
         }
 
-        mutator(var)
-    }
+        Ok(var)
+    }*/
 }
 
 impl Default for Scope<'_> {
@@ -108,12 +132,15 @@ pub enum Var<'a> {
     Float(f64),
     Char(char),
     String(String),
-    List(Vec<Var<'a>>),
     Entity(ecs::Entity),
-    Struct {
-        name: &'a str,
-        map: Map<'a, Var<'a>>,
-    },
+    List(Ref<Vec<Var<'a>>>),
+    Struct(Ref<Struct<'a>>),
+}
+
+#[derive(Debug)]
+pub struct Struct<'a> {
+    pub name: &'a str,
+    pub map: Map<'a, Var<'a>>,
 }
 
 impl<'a> Var<'a> {
@@ -128,7 +155,7 @@ impl<'a> Var<'a> {
             Var::String(_) => ast::Type::String,
             Var::List(_) => ast::Type::List,
             Var::Entity(_) => ast::Type::Entity,
-            Var::Struct {name, ..} => ast::Type::Struct(name),
+            Var::Struct(s) => ast::Type::Struct(s.borrow().name),
         }
     }
 }
@@ -145,7 +172,8 @@ impl<'a> fmt::Display for Var<'a> {
             Var::Entity(e) => todo!(),
             Var::List(list) => {
                 write!(f, "[")?;
-                let mut iter = list.iter();
+                let borrow = list.borrow();
+                let mut iter = borrow.iter();
                 if let Some(var) = iter.next() {
                     write!(f, "{}", var)?;
                 }
@@ -154,9 +182,10 @@ impl<'a> fmt::Display for Var<'a> {
                 }
                 write!(f, "]")
             },
-            Var::Struct {map, ..} => {
+            Var::Struct(s) => {
                 write!(f, "{{")?;
-                let mut iter = map.iter();
+                let borrow = s.borrow();
+                let mut iter = borrow.map.iter();
                 if let Some((name, var)) = iter.next() {
                     write!(f, "{}: {}", name, var)?;
                 }
@@ -179,7 +208,7 @@ impl PartialEq for Var<'_> {
             (Var::Char(l), Var::Char(r)) => l == r,
             (Var::String(l), Var::String(r)) => l == r,
             (Var::Entity(l), Var::Entity(r)) => l == r,
-            (Var::Struct {name: l_name, ..}, Self::Struct {name: r_name, ..}) => l_name == r_name,
+            (Var::Struct(l), Self::Struct(r)) => l.borrow().name == r.borrow().name,
             _ => false,
         }
     }

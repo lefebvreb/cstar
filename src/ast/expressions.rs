@@ -17,10 +17,17 @@ pub enum Expr<'a> {
 }
 
 // A left-value, that can be assigned to.
+#[derive(Default, Debug)]
+pub struct Index<'a> {
+    pub exprs: Vec<Expr<'a>>,
+}
+
+// A left-value, that can be assigned to.
 #[derive(Debug)]
 pub struct LValue<'a> {
-    pub path: Vec<&'a str>,
-    pub index: Vec<Expr<'a>>,
+    pub name: &'a str,
+    pub first_index: Index<'a>,
+    pub path: Vec<(&'a str, Index<'a>)>,
 }
 
 // A ternary expression.

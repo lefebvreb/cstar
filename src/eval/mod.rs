@@ -12,6 +12,9 @@ use context::*;
 mod expressions;
 use expressions::*;
 
+mod lvalues;
+use lvalues::*;
+
 mod operator;
 use operator::*;
 
