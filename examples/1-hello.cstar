@@ -2,6 +2,12 @@
 System hello() {
     /* This prints the string "Hello, World!" to the screen. */
     println("Hello, world!");
+
+    /*
+     * There are two different functions used for printing to the screen:
+     * println() and print().
+     * They both accept an arbitrary number of arguments, and will concatenate them.
+     */
 }
 
 /* Init Systems are run once, at the start of the program. */

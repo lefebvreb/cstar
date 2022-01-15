@@ -1,6 +1,39 @@
 System main() {
-    let fib = [1, 1, 2, 3];
+    /* Lists are created with square brackets. */
+    let fib = [0, 0];
     println(fib);
+
+    /* You can access lists like so: */
+    fib[1] = 1;
+    
+    /* You can push elements onto a list. */
+    for (let i = 2; i < 10; i = i + 1) {
+        push(fib, fib[i - 1] + fib[i - 2]);
+    }
+    println(fib);
+
+    /* You can also pop elements off of a list, returning the popped element. */
+    let last = pop(fib);
+    println("last element of fib: ", last);
+
+    /* Use `len` to get the length of a list. */
+    let n = len(fib);
+    println("len(", fib, ") = ", n);
+
+    /* Use remove to remove an element from a list. */
+    remove(fib, 0);
+    println(fib);
+
+    /* Finally, use append to add all the elements of a list to the end of another list. */
+    append(fib, ["Hello", "abc", 42.000001]);
+    println(fib);
+
+    /* 
+     * Note that the elements of the second list will be drained. 
+     * Also remark that lists aren't typed, so you can push just about anything into
+     * them, including other lists and structs.
+     * Finally, keep in mind that lists are mutable and passed by reference.
+     */
 }
 
 Init [main];
