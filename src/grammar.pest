@@ -17,7 +17,9 @@ string = @{ "\"" ~ (("\\" | !"\"") ~ ANY)* ~ "\"" }
 
 // Files
 
-program = { SOI ~ element* ~ init ~ run ~ EOI }
+program = { SOI ~ include* ~ element* ~ init ~ run ~ EOI }
+module = { SOI ~ include* ~ element* ~ EOI }
+include = { "include" ~ string ~ ";" }
 init = { "Init" ~ "[" ~ (ident ~ ",")* ~ ident? ~ "]" ~ ";" }
 run = { "Run" ~ "[" ~ (ident ~ ",")* ~ ident? ~ "]" ~ ";" }
 

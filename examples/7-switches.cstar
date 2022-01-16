@@ -7,17 +7,17 @@ System main() {
         case 42: {
             println("2*x = The Ultimate Answer");
         }
-        case 0: {
-            println("x = 0");
+        case "jhon": {
+            println("x = jhon");
         }
         default: {
-            println("x is not 0, 30, or 42");
+            println("x is not \"jhon\", 30, or 42");
         }
     }
 
     /*
-     * Note: contrary to types languages like C, Java, and C#,
-     * cases may be different types. They still need to be atomic values though,
+     * Note: contrary to typed languages like C, Java, and C#,
+     * cases may be of different types. They still need to be atomic values though,
      * so it is not possible to witch on a variable or an expression for example.
      * The default case is required, as well as the braces around each case.
      * There is no fall-through.

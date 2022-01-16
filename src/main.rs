@@ -4,9 +4,9 @@ mod ast;
 mod ecs;
 mod parser;
 mod eval;
+mod sources;
 mod utils;
 
-use std::fs;
 use std::path::Path;
 
 use anyhow::Result;
@@ -28,16 +28,13 @@ fn main() -> Result<()> {
             .help("Prints the AST of the source file and quits before evaluating it."))
         .get_matches();
 
-    // Reads the source file's path.
-    let path = args.value_of("source").unwrap();
-
-    // Reads the source code.
-    let mut src = vec![fs::read_to_string(path)?];
+    // Gets the source file's path.
+    let path = Path::new(args.value_of("source").unwrap());
 
     // Parses the AST.
-    let ast = parser::parse_program(&path, &mut src)?;
+    let ast = parser::parse_program(path)?;
 
-    // Prints and exits
+    // Prints the ast and exits if requested.
     if args.is_present("ast") {
         dbg!(&ast);
         return Ok(());

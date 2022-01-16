@@ -1,5 +1,7 @@
+use std::cell::RefCell;
+use std::collections::HashMap;
 use std::fs;
-use std::path::Path;
+use std::path::{Path, PathBuf};
 
 use anyhow::{anyhow, Error, Result};
 use pest::Parser;
@@ -7,6 +9,7 @@ use pest::iterators::{Pair, Pairs};
 use pest_derive::Parser;
 
 use crate::ast;
+use crate::sources::Sources;
 use crate::utils::*;
 
 mod expressions;
@@ -23,30 +26,76 @@ use types::*;
 
 // The grammar of our language.
 #[derive(Parser)]
-#[grammar = "parser/grammar.pest"]
+#[grammar = "grammar.pest"]
 struct Grammar;
 
 // Generates the Abstract Syntax Tree from the program's source code. 
-pub fn parse_program<'a>(path: &str, src: &'a mut Vec<String>) -> Result<ast::AST<'a>> {
-    let pairs = Grammar::parse(Rule::program, &src[0])?
+pub fn parse_program<'a>(path: &Path) -> Result<ast::AST<'a>> {
+    let mut src = Sources::default();
+
+    let mut pairs = Grammar::parse(Rule::program, src.add(path)?.unwrap())?
         .next().unwrap().into_inner();
 
     let mut ast = ast::AST::default();
 
-    for element in pairs {
-        match element.as_rule() {
+    for pair in pairs {
+        match pair.as_rule() {
+            Rule::include => parse_module(pair.into_inner(), &mut ast, &mut src)?,
             Rule::element => {
-                let (name, element) = parse_element(element.into_inner())?;
+                let (name, element) = parse_element(pair.into_inner())?;
                 ast.names.insert(name, element);
-            },
-            Rule::init => ast.init = parse_ident_list(element.into_inner()),
-            Rule::run => ast.run = parse_ident_list(element.into_inner()),
+            }
+            Rule::init => ast.init = parse_ident_list(pair.into_inner()),
+            Rule::run => ast.run = parse_ident_list(pair.into_inner()),
             Rule::EOI => (),
             _ => unreachable!(),
         }
     }
 
     Ok(ast)
+}
+
+// Parse a module file.
+fn parse_module<'a>(mut pairs: Pairs<'a, Rule>, ast: &mut ast::AST<'a>, src: &mut Sources) -> Result<()> {
+    let path = parse_string(pairs.next().unwrap().as_str());
+    
+    if let Some(file) = src.add(Path::new(&path))? {
+        let mut pairs = Grammar::parse(Rule::module, file)?
+            .next().unwrap().into_inner();
+
+        for pair in pairs {
+            match pair.as_rule() {
+                Rule::include => parse_module(pair.into_inner(), ast, src)?,
+                Rule::element => {
+                    let (name, element) = parse_element(pair.into_inner())?;
+                    ast.names.insert(name, element);
+                }
+                Rule::EOI => (),
+                _ => unreachable!(),
+            }
+        }
+    }
+
+    Ok(())
+    /*let mut pairs = pairs.peekable();
+
+    for pair in pairs {
+        match pair.as_rule() {
+            Rule::element => {
+                let (name, element) = parse_element(pair.into_inner())?;
+                module.names.insert(name, element);
+            }
+            Rule::EOI => (),
+            _ => unreachable!(),
+        }
+    }
+
+    Ok(module)*/
+}
+
+// Parses an include directive.
+fn parse_include<'a>(mut pairs: Pairs<'a, Rule>) -> PathBuf {
+    PathBuf::from(parse_string(pairs.next().unwrap().as_str()))
 }
 
 // Parses an element.
