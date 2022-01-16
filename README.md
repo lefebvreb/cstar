@@ -41,9 +41,9 @@ This will run the `hello, world!` example of the `examples` directory. There are
 - [x] Switch statements
 - [x] Lists
 - [x] Imports and modules
-- [ ] Increment/Decrement operators
-- [ ] User input
+- [x] User input
 - [ ] Global variables
+- [ ] Increment/Decrement operators
 - [ ] Assignements operators
 - [ ] Enums
 - [ ] Span and proper errors

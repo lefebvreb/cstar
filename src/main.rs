@@ -16,8 +16,8 @@ fn main() -> Result<()> {
     // Parses the CLI arguments.
     let args = App::new("C* interpreter")
         .version(env!("CARGO_PKG_VERSION"))
-        .author("Benjamin Lefebvre")
-        .about("An interpreter for the C* programming language.")
+        .author(env!("CARGO_PKG_AUTHORS"))
+        .about("Interpreter for the C* programming language.")
         .arg(Arg::with_name("source")
             .index(1)
             .value_name("SOURCE")

@@ -1,3 +1,5 @@
+use std::io::{self, Write};
+
 use super::*;
 
 // Gets a list from an expression.
@@ -57,6 +59,66 @@ pub fn eval_call(scope: &Scope, ctx: &Context, call: &ast::Call) -> Result<Var> 
                 return Err(anyhow!("Index {} is out of bounds.", i));
             }
             return Ok(borrow.remove(i as usize));
+        }
+        // Type conversions.
+        "bool" => {
+            check_args(1)?;
+            return match eval_expr(scope, ctx, &args[0])? {
+                Var::Void => Ok(Var::Bool(false)),
+                Var::Bool(b) => Ok(Var::Bool(b)),
+                Var::Int(i) => Ok(Var::Bool(i != 0)),
+                Var::String(s) => Ok(Var::Bool(s.parse::<bool>()?)),
+                var => Err(anyhow!("Cannot convert {} to an int.", var)),
+            };
+        }
+        "int" => {
+            check_args(1)?;
+            return match eval_expr(scope, ctx, &args[0])? {
+                Var::Void => Ok(Var::Int(0)),
+                Var::Bool(b) => Ok(Var::Int(b as i64)),
+                Var::Int(i) => Ok(Var::Int(i)),
+                Var::Float(f) => Ok(Var::Int(f as i64)),
+                Var::Char(c) => Ok(Var::Int(c as i64)),
+                Var::String(s) => Ok(Var::Int(s.parse::<i64>()?)),
+                var => Err(anyhow!("Cannot convert {} to an int.", var)),
+            };
+        }
+        "float" => {
+            check_args(1)?;
+            return match eval_expr(scope, ctx, &args[0])? {
+                Var::Void => Ok(Var::Float(0.0)),
+                Var::Int(i) => Ok(Var::Float(i as f64)),
+                Var::Float(f) => Ok(Var::Float(f)),
+                Var::String(s) => Ok(Var::Float(s.parse::<f64>()?)),
+                var => Err(anyhow!("Cannot convert {} to an int.", var)),
+            };
+        }
+        "char" => {
+            check_args(1)?;
+            return match eval_expr(scope, ctx, &args[0])? {
+                Var::Int(i) => Ok(Var::Char(char::from_u32(i as u32).ok_or_else(|| anyhow!("Invalid unicode code point {}.", i))?)),
+                Var::Char(c) => Ok(Var::Char(c)),
+                Var::String(s) => {
+                    let chars = s.chars();
+                    let c = s.chars().next().ok_or_else(|| anyhow!("String is empty."))?;
+                    s.chars().next().is_none()
+                        .then(|| Ok(Var::Char(c)))
+                        .unwrap_or_else(|| Err(anyhow!("String contains more than one character.")))
+                }
+                var => Err(anyhow!("Cannot convert {} to a char.", var)),
+            };
+        }
+        "string" => {
+            check_args(1)?;
+            return Ok(Var::String(eval_expr(scope, ctx, &args[0])?.to_string()));
+        }
+        // User input.
+        "input" => {
+            check_args(0)?;
+            let mut input = String::new();
+            io::stdout().flush();
+            io::stdin().read_line(&mut input).unwrap();
+            return Ok(Var::String(input.trim().to_string()));
         }
         // Displaying.
         "print" => {

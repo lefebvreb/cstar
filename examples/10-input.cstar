@@ -1,0 +1,11 @@
+System main() {
+    /* Use the input function to get user input. */
+    print("What is your name ? ");
+    /* This will always return a string. */
+    let name = input();
+
+    println("Hello, ", name, "!");
+}
+
+Init [main];
+Run [];
