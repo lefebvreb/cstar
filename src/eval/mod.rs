@@ -24,10 +24,13 @@ use statements::*;
 mod systems;
 use systems::*;
 
+mod vars;
+use vars::*;
+
 // Walks the AST, interpreting the code.
 pub fn eval(ast: &'static ast::AST) -> Result<()> {
     let mut ctx = Context::default();
-    let mut scope = Scope::default();
+    let scope = Scope::default();
 
     // Gets all definitions.
     for (name, element) in ast.names.iter() {
@@ -62,6 +65,4 @@ pub fn eval(ast: &'static ast::AST) -> Result<()> {
             run_system(name)?;
         }
     }
-
-    Ok(())
 }

@@ -1,7 +1,3 @@
-use anyhow::Result;
-
-use crate::ast;
-
 use super::*;
 
 // Gets an int value from an expression.

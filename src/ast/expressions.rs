@@ -1,7 +1,3 @@
-use pest::prec_climber::Operator;
-
-use super::*;
-
 // An expression.
 #[derive(Debug)]
 pub enum Expr {
@@ -75,16 +71,6 @@ pub enum Atom {
 pub struct Call {
     pub name: &'static str,
     pub args: Vec<Expr>,
-}
-
-// A builtin function name.
-#[derive(Debug)]
-pub enum BuiltIn {
-    Clone,
-    Spawn,
-    Delete,
-    Println,
-    Print,
 }
 
 // A binary expression.

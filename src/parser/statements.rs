@@ -1,8 +1,3 @@
-use pest::iterators::Pairs;
-
-use crate::ast;
-use crate::utils::*;
-
 use super::*;
 
 // Parses a statement.
@@ -34,7 +29,7 @@ pub fn parse_decl(mut pairs: Pairs<'static, Rule>) -> ast::Decl {
 }
 
 // Parses a block.
-pub fn parse_block(mut pairs: Pairs<'static, Rule>) -> ast::Block {
+pub fn parse_block(pairs: Pairs<'static, Rule>) -> ast::Block {
     ast::Block {
         statements: pairs.map(|pair| parse_statement(pair.into_inner())).collect()
     }
@@ -103,14 +98,6 @@ pub fn parse_switch(mut pairs: Pairs<'static, Rule>) -> ast::Switch {
     }
 
     unreachable!()
-}
-
-// Parses a switch block.
-pub fn parse_case(mut pairs: Pairs<'static, Rule>) -> ast::SwitchCase {
-    ast::SwitchCase {
-        val: parse_atom(pairs.next().unwrap().into_inner()),
-        block: parse_block(pairs.next().unwrap().into_inner()),
-    }
 }
 
 // Parses a return statement.

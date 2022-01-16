@@ -1,7 +1,3 @@
-use pest::iterators::Pairs;
-
-use crate::ast;
-
 use super::*;
 
 // Parses a system.
@@ -19,7 +15,7 @@ pub fn parse_system(mut pairs: Pairs<'static, Rule>) -> (&'static str, ast::Name
 }
 
 // Parses a list of filters.
-pub fn parse_filter_list(mut pairs: Pairs<'static, Rule>) -> Vec<ast::Filter> {
+pub fn parse_filter_list(pairs: Pairs<'static, Rule>) -> Vec<ast::Filter> {
     let mut filters = Vec::new();
 
     for pair in pairs {

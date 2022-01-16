@@ -1,5 +1,3 @@
-use crate::ast;
-
 use ast::BinOp::*;
 use ast::UnOp::*;
 use Var::*;

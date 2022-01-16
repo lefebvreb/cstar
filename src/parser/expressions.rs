@@ -1,10 +1,7 @@
-use std::str::FromStr;
-
 use lazy_static::lazy_static;
-use pest::iterators::Pairs;
 use pest::prec_climber::{Assoc, Operator, PrecClimber};
 
-use crate::ast;
+use std::str::FromStr;
 
 use super::*;
 
@@ -42,7 +39,7 @@ lazy_static! {
 }
 
 // Parses a binary expression.
-pub fn parse_binexpr(mut pairs: Pairs<'static, Rule>) -> ast::Expr {
+pub fn parse_binexpr(pairs: Pairs<'static, Rule>) -> ast::Expr {
     PREC_CLIMBER.climb(
         pairs,
         |pair| parse_term(pair.into_inner()),
@@ -191,7 +188,7 @@ pub fn parse_call(mut pairs: Pairs<'static, Rule>) -> ast::Expr {
 }
 
 // Parses a list initialization.
-pub fn parse_list_init(mut pairs: Pairs<'static, Rule>) -> ast::Expr {
+pub fn parse_list_init(pairs: Pairs<'static, Rule>) -> ast::Expr {
     ast::Expr::ListInit(ast::ListInit {
         exprs: pairs.map(|pair| parse_expr(pair.into_inner())).collect(),
     })
@@ -213,7 +210,7 @@ pub fn parse_struct_init(mut pairs: Pairs<'static, Rule>) -> ast::Expr {
 }
 
 // Parses an index.
-pub fn parse_index(mut pairs: Pairs<'static, Rule>) -> ast::Index {
+pub fn parse_index(pairs: Pairs<'static, Rule>) -> ast::Index {
     ast::Index {
         exprs: pairs.map(|pair| parse_expr(pair.into_inner())).collect(),
     }

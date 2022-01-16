@@ -1,12 +1,9 @@
-use std::cell::RefCell;
-use std::collections::HashMap;
-use std::fs;
-use std::path::{Path, PathBuf};
-
-use anyhow::{anyhow, Error, Result};
+use anyhow::{anyhow,  Result};
 use pest::Parser;
 use pest::iterators::{Pair, Pairs};
 use pest_derive::Parser;
+
+use std::path::Path;
 
 use crate::ast;
 use crate::sources::Sources;
@@ -33,7 +30,7 @@ struct Grammar;
 pub fn parse_program(path: &Path) -> Result<&'static ast::AST> {
     let mut src = Sources::default();
 
-    let mut pairs = Grammar::parse(Rule::program, src.add(path)?.unwrap())?
+    let pairs = Grammar::parse(Rule::program, src.add(path)?.unwrap())?
         .next().unwrap().into_inner();
 
     let mut ast = ast::AST::default();
@@ -60,7 +57,7 @@ fn parse_module(mut pairs: Pairs<'static, Rule>, ast: &mut ast::AST, src: &mut S
     let path = parse_string(pairs.next().unwrap().as_str());
     
     if let Some(file) = src.add(Path::new(&path))? {
-        let mut pairs = Grammar::parse(Rule::module, file)?
+        let pairs = Grammar::parse(Rule::module, file)?
             .next().unwrap().into_inner();
 
         for pair in pairs {
@@ -77,11 +74,6 @@ fn parse_module(mut pairs: Pairs<'static, Rule>, ast: &mut ast::AST, src: &mut S
     }
 
     Ok(())
-}
-
-// Parses an include directive.
-fn parse_include(mut pairs: Pairs<'static, Rule>) -> PathBuf {
-    PathBuf::from(parse_string(pairs.next().unwrap().as_str()))
 }
 
 // Parses an element.

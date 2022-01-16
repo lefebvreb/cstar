@@ -1,7 +1,3 @@
-use anyhow::Result;
-
-use crate::ast;
-
 use super::*;
 
 // Evaluates an expression.
@@ -29,7 +25,7 @@ pub fn eval_ternary(scope: &Scope, ctx: &Context, ternary: &ast::Ternary) -> Res
 }
 
 // Evaluates an atom.
-pub fn eval_atom(scope: &Scope, ctx: &Context, atom: &ast::Atom) -> Result<Var> {
+pub fn eval_atom(_: &Scope, _: &Context, atom: &ast::Atom) -> Result<Var> {
     Ok(match atom {
         ast::Atom::Void => Var::Void,
         ast::Atom::Bool(b) => Var::Bool(*b),

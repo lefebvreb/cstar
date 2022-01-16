@@ -1,5 +1,3 @@
-use crate::ast;
-
 use super::*;
 
 pub fn parse_type(mut pairs: Pairs<'static, Rule>) -> ast::Type {

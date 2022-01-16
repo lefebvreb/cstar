@@ -1,7 +1,7 @@
 use super::*;
 
 // Gets a list from an expression.
-fn get_list(scope: &Scope, ctx: &Context, expr: &ast::Expr) -> Result<Ref<Vec<Var>>> {
+fn get_list(scope: &Scope, ctx: &Context, expr: &ast::Expr) -> Result<Shared<Vec<Var>>> {
     match eval_expr(scope, ctx, expr)? {
         Var::List(list) => Ok(list),
         var => return Err(anyhow!("Expected a list, but {} was provided.", var)),
@@ -20,7 +20,6 @@ fn get_int(scope: &Scope, ctx: &Context, expr: &ast::Expr) -> Result<i64> {
 pub fn eval_call(scope: &Scope, ctx: &Context, call: &ast::Call) -> Result<Var> {
     let ast::Call {name, args} = call;
 
-    let nargs = args.len();
     let check_args = |n| (args.len() == n)
         .then(|| ())
         .ok_or_else(|| anyhow!("{} expected exactly {} arguments, but {} where provided", name, n, args.len()));

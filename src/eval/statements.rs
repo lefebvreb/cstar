@@ -1,9 +1,3 @@
-use anyhow::Result;
-
-use std::mem;
-
-use crate::ast;
-
 use super::*;
 
 // Evaluates a statement.

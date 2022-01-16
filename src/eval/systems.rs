@@ -1,7 +1,3 @@
-use anyhow::Result;
-
-use crate::ast;
-
 use super::*;
 
 pub fn eval_system(scope: &Scope, ctx: &Context, sys: &ast::System) -> Result<()> {
