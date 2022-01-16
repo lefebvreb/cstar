@@ -2,28 +2,28 @@ use super::*;
 
 // A system.
 #[derive(Debug)]
-pub struct System<'a> {
-    pub filters: Vec<Filter<'a>>,
-    pub code: Block<'a>,
+pub struct System {
+    pub filters: Vec<Filter>,
+    pub code: Block,
 }
 
 // A single Filter.
 #[derive(Debug)]
-pub enum Filter<'a> {
-    Entity(EntityFilter<'a>),
-    Resource(Argument<'a>),
+pub enum Filter {
+    Entity(EntityFilter),
+    Resource(Argument),
 }
 
 // An entity filter.
 #[derive(Debug)]
-pub struct EntityFilter<'a> {
-    pub name: &'a str,
-    pub args: Vec<Argument<'a>>,
+pub struct EntityFilter {
+    pub name: &'static str,
+    pub args: Vec<Argument>,
 }
 
 // An argument to a System or function signature.
 #[derive(Debug)]
-pub struct Argument<'a> {
-    pub ty: &'a str,
-    pub name: &'a str,
+pub struct Argument {
+    pub ty: &'static str,
+    pub name: &'static str,
 }

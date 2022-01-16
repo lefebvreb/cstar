@@ -4,7 +4,7 @@ use crate::ast;
 
 use super::*;
 
-pub fn eval_system<'a>(scope: &Scope<'a>, ctx: &'a Context<'a>, sys: &ast::System<'a>) -> Result<()> {
+pub fn eval_system(scope: &Scope, ctx: &Context, sys: &ast::System) -> Result<()> {
     // Use the scope trick to avoid overshadoing of structs.
     scope.next();
     

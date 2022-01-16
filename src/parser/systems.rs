@@ -5,7 +5,7 @@ use crate::ast;
 use super::*;
 
 // Parses a system.
-pub fn parse_system<'a>(mut pairs: Pairs<'a, Rule>) -> (&'a str, ast::Name<'a>) {
+pub fn parse_system(mut pairs: Pairs<'static, Rule>) -> (&'static str, ast::Name) {
     let name = pairs.next().unwrap().as_str();
     let filters = parse_filter_list(pairs.next().unwrap().into_inner());
     let code = parse_block(pairs.next().unwrap().into_inner());
@@ -19,7 +19,7 @@ pub fn parse_system<'a>(mut pairs: Pairs<'a, Rule>) -> (&'a str, ast::Name<'a>) 
 }
 
 // Parses a list of filters.
-pub fn parse_filter_list<'a>(mut pairs: Pairs<'a, Rule>) -> Vec<ast::Filter> {
+pub fn parse_filter_list(mut pairs: Pairs<'static, Rule>) -> Vec<ast::Filter> {
     let mut filters = Vec::new();
 
     for pair in pairs {
@@ -30,7 +30,7 @@ pub fn parse_filter_list<'a>(mut pairs: Pairs<'a, Rule>) -> Vec<ast::Filter> {
 }
 
 // Parses a single filter.
-pub fn parse_filter<'a>(mut pairs: Pairs<'a, Rule>) -> ast::Filter {
+pub fn parse_filter(mut pairs: Pairs<'static, Rule>) -> ast::Filter {
     let pair = pairs.next().unwrap();
 
     match pair.as_rule() {
@@ -43,7 +43,7 @@ pub fn parse_filter<'a>(mut pairs: Pairs<'a, Rule>) -> ast::Filter {
 }
 
 // Parses an entity filter.
-pub fn parse_entity_filter<'a>(mut pairs: Pairs<'a, Rule>) -> ast::Filter {
+pub fn parse_entity_filter(mut pairs: Pairs<'static, Rule>) -> ast::Filter {
     let name = pairs.next().unwrap().as_str();
     let mut args = Vec::new();
 
@@ -56,7 +56,7 @@ pub fn parse_entity_filter<'a>(mut pairs: Pairs<'a, Rule>) -> ast::Filter {
 }
 
 // Parses a formal argument to a function or system call.
-pub fn parse_argument<'a>(mut pairs: Pairs<'a, Rule>) -> ast::Argument<'a> {
+pub fn parse_argument(mut pairs: Pairs<'static, Rule>) -> ast::Argument {
     ast::Argument {
         ty: pairs.next().unwrap().as_str(), 
         name: pairs.next().unwrap().as_str(),

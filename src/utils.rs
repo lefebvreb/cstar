@@ -10,10 +10,10 @@ pub enum Either<L, R> {
 }
 
 // Shorter name for a HashMap with &str as keys.
-pub type Map<'a, T> = HashMap<&'a str, T>;
+pub type Map<T> = HashMap<&'static str, T>;
 
 // Shorter name for a HashSet with &str as keys.
-pub type Set<'a> = HashSet<&'a str>;
+pub type Set = HashSet<&'static str>;
 
 // A reference counted with interior mutability wrapper.
 pub type Ref<T> = Rc<RefCell<T>>;

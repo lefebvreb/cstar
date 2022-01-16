@@ -9,7 +9,7 @@ use crate::ast;
 use super::*;
 
 // Parses an expression.
-pub fn parse_expr<'a>(mut pairs: Pairs<'a, Rule>) -> ast::Expr<'a> {
+pub fn parse_expr(mut pairs: Pairs<'static, Rule>) -> ast::Expr {
     let pair = pairs.next().unwrap();
 
     match pair.as_rule() {
@@ -42,7 +42,7 @@ lazy_static! {
 }
 
 // Parses a binary expression.
-pub fn parse_binexpr<'a>(mut pairs: Pairs<'a, Rule>) -> ast::Expr<'a> {
+pub fn parse_binexpr(mut pairs: Pairs<'static, Rule>) -> ast::Expr {
     PREC_CLIMBER.climb(
         pairs,
         |pair| parse_term(pair.into_inner()),
@@ -55,7 +55,7 @@ pub fn parse_binexpr<'a>(mut pairs: Pairs<'a, Rule>) -> ast::Expr<'a> {
 }
 
 // Parses a binary operator.
-pub fn parse_binop<'a>(pair: Pair<'a, Rule>) -> ast::BinOp {
+pub fn parse_binop(pair: Pair<'_, Rule>) -> ast::BinOp {
     match pair.as_rule() {
         Rule::add => ast::BinOp::Add,
         Rule::sub => ast::BinOp::Sub,
@@ -80,7 +80,7 @@ pub fn parse_binop<'a>(pair: Pair<'a, Rule>) -> ast::BinOp {
 }
 
 // Parses a ternary expression.
-pub fn parse_ternary<'a>(mut pairs: Pairs<'a, Rule>) -> ast::Expr<'a> {
+pub fn parse_ternary(mut pairs: Pairs<'static, Rule>) -> ast::Expr {
     ast::Expr::Ternary(Box::new(ast::Ternary {
         cond: parse_expr(pairs.next().unwrap().into_inner()),
         branch1: parse_expr(pairs.next().unwrap().into_inner()),
@@ -89,7 +89,7 @@ pub fn parse_ternary<'a>(mut pairs: Pairs<'a, Rule>) -> ast::Expr<'a> {
 }
 
 // Parses a term.
-pub fn parse_term<'a>(mut pairs: Pairs<'a, Rule>) -> ast::Expr<'a> {
+pub fn parse_term(mut pairs: Pairs<'static, Rule>) -> ast::Expr {
     let pair = pairs.next().unwrap();
 
     match pair.as_rule() {
@@ -101,7 +101,7 @@ pub fn parse_term<'a>(mut pairs: Pairs<'a, Rule>) -> ast::Expr<'a> {
 }
 
 // Parses a value.
-pub fn parse_value<'a>(mut pairs: Pairs<'a, Rule>) -> ast::Expr<'a> {
+pub fn parse_value(mut pairs: Pairs<'static, Rule>) -> ast::Expr {
     let pair = pairs.next().unwrap();
 
     match pair.as_rule() {
@@ -116,7 +116,7 @@ pub fn parse_value<'a>(mut pairs: Pairs<'a, Rule>) -> ast::Expr<'a> {
 }
 
 // Parses an assignement.
-pub fn parse_assign<'a>(mut pairs: Pairs<'a, Rule>) -> ast::Expr<'a> {
+pub fn parse_assign(mut pairs: Pairs<'static, Rule>) -> ast::Expr {
     ast::Expr::Assign(Box::new(ast::Assign {
         lvalue: parse_lvalue(pairs.next().unwrap().into_inner()),
         expr: parse_expr(pairs.next().unwrap().into_inner()),
@@ -124,7 +124,7 @@ pub fn parse_assign<'a>(mut pairs: Pairs<'a, Rule>) -> ast::Expr<'a> {
 }
 
 // Parses an atom.
-pub fn parse_atom<'a>(mut pairs: Pairs<'a, Rule>) -> ast::Atom {
+pub fn parse_atom(mut pairs: Pairs<'static, Rule>) -> ast::Atom {
     let pair = pairs.next().unwrap();
 
     match pair.as_rule() {
@@ -183,7 +183,7 @@ pub fn parse_string(s: &str) -> String {
 }
 
 // Parses a call.
-pub fn parse_call<'a>(mut pairs: Pairs<'a, Rule>) -> ast::Expr<'a> {
+pub fn parse_call(mut pairs: Pairs<'static, Rule>) -> ast::Expr {
     ast::Expr::Call(ast::Call {
         name: pairs.next().unwrap().as_str(),
         args: pairs.map(|pair| parse_expr(pair.into_inner())).collect(),
@@ -191,14 +191,14 @@ pub fn parse_call<'a>(mut pairs: Pairs<'a, Rule>) -> ast::Expr<'a> {
 }
 
 // Parses a list initialization.
-pub fn parse_list_init<'a>(mut pairs: Pairs<'a, Rule>) -> ast::Expr<'a> {
+pub fn parse_list_init(mut pairs: Pairs<'static, Rule>) -> ast::Expr {
     ast::Expr::ListInit(ast::ListInit {
         exprs: pairs.map(|pair| parse_expr(pair.into_inner())).collect(),
     })
 }
 
 // Parses a struct initialization.
-pub fn parse_struct_init<'a>(mut pairs: Pairs<'a, Rule>) -> ast::Expr<'a> {
+pub fn parse_struct_init(mut pairs: Pairs<'static, Rule>) -> ast::Expr {
     let name = pairs.next().unwrap().as_str();
     let mut fields = Vec::new();
 
@@ -213,14 +213,14 @@ pub fn parse_struct_init<'a>(mut pairs: Pairs<'a, Rule>) -> ast::Expr<'a> {
 }
 
 // Parses an index.
-pub fn parse_index<'a>(mut pairs: Pairs<'a, Rule>) -> ast::Index<'a> {
+pub fn parse_index(mut pairs: Pairs<'static, Rule>) -> ast::Index {
     ast::Index {
         exprs: pairs.map(|pair| parse_expr(pair.into_inner())).collect(),
     }
 }
 
 // Parses a left-value.
-pub fn parse_lvalue<'a>(mut pairs: Pairs<'a, Rule>) -> ast::LValue<'a> {
+pub fn parse_lvalue(mut pairs: Pairs<'static, Rule>) -> ast::LValue {
     let mut res = ast::LValue {
         name: pairs.next().unwrap().as_str(),
         first_index: parse_index(pairs.next().unwrap().into_inner()),
@@ -238,7 +238,7 @@ pub fn parse_lvalue<'a>(mut pairs: Pairs<'a, Rule>) -> ast::LValue<'a> {
 }
 
 // Parses a unary expression.
-pub fn parse_unexpr<'a>(mut pairs: Pairs<'a, Rule>) -> ast::Expr<'a> {
+pub fn parse_unexpr(mut pairs: Pairs<'static, Rule>) -> ast::Expr {
     ast::Expr::UnExpr(Box::new(ast::UnExpr {
         op: parse_unop(pairs.next().unwrap().into_inner()),
         expr: parse_term(pairs.next().unwrap().into_inner()),
@@ -246,7 +246,7 @@ pub fn parse_unexpr<'a>(mut pairs: Pairs<'a, Rule>) -> ast::Expr<'a> {
 }
 
 // Parses a unary operator.
-pub fn parse_unop<'a>(mut pairs: Pairs<'a, Rule>) -> ast::UnOp {
+pub fn parse_unop(mut pairs: Pairs<'static, Rule>) -> ast::UnOp {
     match pairs.next().unwrap().as_rule() {
         Rule::pos => ast::UnOp::Pos,
         Rule::neg => ast::UnOp::Neg,

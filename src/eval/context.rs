@@ -8,14 +8,14 @@ use crate::ecs;
 use crate::utils::*;
 
 // Holds definitions of function-like and struct-like objects.
-pub struct Context<'a> {
-    defs: Map<'a, Def<'a>>,
+pub struct Context {
+    defs: Map<Def>,
 }
 
-impl<'a> Context<'a> {
+impl Context {
     // Defines a new object in the context, retunrns an error if an
     // object with the same name already exists.
-    pub fn set_def(&mut self, name: &'a str, def: Def<'a>) -> Result<()> {
+    pub fn set_def(&mut self, name: &'static str, def: Def) -> Result<()> {
         self.defs.insert(name, def)
             .is_none().then(|| ())
             .ok_or_else(|| anyhow!("object with name '{}' already exists", name))
@@ -30,7 +30,7 @@ impl<'a> Context<'a> {
     }
 }
 
-impl Default for Context<'_> {
+impl Default for Context {
     // Creates a new empty context object.
     fn default() -> Self {
         Self {
@@ -40,11 +40,11 @@ impl Default for Context<'_> {
 }
 
 // Holds all variables scopes.
-pub struct Scope<'a> {
-    vars: RefCell<Vec<Map<'a, Var<'a>>>>,
+pub struct Scope {
+    vars: RefCell<Vec<Map<Var>>>,
 }
 
-impl<'a> Scope<'a> {
+impl Scope {
     // Nests another new empty scope.
     pub fn next(&self) {
         self.vars.borrow_mut().push(Map::new());
@@ -56,12 +56,12 @@ impl<'a> Scope<'a> {
     }
 
     // Adds a new variable to the topmost scope.
-    pub fn new_var(&self, name: &'a str, val: Var<'a>) {
+    pub fn new_var(&self, name: &'static str, val: Var) {
         self.vars.borrow_mut().last_mut().unwrap().insert(name, val);
     }
 
     // Gets a copy of the requested variable.
-    pub fn get_var(&self, name: &'a str) -> Result<Var<'a>> {
+    pub fn get_var(&self, name: &'static str) -> Result<Var> {
         self.vars.borrow().iter().rev()
             .find_map(|scope| scope.get(name))
             .map(Var::clone)
@@ -69,7 +69,7 @@ impl<'a> Scope<'a> {
     }
 
     // Sets the value of the requested variable.
-    pub fn set_var(&self, name: &'a str, val: Var<'a>) -> Result<()> {
+    pub fn set_var(&self, name: &'static str, val: Var) -> Result<()> {
         let mut borrow = self.vars.borrow_mut();
         let var = borrow.iter_mut().rev()
             .find_map(|scope| scope.get_mut(name))
@@ -82,39 +82,9 @@ impl<'a> Scope<'a> {
         *var = val;
         Ok(())
     }
-
-    /*// Runs a closure on a requested variable.
-    pub fn get_var(&self, path: &[&'a str], index: &[usize], reader: impl FnOnce(&Var<'a>) -> Result<Var<'a>>) -> Result<Var<'a>> {
-        //self.mutate_var(path, index, |var| reader(var))
-        todo!()
-    }*/
-
-    /*// Runs a mutable closure on a requested variable.
-    pub fn get_var(&self, path: &[&'a str], index: &[usize]) -> Result<Var<'a>> {
-        let mut var = self.vars.borrow().iter().rev()
-            .find_map(|scope| scope.get(path[0]))
-            .map(Var::clone)
-            .ok_or_else(|| anyhow!("Variable {} does not exist in current scope.", path[0]))?;
-
-        for &ident in &path[1..] {
-            match var {
-                Var::Struct {map, ..} => var = map.get(ident).ok_or_else(|| anyhow!("Field {} does not exist.", ident))?.clone(),
-                _ => return Err(anyhow!("Cannot access field {} of non-struct variable.", ident)),
-            }
-        }
-
-        for &i in index {
-            match var {
-                Var::List(list) => var = list.borrow().get(i).ok_or_else(|| anyhow!("Out of bound index: {}.", i))?.clone(),
-                _ => return Err(anyhow!("Cannot access index {} of non-list variable.", i)),
-            }
-        }
-
-        Ok(var)
-    }*/
 }
 
-impl Default for Scope<'_> {
+impl Default for Scope {
     // Creates a new empty scope object.
     fn default() -> Self {
         Self {
@@ -125,7 +95,7 @@ impl Default for Scope<'_> {
 
 // A variable's value.
 #[derive(Clone, Debug)]
-pub enum Var<'a> {
+pub enum Var {
     Void,
     Bool(bool),
     Int(i64),
@@ -133,19 +103,19 @@ pub enum Var<'a> {
     Char(char),
     String(String),
     Entity(ecs::Entity),
-    List(Ref<Vec<Var<'a>>>),
-    Struct(Ref<Struct<'a>>),
+    List(Ref<Vec<Var>>),
+    Struct(Ref<Struct>),
 }
 
 #[derive(Debug)]
-pub struct Struct<'a> {
-    pub name: &'a str,
-    pub map: Map<'a, Var<'a>>,
+pub struct Struct {
+    pub name: &'static str,
+    pub map: Map<Var>,
 }
 
-impl<'a> Var<'a> {
+impl Var {
     // Returns the variable's type.
-    pub fn get_type(&self) -> ast::Type<'a> {
+    pub fn get_type(&self) -> ast::Type {
         match self {
             Var::Void => ast::Type::Void,
             Var::Bool(_) => ast::Type::Bool,
@@ -160,7 +130,7 @@ impl<'a> Var<'a> {
     }
 }
 
-impl<'a> fmt::Display for Var<'a> {
+impl fmt::Display for Var {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
             Var::Void => write!(f, "void"),
@@ -198,7 +168,7 @@ impl<'a> fmt::Display for Var<'a> {
     }
 }
 
-impl PartialEq for Var<'_> {
+impl PartialEq for Var {
     // Compares two variables.
     fn eq(&self, other: &Self) -> bool {
         match (self, other) {
@@ -216,19 +186,19 @@ impl PartialEq for Var<'_> {
 
 // A definition of a struct-like or function-like object.
 #[derive(Clone, Debug)]
-pub enum Def<'a> {
-    Function(&'a ast::Function<'a>),
-    System(&'a ast::System<'a>),
-    Component(&'a ast::StructDef<'a>),
-    Resource(&'a ast::StructDef<'a>),
-    Struct(&'a ast::StructDef<'a>),
+pub enum Def {
+    Function(&'static ast::Function),
+    System(&'static ast::System),
+    Component(&'static ast::StructDef),
+    Resource(&'static ast::StructDef),
+    Struct(&'static ast::StructDef),
 }
 
 // The result of the evaluation of a statement.
 #[derive(Debug)]
-pub enum Flow<'a> {
+pub enum Flow {
     Ok,
     Break,
     Continue,
-    Return(Var<'a>),
+    Return(Var),
 }

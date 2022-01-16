@@ -2,75 +2,75 @@ use super::*;
 
 // A statement.
 #[derive(Debug)]
-pub enum Statement<'a> {
-    Decl(Decl<'a>),
-    If(If<'a>),
-    For(For<'a>),
-    While(While<'a>),
-    Query(Query<'a>),
-    Switch(Switch<'a>),
-    Block(Block<'a>),
-    Expr(Expr<'a>),
+pub enum Statement {
+    Decl(Decl),
+    If(If),
+    For(For),
+    While(While),
+    Query(Query),
+    Switch(Switch),
+    Block(Block),
+    Expr(Expr),
     Break,
     Continue,
-    Return(Option<Expr<'a>>)
+    Return(Option<Expr>)
 }
 
 // A variable declaration.
 #[derive(Debug)]
-pub struct Decl<'a> {
-    pub ident: &'a str,
-    pub init: Option<Expr<'a>>,
+pub struct Decl {
+    pub ident: &'static str,
+    pub init: Option<Expr>,
 }
 
 // An if block.
 #[derive(Debug)]
-pub struct If<'a> {
-    pub cond: Expr<'a>,
-    pub branch1: Block<'a>,
-    pub branch2: Option<Block<'a>>,
+pub struct If {
+    pub cond: Expr,
+    pub branch1: Block,
+    pub branch2: Option<Block>,
 }
 
 // A for loop.
 #[derive(Debug)]
-pub struct For<'a> {
-    pub init: Either<Expr<'a>, Decl<'a>>,
-    pub cond: Expr<'a>,
-    pub incr: Expr<'a>,
-    pub code: Block<'a>,
+pub struct For {
+    pub init: Either<Expr, Decl>,
+    pub cond: Expr,
+    pub incr: Expr,
+    pub code: Block,
 }
 
 // A while loop.
 #[derive(Debug)]
-pub struct While<'a> {
-    pub cond: Expr<'a>,
-    pub code: Block<'a>,
+pub struct While {
+    pub cond: Expr,
+    pub code: Block,
 }
 
 // A query loop.
 #[derive(Debug)]
-pub struct Query<'a> {
-    pub filters: Vec<Filter<'a>>,
-    pub code: Block<'a>,
+pub struct Query {
+    pub filters: Vec<Filter>,
+    pub code: Block,
 }
 
 // A switch block.
 #[derive(Debug)]
-pub struct Switch<'a> {
-    pub expr: Expr<'a>,
-    pub cases: Vec<SwitchCase<'a>>,
-    pub default: Block<'a>,
+pub struct Switch {
+    pub expr: Expr,
+    pub cases: Vec<SwitchCase>,
+    pub default: Block,
 }
 
 // A switch case.
 #[derive(Debug)]
-pub struct SwitchCase<'a> {
+pub struct SwitchCase {
     pub val: Atom,
-    pub block: Block<'a>,
+    pub block: Block,
 }
 
 // A code block.
 #[derive(Default, Debug)]
-pub struct Block<'a> {
-    pub statements: Vec<Statement<'a>>,
+pub struct Block {
+    pub statements: Vec<Statement>,
 }

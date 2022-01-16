@@ -2,7 +2,7 @@ use crate::ast;
 
 use super::*;
 
-pub fn parse_type<'a>(mut pairs: Pairs<'a, Rule>) -> ast::Type<'a> {
+pub fn parse_type(mut pairs: Pairs<'static, Rule>) -> ast::Type {
     let pair = pairs.next().unwrap();
     match pair.as_rule() {
         Rule::void_t => ast::Type::Void,
@@ -18,7 +18,7 @@ pub fn parse_type<'a>(mut pairs: Pairs<'a, Rule>) -> ast::Type<'a> {
 }
 
 // Parses a structure definition.
-pub fn parse_struct_def<'a>(mut pairs: Pairs<'a, Rule>) -> Result<ast::StructDef<'a>> {
+pub fn parse_struct_def(mut pairs: Pairs<'static, Rule>) -> Result<ast::StructDef> {
     let mut def = ast::StructDef::default();
     
     while let Some(ty) = pairs.next() {

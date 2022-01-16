@@ -5,7 +5,7 @@ use crate::ast;
 use super::*;
 
 // Evaluates an expression.
-pub fn eval_expr<'a>(scope: &Scope<'a>, ctx: &'a Context<'a>, expr: &ast::Expr<'a>) -> Result<Var<'a>> {
+pub fn eval_expr(scope: &Scope, ctx: &Context, expr: &ast::Expr) -> Result<Var> {
     match expr {
         ast::Expr::Ternary(ternary) => eval_ternary(scope, ctx, ternary),
         ast::Expr::Assign(assign) => eval_assign(scope, ctx, assign),
@@ -20,7 +20,7 @@ pub fn eval_expr<'a>(scope: &Scope<'a>, ctx: &'a Context<'a>, expr: &ast::Expr<'
 }
 
 // Evaluates a ternary expression.
-pub fn eval_ternary<'a>(scope: &Scope<'a>, ctx: &'a Context<'a>, ternary: &ast::Ternary<'a>) -> Result<Var<'a>> {
+pub fn eval_ternary(scope: &Scope, ctx: &Context, ternary: &ast::Ternary) -> Result<Var> {
     match eval_expr(scope, ctx, &ternary.cond)? {
         Var::Bool(true) => eval_expr(scope, ctx, &ternary.branch1),
         Var::Bool(false) => eval_expr(scope, ctx, &ternary.branch2),
@@ -29,7 +29,7 @@ pub fn eval_ternary<'a>(scope: &Scope<'a>, ctx: &'a Context<'a>, ternary: &ast::
 }
 
 // Evaluates an atom.
-pub fn eval_atom<'a>(scope: &Scope<'a>, ctx: &'a Context<'a>, atom: &ast::Atom) -> Result<Var<'a>> {
+pub fn eval_atom(scope: &Scope, ctx: &Context, atom: &ast::Atom) -> Result<Var> {
     Ok(match atom {
         ast::Atom::Void => Var::Void,
         ast::Atom::Bool(b) => Var::Bool(*b),
@@ -41,12 +41,12 @@ pub fn eval_atom<'a>(scope: &Scope<'a>, ctx: &'a Context<'a>, atom: &ast::Atom) 
 }
 
 // Evaluates a list initialization.
-pub fn eval_list_init<'a>(scope: &Scope<'a>, ctx: &'a Context<'a>, list_init: &ast::ListInit<'a>) -> Result<Var<'a>> {
+pub fn eval_list_init(scope: &Scope, ctx: &Context, list_init: &ast::ListInit) -> Result<Var> {
     Ok(Var::List(as_ref(list_init.exprs.iter().map(|expr| eval_expr(scope, ctx, expr)).collect::<Result<_>>()?)))
 }
 
 // Evaluates a struct initialization.
-pub fn eval_struct_init<'a>(scope: &Scope<'a>, ctx: &'a Context<'a>, struct_init: &ast::StructInit<'a>) -> Result<Var<'a>> {
+pub fn eval_struct_init(scope: &Scope, ctx: &Context, struct_init: &ast::StructInit) -> Result<Var> {
     match ctx.get_def(struct_init.name)? {
         Def::Component(def) | Def::Resource(def) | Def::Struct(def) => {
             let mut map = Map::with_capacity(def.fields.len());

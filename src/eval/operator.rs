@@ -7,7 +7,7 @@ use Var::*;
 use super::*;
 
 // Evaluates a binary expression.
-pub fn eval_bin_expr<'a>(scope: &Scope<'a>, ctx: &'a Context<'a>, bin_expr: &ast::BinExpr<'a>) -> Result<Var<'a>> {
+pub fn eval_bin_expr(scope: &Scope, ctx: &Context, bin_expr: &ast::BinExpr) -> Result<Var> {
     let lvar = eval_expr(scope, ctx, &bin_expr.left)?;
     let rvar = eval_expr(scope, ctx, &bin_expr.right)?;
     
@@ -89,7 +89,7 @@ pub fn eval_bin_expr<'a>(scope: &Scope<'a>, ctx: &'a Context<'a>, bin_expr: &ast
 }
 
 // Evaluates an unary expression.
-pub fn eval_un_expr<'a>(scope: &Scope<'a>, ctx: &'a Context<'a>, un_expr: &ast::UnExpr<'a>) -> Result<Var<'a>> {
+pub fn eval_un_expr(scope: &Scope, ctx: &Context, un_expr: &ast::UnExpr) -> Result<Var> {
     let var = eval_expr(scope, ctx, &un_expr.expr)?;
     
     Ok(match (un_expr.op, var.clone()) {

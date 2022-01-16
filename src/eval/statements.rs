@@ -7,7 +7,7 @@ use crate::ast;
 use super::*;
 
 // Evaluates a statement.
-pub fn eval_statement<'a>(scope: &Scope<'a>, ctx: &'a Context<'a>, stmt: &ast::Statement<'a>) -> Result<Flow<'a>> {
+pub fn eval_statement(scope: &Scope, ctx: &Context, stmt: &ast::Statement) -> Result<Flow> {
     match stmt {
         ast::Statement::Break => Ok(Flow::Break),
         ast::Statement::Continue => Ok(Flow::Continue),
@@ -25,7 +25,7 @@ pub fn eval_statement<'a>(scope: &Scope<'a>, ctx: &'a Context<'a>, stmt: &ast::S
 }
 
 // Evaluates a block of statements.
-pub fn eval_block<'a>(scope: &Scope<'a>, ctx: &'a Context<'a>, block: &ast::Block<'a>) -> Result<Flow<'a>> {
+pub fn eval_block(scope: &Scope, ctx: &Context, block: &ast::Block) -> Result<Flow> {
     let mut flow = Flow::Ok;
 
     scope.next();
@@ -41,7 +41,7 @@ pub fn eval_block<'a>(scope: &Scope<'a>, ctx: &'a Context<'a>, block: &ast::Bloc
 }
 
 // Evaluates an if statement.
-pub fn eval_if<'a>(scope: &Scope<'a>, ctx: &'a Context<'a>, if_: &ast::If<'a>) -> Result<Flow<'a>> {
+pub fn eval_if(scope: &Scope, ctx: &Context, if_: &ast::If) -> Result<Flow> {
     match eval_expr(scope, ctx, &if_.cond)? {
         Var::Bool(true) => eval_block(scope, ctx, &if_.branch1),
         Var::Bool(false) => {
@@ -56,7 +56,7 @@ pub fn eval_if<'a>(scope: &Scope<'a>, ctx: &'a Context<'a>, if_: &ast::If<'a>) -
 }
 
 // Evaluates a for statement.
-pub fn eval_for<'a>(scope: &Scope<'a>, ctx: &'a Context<'a>, for_: &ast::For<'a>) -> Result<Flow<'a>> {
+pub fn eval_for(scope: &Scope, ctx: &Context, for_: &ast::For) -> Result<Flow> {
     scope.next();
 
     match &for_.init {
@@ -88,7 +88,7 @@ pub fn eval_for<'a>(scope: &Scope<'a>, ctx: &'a Context<'a>, for_: &ast::For<'a>
 }
 
 // Evaluates a declaration.
-pub fn eval_decl<'a>(scope: &Scope<'a>, ctx: &'a Context<'a>, decl: &ast::Decl<'a>) -> Result<Flow<'a>> {
+pub fn eval_decl(scope: &Scope, ctx: &Context, decl: &ast::Decl) -> Result<Flow> {
     match &decl.init {
         Some(init) => scope.new_var(decl.ident, eval_expr(scope, ctx, &init)?),
         _ => scope.new_var(decl.ident, Var::Void),
@@ -97,7 +97,7 @@ pub fn eval_decl<'a>(scope: &Scope<'a>, ctx: &'a Context<'a>, decl: &ast::Decl<'
 }
 
 // Evaluates a while statement.
-pub fn eval_while<'a>(scope: &Scope<'a>, ctx: &'a Context<'a>, while_: &ast::While<'a>) -> Result<Flow<'a>> {
+pub fn eval_while(scope: &Scope, ctx: &Context, while_: &ast::While) -> Result<Flow> {
     scope.next();
 
     loop {
@@ -123,7 +123,7 @@ pub fn eval_while<'a>(scope: &Scope<'a>, ctx: &'a Context<'a>, while_: &ast::Whi
 }
 
 // Evaluates an if statement.
-pub fn eval_switch<'a>(scope: &Scope<'a>, ctx: &'a Context<'a>, switch: &ast::Switch<'a>) -> Result<Flow<'a>> {
+pub fn eval_switch(scope: &Scope, ctx: &Context, switch: &ast::Switch) -> Result<Flow> {
     let var = eval_expr(scope, ctx, &switch.expr)?;
 
     for case in &switch.cases {
@@ -135,7 +135,7 @@ pub fn eval_switch<'a>(scope: &Scope<'a>, ctx: &'a Context<'a>, switch: &ast::Sw
     eval_block(scope, ctx, &switch.default)
 }
 
-pub fn eval_query<'a>(scope: &Scope<'a>, ctx: &'a Context<'a>, query: &ast::Query<'a>) -> Result<Flow<'a>> {
+pub fn eval_query(scope: &Scope, ctx: &Context, query: &ast::Query) -> Result<Flow> {
     scope.next();
 
     //todo!(); // Do filtering here !

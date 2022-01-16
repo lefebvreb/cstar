@@ -30,7 +30,7 @@ use types::*;
 struct Grammar;
 
 // Generates the Abstract Syntax Tree from the program's source code. 
-pub fn parse_program<'a>(path: &Path) -> Result<ast::AST<'a>> {
+pub fn parse_program(path: &Path) -> Result<&'static ast::AST> {
     let mut src = Sources::default();
 
     let mut pairs = Grammar::parse(Rule::program, src.add(path)?.unwrap())?
@@ -52,11 +52,11 @@ pub fn parse_program<'a>(path: &Path) -> Result<ast::AST<'a>> {
         }
     }
 
-    Ok(ast)
+    Ok(Box::leak(Box::new(ast)))
 }
 
 // Parse a module file.
-fn parse_module<'a>(mut pairs: Pairs<'a, Rule>, ast: &mut ast::AST<'a>, src: &mut Sources) -> Result<()> {
+fn parse_module(mut pairs: Pairs<'static, Rule>, ast: &mut ast::AST, src: &mut Sources) -> Result<()> {
     let path = parse_string(pairs.next().unwrap().as_str());
     
     if let Some(file) = src.add(Path::new(&path))? {
@@ -77,29 +77,15 @@ fn parse_module<'a>(mut pairs: Pairs<'a, Rule>, ast: &mut ast::AST<'a>, src: &mu
     }
 
     Ok(())
-    /*let mut pairs = pairs.peekable();
-
-    for pair in pairs {
-        match pair.as_rule() {
-            Rule::element => {
-                let (name, element) = parse_element(pair.into_inner())?;
-                module.names.insert(name, element);
-            }
-            Rule::EOI => (),
-            _ => unreachable!(),
-        }
-    }
-
-    Ok(module)*/
 }
 
 // Parses an include directive.
-fn parse_include<'a>(mut pairs: Pairs<'a, Rule>) -> PathBuf {
+fn parse_include(mut pairs: Pairs<'static, Rule>) -> PathBuf {
     PathBuf::from(parse_string(pairs.next().unwrap().as_str()))
 }
 
 // Parses an element.
-fn parse_element<'a>(mut pairs: Pairs<'a, Rule>) -> Result<(&'a str, ast::Name<'a>)> {
+fn parse_element(mut pairs: Pairs<'static, Rule>) -> Result<(&'static str, ast::Name)> {
     let element = pairs.next().unwrap();
 
     match element.as_rule() {
@@ -113,28 +99,28 @@ fn parse_element<'a>(mut pairs: Pairs<'a, Rule>) -> Result<(&'a str, ast::Name<'
 }
 
 // Parses a componenet definition.
-fn parse_component<'a>(mut pairs: Pairs<'a, Rule>) -> Result<(&'a str, ast::Name<'a>)> {
+fn parse_component(mut pairs: Pairs<'static, Rule>) -> Result<(&'static str, ast::Name)> {
     let name = pairs.next().unwrap().as_str();
     let def = parse_struct_def(pairs.next().unwrap().into_inner())?;
     Ok((name, ast::Name::Component(def)))
 }
 
 // Parses a resource definition.
-fn parse_resource<'a>(mut pairs: Pairs<'a, Rule>) -> Result<(&'a str, ast::Name<'a>)> {
+fn parse_resource(mut pairs: Pairs<'static, Rule>) -> Result<(&'static str, ast::Name)> {
     let name = pairs.next().unwrap().as_str();
     let def = parse_struct_def(pairs.next().unwrap().into_inner())?;
     Ok((name, ast::Name::Resource(def)))
 }
 
 // Parses a componenet definition.
-fn parse_struct<'a>(mut pairs: Pairs<'a, Rule>) -> Result<(&'a str, ast::Name<'a>)> {
+fn parse_struct(mut pairs: Pairs<'static, Rule>) -> Result<(&'static str, ast::Name)> {
     let name = pairs.next().unwrap().as_str();
     let def = parse_struct_def(pairs.next().unwrap().into_inner())?;
     Ok((name, ast::Name::Struct(def)))
 }
 
 // Parses a function definition.
-fn parse_function<'a>(mut pairs: Pairs<'a, Rule>) -> (&'a str, ast::Name<'a>) {
+fn parse_function(mut pairs: Pairs<'static, Rule>) -> (&'static str, ast::Name) {
     let name = pairs.next().unwrap().as_str();
     let mut args = Vec::new();
 
@@ -152,6 +138,6 @@ fn parse_function<'a>(mut pairs: Pairs<'a, Rule>) -> (&'a str, ast::Name<'a>) {
 }
 
 // Parses a list of identifiers.
-fn parse_ident_list<'a>(pairs: Pairs<'a, Rule>) -> Vec<&'a str> {
+fn parse_ident_list(pairs: Pairs<'static, Rule>) -> Vec<&'static str> {
     pairs.map(|pair| pair.as_str()).collect()
 }

@@ -25,7 +25,7 @@ mod systems;
 use systems::*;
 
 // Walks the AST, interpreting the code.
-pub fn eval(ast: &ast::AST) -> Result<()> {
+pub fn eval(ast: &'static ast::AST) -> Result<()> {
     let mut ctx = Context::default();
     let mut scope = Scope::default();
 

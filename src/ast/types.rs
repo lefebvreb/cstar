@@ -3,13 +3,13 @@ use std::fmt;
 use super::*;
 
 #[derive(Default, Debug)]
-pub struct StructDef<'a> {
-    pub fields: Map<'a, Type<'a>>,
+pub struct StructDef {
+    pub fields: Map<Type>,
 }
 
 // A primitive type.
 #[derive(PartialEq, Eq, Debug)]
-pub enum Type<'a>  {
+pub enum Type  {
     Void,
     Bool,
     Int,
@@ -18,10 +18,10 @@ pub enum Type<'a>  {
     String,
     List,
     Entity,
-    Struct(&'a str),
+    Struct(&'static str),
 }
 
-impl fmt::Display for Type<'_> {
+impl fmt::Display for Type {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
             Type::Void => write!(f, "void"),

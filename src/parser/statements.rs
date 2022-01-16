@@ -6,7 +6,7 @@ use crate::utils::*;
 use super::*;
 
 // Parses a statement.
-pub fn parse_statement<'a>(mut pairs: Pairs<'a, Rule>) -> ast::Statement<'a> {
+pub fn parse_statement(mut pairs: Pairs<'static, Rule>) -> ast::Statement {
     let pair = pairs.next().unwrap();
 
     match pair.as_rule() {
@@ -26,7 +26,7 @@ pub fn parse_statement<'a>(mut pairs: Pairs<'a, Rule>) -> ast::Statement<'a> {
 }
 
 // Parses a declaration.
-pub fn parse_decl<'a>(mut pairs: Pairs<'a, Rule>) -> ast::Decl<'a> {
+pub fn parse_decl(mut pairs: Pairs<'static, Rule>) -> ast::Decl {
     ast::Decl {
         ident: pairs.next().unwrap().as_str(),
         init: pairs.next().map(|pair| parse_expr(pair.into_inner())),
@@ -34,14 +34,14 @@ pub fn parse_decl<'a>(mut pairs: Pairs<'a, Rule>) -> ast::Decl<'a> {
 }
 
 // Parses a block.
-pub fn parse_block<'a>(mut pairs: Pairs<'a, Rule>) -> ast::Block<'a> {
+pub fn parse_block(mut pairs: Pairs<'static, Rule>) -> ast::Block {
     ast::Block {
         statements: pairs.map(|pair| parse_statement(pair.into_inner())).collect()
     }
 }
 
 // Parses a if.
-pub fn parse_if<'a>(mut pairs: Pairs<'a, Rule>) -> ast::If<'a> {
+pub fn parse_if(mut pairs: Pairs<'static, Rule>) -> ast::If {
     ast::If {
         cond: parse_expr(pairs.next().unwrap().into_inner()),
         branch1: parse_block(pairs.next().unwrap().into_inner()),
@@ -50,7 +50,7 @@ pub fn parse_if<'a>(mut pairs: Pairs<'a, Rule>) -> ast::If<'a> {
 }
 
 // Parses a for.
-pub fn parse_for<'a>(mut pairs: Pairs<'a, Rule>) -> ast::For<'a> {
+pub fn parse_for(mut pairs: Pairs<'static, Rule>) -> ast::For {
     ast::For {
         init: {
             let pair = pairs.next().unwrap();
@@ -67,7 +67,7 @@ pub fn parse_for<'a>(mut pairs: Pairs<'a, Rule>) -> ast::For<'a> {
 }
 
 // Parses a while loop.
-pub fn parse_while<'a>(mut pairs: Pairs<'a, Rule>) -> ast::While<'a> {
+pub fn parse_while(mut pairs: Pairs<'static, Rule>) -> ast::While {
     ast::While {
         cond: parse_expr(pairs.next().unwrap().into_inner()),
         code: parse_block(pairs.next().unwrap().into_inner()),
@@ -75,7 +75,7 @@ pub fn parse_while<'a>(mut pairs: Pairs<'a, Rule>) -> ast::While<'a> {
 }
 
 // Parses a query loop.
-pub fn parse_query<'a>(mut pairs: Pairs<'a, Rule>) -> ast::Query<'a> {
+pub fn parse_query(mut pairs: Pairs<'static, Rule>) -> ast::Query {
     ast::Query {
         filters: parse_filter_list(pairs.next().unwrap().into_inner()),
         code: parse_block(pairs.next().unwrap().into_inner()),
@@ -83,7 +83,7 @@ pub fn parse_query<'a>(mut pairs: Pairs<'a, Rule>) -> ast::Query<'a> {
 }
 
 // Parses a switch block.
-pub fn parse_switch<'a>(mut pairs: Pairs<'a, Rule>) -> ast::Switch<'a> {
+pub fn parse_switch(mut pairs: Pairs<'static, Rule>) -> ast::Switch {
     let expr = parse_expr(pairs.next().unwrap().into_inner());
     let mut cases = Vec::new();
 
@@ -106,7 +106,7 @@ pub fn parse_switch<'a>(mut pairs: Pairs<'a, Rule>) -> ast::Switch<'a> {
 }
 
 // Parses a switch block.
-pub fn parse_case<'a>(mut pairs: Pairs<'a, Rule>) -> ast::SwitchCase<'a> {
+pub fn parse_case(mut pairs: Pairs<'static, Rule>) -> ast::SwitchCase {
     ast::SwitchCase {
         val: parse_atom(pairs.next().unwrap().into_inner()),
         block: parse_block(pairs.next().unwrap().into_inner()),
@@ -114,6 +114,6 @@ pub fn parse_case<'a>(mut pairs: Pairs<'a, Rule>) -> ast::SwitchCase<'a> {
 }
 
 // Parses a return statement.
-pub fn parse_return<'a>(mut pairs: Pairs<'a, Rule>) -> Option<ast::Expr<'a>> {
+pub fn parse_return(mut pairs: Pairs<'static, Rule>) -> Option<ast::Expr> {
     pairs.next().map(|pair| parse_expr(pair.into_inner()))
 }

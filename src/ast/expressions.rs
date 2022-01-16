@@ -4,59 +4,59 @@ use super::*;
 
 // An expression.
 #[derive(Debug)]
-pub enum Expr<'a> {
-    Assign(Box<Assign<'a>>),
-    Ternary(Box<Ternary<'a>>),
+pub enum Expr {
+    Assign(Box<Assign>),
+    Ternary(Box<Ternary>),
     Atom(Atom),
-    LValue(LValue<'a>),
-    ListInit(ListInit<'a>),
-    StructInit(StructInit<'a>),
-    Call(Call<'a>),
-    BinExpr(Box<BinExpr<'a>>),
-    UnExpr(Box<UnExpr<'a>>),
+    LValue(LValue),
+    ListInit(ListInit),
+    StructInit(StructInit),
+    Call(Call),
+    BinExpr(Box<BinExpr>),
+    UnExpr(Box<UnExpr>),
 }
 
 // A left-value, that can be assigned to.
 #[derive(Default, Debug)]
-pub struct Index<'a> {
-    pub exprs: Vec<Expr<'a>>,
+pub struct Index {
+    pub exprs: Vec<Expr>,
 }
 
 // A left-value, that can be assigned to.
 #[derive(Debug)]
-pub struct LValue<'a> {
-    pub name: &'a str,
-    pub first_index: Index<'a>,
-    pub path: Vec<(&'a str, Index<'a>)>,
+pub struct LValue {
+    pub name: &'static str,
+    pub first_index: Index,
+    pub path: Vec<(&'static str, Index)>,
 }
 
 // A ternary expression.
 #[derive(Debug)]
-pub struct Ternary<'a> {
-    pub cond: Expr<'a>,
-    pub branch1: Expr<'a>,
-    pub branch2: Expr<'a>,
+pub struct Ternary {
+    pub cond: Expr,
+    pub branch1: Expr,
+    pub branch2: Expr,
 }
 
 // An assign expression.
 #[derive(Debug)]
-pub struct Assign<'a> {
-    pub lvalue: LValue<'a>,
-    pub expr: Expr<'a>,
+pub struct Assign {
+    pub lvalue: LValue,
+    pub expr: Expr,
 }
 
 // A list initialization.
 #[derive(Debug)]
-pub struct ListInit<'a> {
-    pub exprs: Vec<Expr<'a>>,
+pub struct ListInit {
+    pub exprs: Vec<Expr>,
 }
 
 
 // A struct initialization.
 #[derive(Debug)]
-pub struct StructInit<'a> {
-    pub name: &'a str,
-    pub fields: Vec<(&'a str, Expr<'a>)>,
+pub struct StructInit {
+    pub name: &'static str,
+    pub fields: Vec<(&'static str, Expr)>,
 }
 
 // The atomic value of a primitive.
@@ -72,9 +72,9 @@ pub enum Atom {
 
 // A call expression. Can only call builtins for now.
 #[derive(Debug)]
-pub struct Call<'a> {
-    pub name: &'a str,
-    pub args: Vec<Expr<'a>>,
+pub struct Call {
+    pub name: &'static str,
+    pub args: Vec<Expr>,
 }
 
 // A builtin function name.
@@ -89,10 +89,10 @@ pub enum BuiltIn {
 
 // A binary expression.
 #[derive(Debug)]
-pub struct BinExpr<'a> {
-    pub left: Expr<'a>,
+pub struct BinExpr {
+    pub left: Expr,
     pub op: BinOp,
-    pub right: Expr<'a>,
+    pub right: Expr,
 }
 
 // A binary operator.
@@ -106,9 +106,9 @@ pub enum BinOp {
 
 // An unary expression.
 #[derive(Debug)]
-pub struct UnExpr<'a> {
+pub struct UnExpr {
     pub op: UnOp,
-    pub expr: Expr<'a>,
+    pub expr: Expr,
 }
 
 // An unary operator.

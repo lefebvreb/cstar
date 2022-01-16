@@ -1,7 +1,7 @@
 use super::*;
 
 // Gets a list from an expression.
-fn get_list<'a>(scope: &Scope<'a>, ctx: &'a Context<'a>, expr: &ast::Expr<'a>) -> Result<Ref<Vec<Var<'a>>>> {
+fn get_list(scope: &Scope, ctx: &Context, expr: &ast::Expr) -> Result<Ref<Vec<Var>>> {
     match eval_expr(scope, ctx, expr)? {
         Var::List(list) => Ok(list),
         var => return Err(anyhow!("Expected a list, but {} was provided.", var)),
@@ -9,7 +9,7 @@ fn get_list<'a>(scope: &Scope<'a>, ctx: &'a Context<'a>, expr: &ast::Expr<'a>) -
 }
 
 // Gets a list from an expression.
-fn get_int<'a>(scope: &Scope<'a>, ctx: &'a Context<'a>, expr: &ast::Expr<'a>) -> Result<i64> {
+fn get_int(scope: &Scope, ctx: &Context, expr: &ast::Expr) -> Result<i64> {
     match eval_expr(scope, ctx, expr)? {
         Var::Int(i) => Ok(i),
         var => return Err(anyhow!("Expected an integer, but {} was provided.", var)),
@@ -17,7 +17,7 @@ fn get_int<'a>(scope: &Scope<'a>, ctx: &'a Context<'a>, expr: &ast::Expr<'a>) ->
 }
 
 // Evaluates a call expression.
-pub fn eval_call<'a>(scope: &Scope<'a>, ctx: &'a Context<'a>, call: &ast::Call<'a>) -> Result<Var<'a>> {
+pub fn eval_call(scope: &Scope, ctx: &Context, call: &ast::Call) -> Result<Var> {
     let ast::Call {name, args} = call;
 
     let nargs = args.len();
