@@ -40,7 +40,7 @@ This will run the `hello, world!` example of the `examples` directory. There are
 - [x] Vanilla structs
 - [x] Switch statements
 - [x] Lists
-- [ ] Imports and modules
+- [x] Imports and modules
 - [ ] Increment/Decrement operators
 - [ ] User input
 - [ ] Global variables
