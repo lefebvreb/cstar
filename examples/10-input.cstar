@@ -1,8 +1,7 @@
 System main() {
     /* Use the input function to get user input. */
-    print("What is your name ? ");
     /* This will always return a string. */
-    let name = input();
+    let name = input("What is your name ? ");
 
     println("Have a good day, ", name, "!");
 }

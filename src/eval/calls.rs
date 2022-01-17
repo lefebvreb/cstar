@@ -114,7 +114,9 @@ pub fn eval_call(ctx: &Context, call: &ast::Call) -> Result<Var> {
         }
         // User input.
         "input" => {
-            check_args(0)?;
+            for expr in args {
+                print!("{}", eval_expr(ctx, expr)?);
+            }
             let mut input = String::new();
             io::stdout().flush();
             io::stdin().read_line(&mut input).unwrap();

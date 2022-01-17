@@ -12,6 +12,7 @@ fn get_usize(ctx: &Context, expr: &ast::Expr) -> Result<usize> {
 fn get_list(ctx: &Context, list: Var, index: &ast::Expr) -> Result<Var> {
     let i = get_usize(ctx, index)?;
     match list {
+        Var::String(s) => Ok(Var::Char(s.chars().nth(i).ok_or_else(|| anyhow!("Index out of bounds."))?)),
         Var::List(list) => Ok(list.borrow().get(i).ok_or_else(|| anyhow!("Index out of bounds."))?.clone()),
         _ => Err(anyhow!("Expected a list.")),
     }
@@ -66,7 +67,7 @@ fn set_list(ctx: &Context, mut var: Var, index: &ast::Index, val: Var) -> Result
             }
             
             Ok(())
-        },
+        }
         _ => Err(anyhow!("Expected a struct.")),
     }
 }
