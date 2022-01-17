@@ -121,7 +121,7 @@ pub fn eval_switch(ctx: &Context, switch: &ast::Switch) -> Result<Flow> {
     let var = eval_expr(ctx, &switch.expr)?;
 
     for case in &switch.cases {
-        if var == eval_atom(ctx, &case.val)? {
+        if var == eval_atom(&case.val)? {
             return eval_block(ctx, &case.block);
         }
     }

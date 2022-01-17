@@ -37,7 +37,7 @@ pub fn parse_program(path: &Path) -> Result<&'static ast::AST> {
 
     for pair in pairs {
         match pair.as_rule() {
-            Rule::include => parse_module(pair.into_inner(), &mut ast, &mut src)?,
+            Rule::include => parse_module(path, pair.into_inner(), &mut ast, &mut src)?,
             Rule::element => {
                 let (name, element) = parse_element(pair.into_inner())?;
                 ast.names.insert(name, element);
@@ -53,16 +53,16 @@ pub fn parse_program(path: &Path) -> Result<&'static ast::AST> {
 }
 
 // Parse a module file.
-fn parse_module(mut pairs: Pairs<'static, Rule>, ast: &mut ast::AST, src: &mut Sources) -> Result<()> {
-    let path = parse_string(pairs.next().unwrap().as_str());
+fn parse_module(root: &Path, mut pairs: Pairs<'static, Rule>, ast: &mut ast::AST, src: &mut Sources) -> Result<()> {
+    let path = root.parent().unwrap().join(parse_string(pairs.next().unwrap().as_str()));
     
-    if let Some(file) = src.add(Path::new(&path))? {
+    if let Some(file) = src.add(&path)? {
         let pairs = Grammar::parse(Rule::module, file)?
             .next().unwrap().into_inner();
 
         for pair in pairs {
             match pair.as_rule() {
-                Rule::include => parse_module(pair.into_inner(), ast, src)?,
+                Rule::include => parse_module(&path, pair.into_inner(), ast, src)?,
                 Rule::element => {
                     let (name, element) = parse_element(pair.into_inner())?;
                     ast.names.insert(name, element);

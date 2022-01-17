@@ -5,7 +5,7 @@ pub fn eval_expr(ctx: &Context, expr: &ast::Expr) -> Result<Var> {
     match expr {
         ast::Expr::Ternary(ternary) => eval_ternary(ctx, ternary),
         ast::Expr::Assign(assign) => eval_assign(ctx, assign),
-        ast::Expr::Atom(atom) => eval_atom(ctx, atom),
+        ast::Expr::Atom(atom) => eval_atom(atom),
         ast::Expr::LValue(lvalue) => eval_lvalue(ctx, lvalue),
         ast::Expr::ListInit(list_init) => eval_list_init(ctx, list_init),
         ast::Expr::StructInit(struct_init) => eval_struct_init(ctx, struct_init),
@@ -25,7 +25,7 @@ pub fn eval_ternary(ctx: &Context, ternary: &ast::Ternary) -> Result<Var> {
 }
 
 // Evaluates an atom.
-pub fn eval_atom(_: &Context, atom: &ast::Atom) -> Result<Var> {
+pub fn eval_atom(atom: &ast::Atom) -> Result<Var> {
     Ok(match atom {
         ast::Atom::Void => Var::Void,
         ast::Atom::Bool(b) => Var::Bool(*b),

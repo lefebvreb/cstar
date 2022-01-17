@@ -1,9 +1,14 @@
 /* You can use include directives at the beginning of any file, to include code from other modules. */
-include "examples/std.cstar";
+include "std.cstar";
 
 System main() {
     /* Uses the max function, defined in an other file. */
     println("max(42, 13) = ", max(42, 13));
+
+    /*
+     * Note: Includes are always relative to the current file.
+     * Files twice included will only be parsed once. There is no risk of infinite recursion.
+     */
 }
 
 Init [main];
