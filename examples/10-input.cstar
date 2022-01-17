@@ -4,7 +4,7 @@ System main() {
     /* This will always return a string. */
     let name = input();
 
-    println("Hello, ", name, "!");
+    println("Have a good day, ", name, "!");
 }
 
 Init [main];

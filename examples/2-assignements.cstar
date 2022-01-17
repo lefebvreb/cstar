@@ -13,7 +13,7 @@ System main() {
 
     /* Variables must be declared before they are used, `z = 5` would produce an error. */
 
-    /* Variables are scoped. */
+    /* Variables are ctxd. */
     {
         let x = 42;
         y = 42;

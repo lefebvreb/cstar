@@ -2,9 +2,11 @@ use std::cell::RefCell;
 
 use super::*;
 
-// Holds definitions of function-like and struct-like objects.
+// Holds all variables ctxs.
+#[derive(Debug)]
 pub struct Context {
     defs: Map<Def>,
+    vars: RefCell<Vec<Map<Var>>>,
 }
 
 impl Context {
@@ -23,34 +25,18 @@ impl Context {
             .ok_or_else(|| anyhow!("Definition {} does not exist", name))
             .map(Def::clone)
     }
-}
 
-impl Default for Context {
-    // Creates a new empty context object.
-    fn default() -> Self {
-        Self {
-            defs: Map::new(),  
-        }
-    }
-}
-
-// Holds all variables scopes.
-pub struct Scope {
-    vars: RefCell<Vec<Map<Var>>>,
-}
-
-impl Scope {
-    // Nests another new empty scope.
+    // Nests another new empty ctx.
     pub fn next(&self) {
         self.vars.borrow_mut().push(Map::new());
     }
 
-    // Destroys the last created scope, freeing all of it's variables.
+    // Destroys the last created ctx, freeing all of it's variables.
     pub fn back(&self) {
         self.vars.borrow_mut().pop();
     }
 
-    // Adds a new variable to the topmost scope.
+    // Adds a new variable to the topmost ctx.
     pub fn new_var(&self, name: &'static str, val: Var) {
         self.vars.borrow_mut().last_mut().unwrap().insert(name, val);
     }
@@ -58,20 +44,20 @@ impl Scope {
     // Gets a copy of the requested variable.
     pub fn get_var(&self, name: &'static str) -> Result<Var> {
         self.vars.borrow().iter().rev()
-            .find_map(|scope| scope.get(name))
+            .find_map(|ctx| ctx.get(name))
             .map(Var::clone)
-            .ok_or_else(|| anyhow!("Variable {} does not exist in current scope.", name))
+            .ok_or_else(|| anyhow!("Variable {} does not exist in current ctx.", name))
     }
 
     // Sets the value of the requested variable.
     pub fn set_var(&self, name: &'static str, val: Var) -> Result<()> {
         let mut borrow = self.vars.borrow_mut();
         let var = borrow.iter_mut().rev()
-            .find_map(|scope| scope.get_mut(name))
-            .ok_or_else(|| anyhow!("Variable {} does not exist in current scope.", name))?;
+            .find_map(|ctx| ctx.get_mut(name))
+            .ok_or_else(|| anyhow!("Variable {} does not exist in current ctx.", name))?;
 
         if matches!(var, Var::Struct(_) | Var::List(_)) {
-            return Err(anyhow!("Cannot reassign to a struct or list variable in a scope."));
+            return Err(anyhow!("Cannot reassign to a struct or list variable in a ctx."));
         }
 
         *var = val;
@@ -79,10 +65,10 @@ impl Scope {
     }
 }
 
-impl Default for Scope {
-    // Creates a new empty scope object.
+impl Default for Context {
     fn default() -> Self {
         Self {
+            defs: Map::new(),
             vars: RefCell::new(vec![Map::new()]),
         }
     }

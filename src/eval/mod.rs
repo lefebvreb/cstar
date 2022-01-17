@@ -30,7 +30,6 @@ use vars::*;
 // Walks the AST, interpreting the code.
 pub fn eval(ast: &'static ast::AST) -> Result<()> {
     let mut ctx = Context::default();
-    let scope = Scope::default();
 
     // Gets all definitions.
     for (name, element) in ast.names.iter() {
@@ -45,7 +44,7 @@ pub fn eval(ast: &'static ast::AST) -> Result<()> {
 
     // Runs a system by it's name.
     let run_system = |name| match ctx.get_def(name)? {
-        Def::System(sys) => eval_system(&scope, &ctx, sys),
+        Def::System(sys) => eval_system(&ctx, sys),
         _ => Err(anyhow!("{} is not a system", name)),
     };
 
