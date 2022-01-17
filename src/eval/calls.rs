@@ -36,8 +36,11 @@ pub fn eval_call(ctx: &Context, call: &ast::Call) -> Result<Var> {
         }
         "len" => {
             check_args(1)?;
-            let len = get_list(ctx, &args[0])?.borrow().len();
-            return Ok(Var::Int(len as i64));
+            return match eval_expr(ctx, &args[0])? {
+                Var::String(s) => Ok(Var::Int(s.len() as i64)),
+                Var::List(list) => Ok(Var::Int(list.borrow().len() as i64)),
+                var =>  Err(anyhow!("Expected a list, but {} was provided.", var)),
+            };
         }
         "pop" => {
             check_args(1)?;
@@ -147,7 +150,7 @@ pub fn eval_call(ctx: &Context, call: &ast::Call) -> Result<Var> {
 
             check_args(def.args.len())?;
         
-            let func_ctx = Context::default();
+            let func_ctx = ctx.derived();
             for (name, arg) in def.args.iter().zip(args) {
                 func_ctx.new_var(name, eval_expr(ctx, arg)?);
             }

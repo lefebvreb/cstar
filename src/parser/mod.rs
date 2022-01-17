@@ -33,7 +33,7 @@ pub fn parse_program(path: &Path) -> Result<&'static ast::AST> {
     let pairs = Grammar::parse(Rule::program, src.add(path)?.unwrap())?
         .next().unwrap().into_inner();
 
-    let mut ast = ast::AST::default();
+    let mut ast = Box::new(ast::AST::default());
 
     for pair in pairs {
         match pair.as_rule() {
@@ -49,7 +49,7 @@ pub fn parse_program(path: &Path) -> Result<&'static ast::AST> {
         }
     }
 
-    Ok(Box::leak(Box::new(ast)))
+    Ok(Box::leak(ast))
 }
 
 // Parse a module file.

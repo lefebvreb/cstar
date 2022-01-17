@@ -2,36 +2,52 @@ use std::cell::RefCell;
 
 use super::*;
 
+// A type alias for a scope : multiple levels of variables.
+type Scope = RefCell<Vec<Map<Var>>>;
+
+// Creates a new empty scope.
+fn new_scope() -> Scope {
+    RefCell::new(vec![Map::new()])
+}
+
 // Holds all variables ctxs.
 #[derive(Debug)]
 pub struct Context {
-    defs: Map<Def>,
-    vars: RefCell<Vec<Map<Var>>>,
+    defs: &'static Map<Def>,
+    vars: Scope,
 }
 
 impl Context {
-    // Defines a new object in the context, retunrns an error if an
-    // object with the same name already exists.
-    pub fn set_def(&mut self, name: &'static str, def: Def) -> Result<()> {
-        self.defs.insert(name, def)
-            .is_none().then(|| ())
-            .ok_or_else(|| anyhow!("object with name '{}' already exists", name))
+    // Creates a new context.
+    pub fn new(defs: &'static Map<Def>) -> Context {
+        Context {
+            defs: defs,
+            vars: new_scope(),
+        }
+    }
+
+    // Creates a new empty scope with the same definitions as self.
+    pub fn derived(&self) -> Context {
+        Context {
+            defs: self.defs,
+            vars: new_scope(),
+        }
     }
 
     // Returns the definition corresponding to the given name, or an
     // error if no such definition exists.
     pub fn get_def(&self, name: &str) -> Result<Def> {
         self.defs.get(name)
-            .ok_or_else(|| anyhow!("Definition {} does not exist", name))
             .map(Def::clone)
+            .ok_or_else(|| anyhow!("Definition {} does not exist", name))
     }
 
-    // Nests another new empty ctx.
+    // Nests another new empty scope level.
     pub fn next(&self) {
         self.vars.borrow_mut().push(Map::new());
     }
 
-    // Destroys the last created ctx, freeing all of it's variables.
+    // Destroys the last created scope level. Variables are automatically freed.
     pub fn back(&self) {
         self.vars.borrow_mut().pop();
     }
@@ -62,15 +78,6 @@ impl Context {
 
         *var = val;
         Ok(())
-    }
-}
-
-impl Default for Context {
-    fn default() -> Self {
-        Self {
-            defs: Map::new(),
-            vars: RefCell::new(vec![Map::new()]),
-        }
     }
 }
 

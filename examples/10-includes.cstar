@@ -2,13 +2,18 @@
 include "std.cstar";
 
 System main() {
-    /* Uses the max function, defined in an other file. */
-    println("max(42, 13) = ", max(42, 13));
-
     /*
      * Note: Includes are always relative to the current file.
      * Files twice included will only be parsed once. There is no risk of infinite recursion.
      */
+
+    let tab = [8, 45, -5, 899, 42];
+
+    /* Uses the quicksort function defined in `std.cstar`. */
+    qsort(tab);
+    println("sorted tab = ", tab);
+
+    /* You can see what functions are available in std by simply checking `std.cstar`. */
 }
 
 Init [main];

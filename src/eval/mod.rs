@@ -29,18 +29,24 @@ use vars::*;
 
 // Walks the AST, interpreting the code.
 pub fn eval(ast: &'static ast::AST) -> Result<()> {
-    let mut ctx = Context::default();
+    let mut defs = Box::new(Map::default());
 
     // Gets all definitions.
     for (name, element) in ast.names.iter() {
-        ctx.set_def(name, match element {
+        let def = match element {
             ast::Name::Function(fun) => Def::Function(fun),
             ast::Name::System(sys) => Def::System(sys),
             ast::Name::Component(comp) => Def::Component(comp),
             ast::Name::Resource(res) => Def::Resource(res),
             ast::Name::Struct(struct_) => Def::Struct(struct_),
-        })?;
+        };
+
+        if defs.insert(name, def).is_some() {
+            return Err(anyhow!("object with name '{}' already exists", name));
+        }
     }
+
+    let mut ctx = Context::new(Box::leak(defs));
 
     // Runs a system by it's name.
     let run_system = |name| match ctx.get_def(name)? {

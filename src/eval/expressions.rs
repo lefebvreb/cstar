@@ -38,7 +38,7 @@ pub fn eval_atom(atom: &ast::Atom) -> Result<Var> {
 
 // Evaluates a list initialization.
 pub fn eval_list_init(ctx: &Context, list_init: &ast::ListInit) -> Result<Var> {
-    Ok(Var::List(as_ref(list_init.exprs.iter().map(|expr| eval_expr(ctx, expr)).collect::<Result<_>>()?)))
+    Ok(Var::List(as_shared(list_init.exprs.iter().map(|expr| eval_expr(ctx, expr)).collect::<Result<_>>()?)))
 }
 
 // Evaluates a struct initialization.
@@ -61,7 +61,7 @@ pub fn eval_struct_init(ctx: &Context, struct_init: &ast::StructInit) -> Result<
                 return Err(anyhow!("{} has {} fields, but {} fields were given.", struct_init.name, def.fields.len(), map.len()));
             }
 
-            Ok(Var::Struct(as_ref(Struct {
+            Ok(Var::Struct(as_shared(Struct {
                 name: struct_init.name, 
                 map
             })))

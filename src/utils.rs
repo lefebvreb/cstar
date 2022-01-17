@@ -16,6 +16,6 @@ pub type Map<T> = HashMap<&'static str, T>;
 pub type Shared<T> = Rc<RefCell<T>>;
 
 // Wraps a value in a Ref.
-pub fn as_ref<T>(val: T) -> Shared<T> {
+pub fn as_shared<T>(val: T) -> Shared<T> {
     Rc::new(RefCell::new(val))
 }
