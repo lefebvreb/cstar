@@ -1,6 +1,5 @@
 use std::fmt;
 
-use crate::ecs;
 use super::*;
 
 // A variable's value.

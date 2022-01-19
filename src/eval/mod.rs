@@ -9,6 +9,9 @@ use calls::*;
 mod context;
 use context::*;
 
+mod ecs;
+use ecs::*;
+
 mod expressions;
 use expressions::*;
 

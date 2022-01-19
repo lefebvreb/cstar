@@ -1,7 +1,6 @@
 #![allow(unused)]
 
 mod ast;
-mod ecs;
 mod parser;
 mod eval;
 mod sources;

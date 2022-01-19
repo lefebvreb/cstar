@@ -5,9 +5,9 @@ use Var::*;
 use super::*;
 
 // Evaluates a binary expression.
-pub fn eval_bin_expr(ctx: &Context, bin_expr: &ast::BinExpr) -> Result<Var> {
-    let lvar = eval_expr(ctx, &bin_expr.left)?;
-    let rvar = eval_expr(ctx, &bin_expr.right)?;
+pub fn eval_bin_expr(ctx: &Context, scope: &Scope, bin_expr: &ast::BinExpr) -> Result<Var> {
+    let lvar = eval_expr(ctx, scope, &bin_expr.left)?;
+    let rvar = eval_expr(ctx, scope, &bin_expr.right)?;
     
     Ok(match (lvar.clone(), bin_expr.op, rvar.clone()) {
         (Int(i), Add, Int(j)) => Int(i + j),
@@ -87,8 +87,8 @@ pub fn eval_bin_expr(ctx: &Context, bin_expr: &ast::BinExpr) -> Result<Var> {
 }
 
 // Evaluates an unary expression.
-pub fn eval_un_expr(ctx: &Context, un_expr: &ast::UnExpr) -> Result<Var> {
-    let var = eval_expr(ctx, &un_expr.expr)?;
+pub fn eval_un_expr(ctx: &Context, scope: &Scope, un_expr: &ast::UnExpr) -> Result<Var> {
+    let var = eval_expr(ctx, scope, &un_expr.expr)?;
     
     Ok(match (un_expr.op, var.clone()) {
         (Pos, Int(_)) | (Pos, Float(_)) => var,

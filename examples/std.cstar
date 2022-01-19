@@ -1,4 +1,9 @@
-/* ================ PUBLIC INTERFACE ================ */
+/* ================ PUBLIC ================ */
+
+/* Returns the absolute value of a. */
+function abs(a) {
+    return (a < 0) ? -a : a;
+}
 
 /* Returns the max between a and b. */
 function max(a, b) {
@@ -10,17 +15,12 @@ function min(a, b) {
     return (a < b) ? a : b;
 }
 
-/* Returns the absolute value of a. */
-function abs(a) {
-    return (a < 0) ? -a : a;
-}
-
-/* Returns the max between a and b. */
+/* Sorts the list with the quicksort algorithm (unstable). */
 function qsort(list) {
     __qsort(list, 0, len(list) - 1);
 }
 
-/* ================ PRIVATE FUNCTIONS ================ */
+/* ================ PRIVATE ================ */
 
 function __qsort(list, left, right) {
     let l = left;

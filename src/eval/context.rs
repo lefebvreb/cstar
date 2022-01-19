@@ -1,58 +1,26 @@
 use std::cell::RefCell;
+use std::mem;
 
 use super::*;
 
-// A type alias for a scope : multiple levels of variables.
-type Scope = RefCell<Vec<Map<Var>>>;
-
-// Creates a new empty scope.
-fn new_scope() -> Scope {
-    RefCell::new(vec![Map::new()])
-}
-
-// Holds all variables ctxs.
+// Holds all variables in a level-organized struct.
 #[derive(Debug)]
-pub struct Context {
-    defs: &'static Map<Def>,
-    vars: Scope,
+pub struct Scope {
+    vars: RefCell<Vec<Map<Var>>>,
 }
 
-impl Context {
-    // Creates a new context.
-    pub fn new(defs: &'static Map<Def>) -> Context {
-        Context {
-            defs: defs,
-            vars: new_scope(),
-        }
-    }
-
-    // Creates a new empty scope with the same definitions as self.
-    pub fn derived(&self) -> Context {
-        Context {
-            defs: self.defs,
-            vars: new_scope(),
-        }
-    }
-
-    // Returns the definition corresponding to the given name, or an
-    // error if no such definition exists.
-    pub fn get_def(&self, name: &str) -> Result<Def> {
-        self.defs.get(name)
-            .map(Def::clone)
-            .ok_or_else(|| anyhow!("Definition {} does not exist", name))
-    }
-
+impl Scope {
     // Nests another new empty scope level.
     pub fn next(&self) {
         self.vars.borrow_mut().push(Map::new());
     }
 
-    // Destroys the last created scope level. Variables are automatically freed.
-    pub fn back(&self) {
+    // Destroys the last created scope level. Variables that need to be are automatically freed.
+    pub fn prev(&self) {
         self.vars.borrow_mut().pop();
     }
 
-    // Adds a new variable to the topmost ctx.
+    // Adds a new variable to the topmost scope.
     pub fn new_var(&self, name: &'static str, val: Var) {
         self.vars.borrow_mut().last_mut().unwrap().insert(name, val);
     }
@@ -78,6 +46,38 @@ impl Context {
 
         *var = val;
         Ok(())
+    }
+}
+
+impl Default for Scope {
+    // By default, a scope has one empty level.
+    fn default() -> Self {
+        Self {
+            vars: RefCell::new(vec![Map::new()]),
+        }
+    }
+}
+
+// Holds all definitions.
+#[derive(Debug)]
+pub struct Context {
+    defs: &'static Map<Def>,
+}
+
+impl Context {
+    // Creates a new context.
+    pub fn new(defs: &'static Map<Def>) -> Context {
+        Context {
+            defs: defs,
+        }
+    }
+
+    // Returns the definition corresponding to the given name, or an
+    // error if no such definition exists.
+    pub fn get_def(&self, name: &str) -> Result<Def> {
+        self.defs.get(name)
+            .map(Def::clone)
+            .ok_or_else(|| anyhow!("Definition {} does not exist", name))
     }
 }
 

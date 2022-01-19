@@ -1,16 +1,16 @@
 use super::*;
 
 // Gets an int value from an expression.
-fn get_usize(ctx: &Context, expr: &ast::Expr) -> Result<usize> {
-    match eval_expr(ctx, expr)? {
+fn get_usize(ctx: &Context, scope: &Scope, expr: &ast::Expr) -> Result<usize> {
+    match eval_expr(ctx, scope, expr)? {
         Var::Int(i) => Ok(i as usize),
         _ => Err(anyhow!("Expected an integer index.")),
     }
 }
 
 // Gets a value from a list.
-fn get_list(ctx: &Context, list: Var, index: &ast::Expr) -> Result<Var> {
-    let i = get_usize(ctx, index)?;
+fn get_list(ctx: &Context, scope: &Scope, list: Var, index: &ast::Expr) -> Result<Var> {
+    let i = get_usize(ctx, scope, index)?;
     match list {
         Var::String(s) => Ok(Var::Char(s.chars().nth(i).ok_or_else(|| anyhow!("Index out of bounds."))?)),
         Var::List(list) => Ok(list.borrow().get(i).ok_or_else(|| anyhow!("Index out of bounds."))?.clone()),
@@ -19,9 +19,9 @@ fn get_list(ctx: &Context, list: Var, index: &ast::Expr) -> Result<Var> {
 }
 
 // Gets a value from a list.
-fn get_index(ctx: &Context, mut var: Var, index: &ast::Index) -> Result<Var> {
+fn get_index(ctx: &Context, scope: &Scope, mut var: Var, index: &ast::Index) -> Result<Var> {
     for expr in &index.exprs {
-        var = get_list(ctx, var, expr)?;
+        var = get_list(ctx, scope, var, expr)?;
     }
     Ok(var)
 }
@@ -51,11 +51,11 @@ fn set_struct(s: Var, name: &'static str, val: Var) -> Result<()> {
     }
 }
 
-fn set_list(ctx: &Context, mut var: Var, index: &ast::Index, val: Var) -> Result<()> {
+fn set_list(ctx: &Context, scope: &Scope, mut var: Var, index: &ast::Index, val: Var) -> Result<()> {
     for expr in &index.exprs[..index.exprs.len()-1] {
-        var = get_list(ctx, var, expr)?;
+        var = get_list(ctx, scope, var, expr)?;
     }
-    let i = get_usize(ctx, &index.exprs.last().unwrap())?;
+    let i = get_usize(ctx, scope, &index.exprs.last().unwrap())?;
 
     match var {
         Var::List(list) => {      
@@ -73,39 +73,39 @@ fn set_list(ctx: &Context, mut var: Var, index: &ast::Index, val: Var) -> Result
 }
 
 // Evaluates a left value.
-pub fn eval_lvalue(ctx: &Context, lvalue: &ast::LValue) -> Result<Var> {
-    let mut var = ctx.get_var(&lvalue.name)?;
+pub fn eval_lvalue(ctx: &Context, scope: &Scope, lvalue: &ast::LValue) -> Result<Var> {
+    let mut var = scope.get_var(&lvalue.name)?;
 
-    var = get_index(ctx, var, &lvalue.first_index)?;
+    var = get_index(ctx, scope, var, &lvalue.first_index)?;
 
     for (name, index) in &lvalue.path {
         var = get_struct(var, name)?;
-        var = get_index(ctx, var, index)?;
+        var = get_index(ctx, scope, var, index)?;
     }
 
     Ok(var)
 }
 
 // Evaluates an assignment expression.
-pub fn eval_assign(ctx: &Context, assign: &ast::Assign) -> Result<Var> {
-    let val = eval_expr(ctx, &assign.expr)?;
+pub fn eval_assign(ctx: &Context, scope: &Scope, assign: &ast::Assign) -> Result<Var> {
+    let val = eval_expr(ctx, scope, &assign.expr)?;
     let ret = val.clone();
     let lvalue = &assign.lvalue;
 
     if lvalue.path.is_empty() {
         if lvalue.first_index.exprs.is_empty() {
-            ctx.set_var(&lvalue.name, val)?;
+            scope.set_var(&lvalue.name, val)?;
         } else {
-            let var = ctx.get_var(&lvalue.name)?;
-            set_list(ctx, var, &lvalue.first_index, val)?;
+            let var = scope.get_var(&lvalue.name)?;
+            set_list(ctx, scope, var, &lvalue.first_index, val)?;
         }
     } else {
-        let mut var = ctx.get_var(&lvalue.name)?;
-        var = get_index(ctx, var, &lvalue.first_index)?;
+        let mut var = scope.get_var(&lvalue.name)?;
+        var = get_index(ctx, scope, var, &lvalue.first_index)?;
 
         for (name, index) in &lvalue.path[..lvalue.path.len()-1] {
             var = get_struct(var, name)?;
-            var = get_index(ctx, var, index)?;
+            var = get_index(ctx, scope, var, index)?;
         }
 
         let (name, index) = lvalue.path.last().unwrap();
@@ -113,7 +113,7 @@ pub fn eval_assign(ctx: &Context, assign: &ast::Assign) -> Result<Var> {
         if index.exprs.is_empty() {
             set_struct(var, name, val)?;
         } else {
-            set_list(ctx, var, &lvalue.first_index, val)?;
+            set_list(ctx, scope, var, &lvalue.first_index, val)?;
         }
     }
     
