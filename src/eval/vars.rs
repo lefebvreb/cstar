@@ -16,6 +16,7 @@ pub enum Var {
     Struct(Shared<Struct>),
 }
 
+// A struct's value.
 #[derive(Debug)]
 pub struct Struct {
     pub name: &'static str,
@@ -37,6 +38,14 @@ impl Var {
             Var::Struct(s) => ast::Type::Struct(s.borrow().name),
         }
     }
+
+    // Returns the name of the struct this variable is an instance of.
+    pub fn struct_type(&self) -> Result<&'static str> {
+        match self {
+            Var::Struct(s) => Ok(s.borrow().name),
+            _ => Err(anyhow!("{} is not a struct.", self)),
+        }
+    }
 }
 
 impl fmt::Display for Var {
@@ -49,7 +58,7 @@ impl fmt::Display for Var {
             Var::Float(x) => write!(f, "{}", x),
             Var::Char(c) => write!(f, "{}", c),
             Var::String(s) => write!(f, "{}", s),
-            Var::Entity(e) => todo!(),
+            Var::Entity(e) => write!(f, "{}", e),
             Var::List(list) => {
                 write!(f, "[")?;
                 let borrow = list.borrow();

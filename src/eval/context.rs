@@ -29,7 +29,7 @@ impl Scope {
     pub fn get_var(&self, name: &'static str) -> Result<Var> {
         self.vars.borrow().iter().rev()
             .find_map(|ctx| ctx.get(name))
-            .map(Var::clone)
+            .cloned()
             .ok_or_else(|| anyhow!("Variable {} does not exist in current ctx.", name))
     }
 
@@ -76,7 +76,7 @@ impl Context {
     // error if no such definition exists.
     pub fn get_def(&self, name: &str) -> Result<Def> {
         self.defs.get(name)
-            .map(Def::clone)
+            .cloned()
             .ok_or_else(|| anyhow!("Definition {} does not exist", name))
     }
 }
