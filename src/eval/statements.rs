@@ -132,25 +132,19 @@ pub fn eval_switch(ctx: &Context, scope: &Scope, switch: &'static ast::Switch) -
 pub fn eval_query(ctx: &Context, scope: &Scope, query: &'static ast::Query) -> Result<Flow> {
     scope.next();
 
-    // Get the resources matches.
-    for arg in &query.filter.resources {
-        scope.new_var(arg.name, ctx.world().get_resource(arg.ty)?);
-    }
-
-    if query.filter.entities.is_none() {
-        return Err(anyhow!("A query must have a non-empty entity filter."));
-    }
-
     // The return value.
     let mut ret = Flow::Ok;
 
-    let filter = query.filter.entities.as_ref().unwrap();
+    let filter = &query.filter;
 
     // Get the entities matches.
     let matches = ctx.world_mut().filter_entities(filter)?;
 
     // Evaluates the code for each entity.
     for entity in matches.iter() {
+        // Put the entity into the scope.
+        scope.new_var(filter.name, Var::Entity(entity.clone()));
+
         // Adds all components to the scope.
         for arg in filter.args.iter() {
             scope.new_var(arg.name, ctx.world().get_component(entity.clone(), arg.ty)?);
@@ -158,14 +152,10 @@ pub fn eval_query(ctx: &Context, scope: &Scope, query: &'static ast::Query) -> R
         
         // Evaluates the code.
         let ret = eval_block(ctx, &scope, &query.code)?;
-        match ret {
-            Flow::Break | Flow::Return(_) => break,
-            _ => (),
-        };
+        if matches!(ret, Flow::Break | Flow::Return(_)) {
+            break;
+        }
     }
-    
-    // Apply the commannds to the world.
-    ctx.update();
 
     scope.prev();
     Ok(match ret {

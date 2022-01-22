@@ -74,13 +74,10 @@ pub fn eval_bin_expr(ctx: &Context, scope: &Scope, bin_expr: &'static ast::BinEx
         (Float(x), Gt, Int(i)) => Bool(x > i as f64),
 
         (Int(i), Eq, Float(x)) | (Float(x), Eq, Int(i)) => Bool(i as f64 == x),
-        (var1, Eq, var2) => Bool(var1 == var2),
+        (var1, Eq, var2) => Bool(var1.eq(&var2)),
 
-        (Int(i), Neq, Int(j)) => Bool(i != j),
-        (Float(x), Neq, Float(y)) => Bool(x != y),
-        (Char(c), Neq, Char(d)) => Bool(c != d),
-        (String(s), Neq, String(t)) => Bool(s != t),
-        (Int(i), Neq, Float(x)) | (Float(x), Neq, Int(i)) => Bool(i as f64 != x),
+        (Int(i), Eq, Float(x)) | (Float(x), Eq, Int(i)) => Bool(i as f64 != x),
+        (var1, Neq, var2) => Bool(!var1.eq(&var2)),
         
         _ => return Err(anyhow!("Binary operator {:?} is not defined for {} and {}", bin_expr.op, lvar, rvar)),
     })

@@ -87,6 +87,11 @@ impl Context {
         self.world.borrow_mut().do_commands(&mut self.commands.borrow_mut())
     }
 
+    // Adds a new command to the context.
+    pub fn new_command(&self, cmd: Command) {
+        self.commands.borrow_mut().push(cmd);
+    }
+
     // Gets an immutable reference to the world.
     pub fn world(&self) -> Ref<World> {
         self.world.borrow()

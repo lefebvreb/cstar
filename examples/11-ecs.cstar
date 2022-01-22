@@ -1,0 +1,82 @@
+/* Components are just like regular structs. */
+Component Position {
+    float x;
+    float y;
+}
+
+/* They are designed to hold your entites data. */
+Component Velocity {
+    float dx;
+    float dy;
+}
+
+/* Resources are unique values shared between systems. */
+Resource Distance {
+    float value;
+}
+
+/* This system will spawn some entities. */
+System init() {
+    for (let i = 0; i < 3; i = i + 1) {
+        /* Spawns an entity with two components: Position and Velocity. */
+        Spawn(
+            Position {
+                x: 0;
+                y: 0;
+            },
+            Velocity {
+                dx: i;
+                dy: i;
+            },
+        );
+    }
+
+    /* Creates a new resource, they can't be two resources of the same type at the same time in the world. */
+    NewResource(Distance {
+        value: 0;
+    });
+}    
+
+/* This system will update the Position component for every entity with a position and a velocity. */
+System move(Entity e, Position p, Velocity v) {
+    p.x = p.x + v.dx;
+    p.y = p.y + v.dy;
+}
+
+function distance(p1, p2) {
+    return (p1.x - p2.x) * (p1.x - p2.x) + (p1.y - p2.y) * (p1.y - p2.y);
+}
+
+System update_distance(Distance d) {
+    let avg = 0;
+    let n = 0;
+
+    /* Use a query block to filter through entities inside of a system or function. */
+    query(Entity e1, Position p1) {
+        /* Queries can be nested. */
+        query(Entity e2, Position p2) {
+            /* Comparing entites compares their unique ids. */
+            if (e1 != e2) {
+                avg = avg + distance(p1, p2);
+                n = n + 1;
+            }
+        }
+    }
+
+    d.value = avg / n;
+}
+
+/* This system will display the position of every entity with a position. */
+System display(Distance d) {
+    query(Entity e, Position p) {
+        println(e, " is at (", p.x, ", ", p.y, ")");
+    }
+
+    println("Average square distance between entities: ", d.value);
+    
+    input("Press enter to continue...");
+    println();
+}
+
+Init [init];
+Run [move, update_distance, display];

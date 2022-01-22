@@ -12,7 +12,7 @@ use super::*;
 #[derive(Debug)]
 pub enum Command {
     SpawnEntity(Vec<Var>),
-    DeleteEntity(Entity),
+    DeleteEntity(Var),
     NewResource(Var),
 }
 
@@ -198,7 +198,12 @@ impl World {
     }
 
     // Delete the entity with the given ID.
-    fn delete_entity(&mut self, entity: Entity) -> Result<()> {
+    fn delete_entity(&mut self, var: Var) -> Result<()> {
+        let entity = match var {
+            Var::Entity(e) => e,
+            _ => return Err(anyhow!("Expected an entity to Delete, got: {}.", var))
+        };
+
         // Remove the entity from entities.
         self.entities.remove(&entity).ok_or_else(|| anyhow!("Entity {} not found.", entity))?;
 

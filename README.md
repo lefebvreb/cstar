@@ -30,7 +30,7 @@ This will run the `hello, world!` example of the `examples` directory. There are
 - [x] Use parser to build AST
 - [x] Treewalk the AST
 - [x] ECS
-- [ ] Examples and automated tests
+- [ ] More examples and automated tests
 
 ## Bonus
 
@@ -42,7 +42,6 @@ This will run the `hello, world!` example of the `examples` directory. There are
 - [x] Lists
 - [x] Imports and modules
 - [x] User input
-- [ ] Global variables
 - [ ] Increment/Decrement operators
 - [ ] Assignements operators
 - [ ] Enums

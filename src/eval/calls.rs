@@ -138,9 +138,18 @@ pub fn eval_call(ctx: &Context, scope: &Scope, call: &'static ast::Call) -> Resu
             println!();
         }
         // ECS related.
-        "Clone" => todo!(),
-        "Delete" => todo!(),
-        "Spawn" => todo!(),
+        "Spawn" => {
+            let components = args.iter().map(|expr| eval_expr(ctx, scope, expr)).collect::<Result<_>>()?;
+            ctx.new_command(Command::SpawnEntity(components));
+        }
+        "Delete" => {
+            check_args(1)?;
+            ctx.new_command(Command::DeleteEntity(eval_expr(ctx, scope, &args[0])?));
+        }
+        "NewResource" => {
+            check_args(1)?;
+            ctx.new_command(Command::NewResource(eval_expr(ctx, scope, &args[0])?));
+        }
         // User-defined function.
         _ => {
             let def = match ctx.get_def(name)? {

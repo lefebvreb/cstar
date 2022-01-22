@@ -3,15 +3,20 @@ use super::*;
 // Parses a system.
 pub fn parse_system(mut pairs: Pairs<'static, Rule>) -> (&'static str, ast::Name) {
     let name = pairs.next().unwrap().as_str();
-    let filter = parse_filter(pairs.next().unwrap().into_inner());
-    let code = parse_block(pairs.next().unwrap().into_inner());
 
-    let system = ast::System {
-        filter,
-        code,
-    };
+    let pair = pairs.next().unwrap();
 
-    (name, ast::Name::System(system))
+    (name, ast::Name::System(match pair.as_rule() {
+        Rule::filter => ast::System {
+            filter: parse_filter(pair.into_inner()),
+            code: parse_block(pairs.next().unwrap().into_inner()),
+        },
+        Rule::block => ast::System {
+            filter: ast::Filter::default(),
+            code: parse_block(pair.into_inner()),
+        },
+        _ => unreachable!(),
+    }))
 }
 
 // Parses a list of filters.
@@ -23,7 +28,7 @@ pub fn parse_filter(pairs: Pairs<'static, Rule>) -> ast::Filter {
             Rule::entity_filter => filter.entities = Some(
                 parse_entity_filter(pair.into_inner())
             ),
-            Rule::resource_filter => filter.resources.push(
+            Rule::arg => filter.resources.push(
                 parse_argument(pair.into_inner())
             ),
             _ => unreachable!(),
