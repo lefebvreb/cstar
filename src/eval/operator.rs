@@ -5,7 +5,7 @@ use Var::*;
 use super::*;
 
 // Evaluates a binary expression.
-pub fn eval_bin_expr(ctx: &Context, scope: &Scope, bin_expr: &ast::BinExpr) -> Result<Var> {
+pub fn eval_bin_expr(ctx: &Context, scope: &Scope, bin_expr: &'static ast::BinExpr) -> Result<Var> {
     let lvar = eval_expr(ctx, scope, &bin_expr.left)?;
     let rvar = eval_expr(ctx, scope, &bin_expr.right)?;
     
@@ -87,7 +87,7 @@ pub fn eval_bin_expr(ctx: &Context, scope: &Scope, bin_expr: &ast::BinExpr) -> R
 }
 
 // Evaluates an unary expression.
-pub fn eval_un_expr(ctx: &Context, scope: &Scope, un_expr: &ast::UnExpr) -> Result<Var> {
+pub fn eval_un_expr(ctx: &Context, scope: &Scope, un_expr: &'static ast::UnExpr) -> Result<Var> {
     let var = eval_expr(ctx, scope, &un_expr.expr)?;
     
     Ok(match (un_expr.op, var.clone()) {

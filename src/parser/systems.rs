@@ -3,11 +3,11 @@ use super::*;
 // Parses a system.
 pub fn parse_system(mut pairs: Pairs<'static, Rule>) -> (&'static str, ast::Name) {
     let name = pairs.next().unwrap().as_str();
-    let filters = parse_filter_list(pairs.next().unwrap().into_inner());
+    let filter = parse_filter(pairs.next().unwrap().into_inner());
     let code = parse_block(pairs.next().unwrap().into_inner());
 
     let system = ast::System {
-        filters,
+        filter,
         code,
     };
 
@@ -15,31 +15,26 @@ pub fn parse_system(mut pairs: Pairs<'static, Rule>) -> (&'static str, ast::Name
 }
 
 // Parses a list of filters.
-pub fn parse_filter_list(pairs: Pairs<'static, Rule>) -> Vec<ast::Filter> {
-    let mut filters = Vec::new();
+pub fn parse_filter(pairs: Pairs<'static, Rule>) -> ast::Filter {
+    let mut filter = ast::Filter::default();
 
     for pair in pairs {
-        filters.push(parse_filter(pair.into_inner()));
+        match pair.as_rule() {
+            Rule::entity_filter => filter.entities = Some(
+                parse_entity_filter(pair.into_inner())
+            ),
+            Rule::resource_filter => filter.resources.push(
+                parse_argument(pair.into_inner())
+            ),
+            _ => unreachable!(),
+        }
     }
 
-    filters
-}
-
-// Parses a single filter.
-pub fn parse_filter(mut pairs: Pairs<'static, Rule>) -> ast::Filter {
-    let pair = pairs.next().unwrap();
-
-    match pair.as_rule() {
-        Rule::entity_filter => parse_entity_filter(pair.into_inner()),
-        Rule::resource_filter => ast::Filter::Resource(
-            parse_argument(pair.into_inner())
-        ),
-        _ => unreachable!(),
-    }
+    filter
 }
 
 // Parses an entity filter.
-pub fn parse_entity_filter(mut pairs: Pairs<'static, Rule>) -> ast::Filter {
+pub fn parse_entity_filter(mut pairs: Pairs<'static, Rule>) -> ast::EntityFilter {
     let name = pairs.next().unwrap().as_str();
     let mut args = Vec::new();
 
@@ -47,8 +42,7 @@ pub fn parse_entity_filter(mut pairs: Pairs<'static, Rule>) -> ast::Filter {
         args.push(parse_argument(pair.into_inner()));
     }
 
-    let filter = ast::EntityFilter {name, args};
-    ast::Filter::Entity(filter)
+    ast::EntityFilter {name, args}
 }
 
 // Parses a formal argument to a function or system call.

@@ -1,4 +1,4 @@
-use std::cell::RefCell;
+use std::cell::{RefCell, Ref, RefMut};
 use std::mem;
 
 use super::*;
@@ -62,22 +62,39 @@ impl Default for Scope {
 #[derive(Debug)]
 pub struct Context {
     defs: &'static Map<Def>,
+    world: RefCell<World>,
+    commands: RefCell<Vec<Command>>,
 }
 
 impl Context {
     // Creates a new context.
     pub fn new(defs: &'static Map<Def>) -> Context {
         Context {
-            defs: defs,
+            defs,
+            world: RefCell::new(World::new(defs)),
+            commands: RefCell::new(vec![]),
         }
     }
 
     // Returns the definition corresponding to the given name, or an
     // error if no such definition exists.
     pub fn get_def(&self, name: &str) -> Result<Def> {
-        self.defs.get(name)
-            .cloned()
-            .ok_or_else(|| anyhow!("Definition {} does not exist", name))
+        self.defs.get(name).cloned().ok_or_else(|| anyhow!("Definition {} does not exist", name))
+    }
+
+    // Updates the worlds with the latest commands.
+    pub fn update(&self) -> Result<()> {
+        self.world.borrow_mut().do_commands(&mut self.commands.borrow_mut())
+    }
+
+    // Gets an immutable reference to the world.
+    pub fn world(&self) -> Ref<World> {
+        self.world.borrow()
+    }
+ 
+    // Gets a mutable reference to the world.
+    pub fn world_mut(&self) -> RefMut<World> {
+        self.world.borrow_mut()
     }
 }
 

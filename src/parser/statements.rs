@@ -72,7 +72,7 @@ pub fn parse_while(mut pairs: Pairs<'static, Rule>) -> ast::While {
 // Parses a query loop.
 pub fn parse_query(mut pairs: Pairs<'static, Rule>) -> ast::Query {
     ast::Query {
-        filters: parse_filter_list(pairs.next().unwrap().into_inner()),
+        filter: parse_filter(pairs.next().unwrap().into_inner()),
         code: parse_block(pairs.next().unwrap().into_inner()),
     }
 }

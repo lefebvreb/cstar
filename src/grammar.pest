@@ -30,7 +30,7 @@ element = { component |  resource | function | struct_ | system }
 component = { "Component" ~ ident ~ struct_def }
 resource = { "Resource" ~ ident ~ struct_def }
 struct_ = { "struct" ~ ident ~ struct_def }
-system = { "System" ~ ident ~ filter_list ~ block }
+system = { "System" ~ ident ~ filter ~ block }
 function = { "function" ~ ident ~ "(" ~ (ident ~ ",")* ~ ident? ~ ")" ~ block }
 
 
@@ -53,8 +53,7 @@ block = { "{" ~ stmt* ~ "}" }
 arg = { ident ~ ident }
 entity_filter = { "Entity" ~ ident ~ ("," ~ arg)* ~ ","? }
 resource_filter = { arg }
-filter = { entity_filter | resource_filter }
-filter_list = { "(" ~ (filter ~ ";")* ~ filter? ~ ")" }
+filter = { "(" ~ (entity_filter | (resource_filter ~ ";")* ~ resource_filter | entity_filter ~ ";" ~ resource_filter* ~ ";" ~ resource_filter)? ~ ")" }
 
 
 // Builtins and calls
@@ -106,7 +105,7 @@ expr = { binexpr | ternary | term }
 if_ = { "if" ~ "(" ~ expr ~ ")" ~ block ~ ("else" ~ block)? }
 for_ = { "for" ~ "(" ~ (decl | expr) ~ ";" ~ expr ~ ";" ~ expr ~ ")" ~ block }
 while_ = { "while" ~ "(" ~ expr ~ ")" ~ block }
-query = { "query" ~ filter_list ~ block }
+query = { "query" ~ filter ~ block }
 switch = { "switch" ~ "(" ~ expr ~ ")" ~ "{" ~ ("case" ~ atom ~ ":" ~ block)* ~ "default" ~ ":" ~ block ~ "}" }
 break_ = { "break" }
 continue_ = { "continue" }

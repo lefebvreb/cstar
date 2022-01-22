@@ -50,7 +50,7 @@ pub struct While {
 // A query loop.
 #[derive(Debug)]
 pub struct Query {
-    pub filters: Vec<Filter>,
+    pub filter: Filter,
     pub code: Block,
 }
 

@@ -117,14 +117,10 @@ impl World {
     }
 
     // Filter entites by components they should hold. Returns an iterator over the entities that matches the filter.
-    pub fn filter_entities(&mut self, filter: &'static EntityFilter, iter: &mut Vec<Entity>) -> Result<()> {
-        // Empties the iterator.
-        iter.clear();
-        
+    pub fn filter_entities(&mut self, filter: &'static EntityFilter) -> Result<Vec<Entity>> {
         // Successful cache match.
         if let Some(matches) = self.matches.get(filter) {
-            iter.extend(matches.iter().cloned());
-            return Ok(());
+            return Ok(matches.iter().cloned().collect());
         }
 
         // Check if the filter contains only components
@@ -136,9 +132,9 @@ impl World {
         let matches = self.entities.keys()
             .filter_map(|entity| self.matches(filter, entity).then(|| entity.clone()))
             .collect::<HashSet<_>>();
-        
-        // Set resulsts.
-        iter.extend(matches.iter().cloned());
+    
+        // Collects the matches.
+        let res = matches.iter().cloned().collect();
 
         // Cache the matches.
         for entity in &matches {
@@ -146,7 +142,7 @@ impl World {
         }
         self.matches.insert(filter, matches);
 
-        Ok(())
+        Ok(res)
     }
 }
 
@@ -231,8 +227,3 @@ impl World {
         Ok(())
     }
 }
-
-// Need to finish:
-// - Printing entites in Var::fmt()
-// - Cloning, Deleting, Spawning entites in eval_call()
-// - Filtering and looping in eval_query(), eval_system()

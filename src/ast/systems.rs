@@ -3,15 +3,15 @@ use super::*;
 // A system.
 #[derive(Debug)]
 pub struct System {
-    pub filters: Vec<Filter>,
+    pub filter: Filter,
     pub code: Block,
 }
 
 // A single Filter.
-#[derive(Debug)]
-pub enum Filter {
-    Entity(EntityFilter),
-    Resource(Argument),
+#[derive(Default, Debug)]
+pub struct Filter {
+    pub entities: Option<EntityFilter>,
+    pub resources: Vec<Argument>,
 }
 
 // An entity filter.

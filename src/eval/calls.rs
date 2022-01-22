@@ -3,7 +3,7 @@ use std::io::{self, Write};
 use super::*;
 
 // Gets a list from an expression.
-fn get_list(ctx: &Context, scope: &Scope, expr: &ast::Expr) -> Result<Shared<Vec<Var>>> {
+fn get_list(ctx: &Context, scope: &Scope, expr: &'static ast::Expr) -> Result<Shared<Vec<Var>>> {
     match eval_expr(ctx, scope, expr)? {
         Var::List(list) => Ok(list),
         var => return Err(anyhow!("Expected a list, but {} was provided.", var)),
@@ -11,7 +11,7 @@ fn get_list(ctx: &Context, scope: &Scope, expr: &ast::Expr) -> Result<Shared<Vec
 }
 
 // Gets a list from an expression.
-fn get_int(ctx: &Context, scope: &Scope, expr: &ast::Expr) -> Result<i64> {
+fn get_int(ctx: &Context, scope: &Scope, expr: &'static ast::Expr) -> Result<i64> {
     match eval_expr(ctx, scope, expr)? {
         Var::Int(i) => Ok(i),
         var => return Err(anyhow!("Expected an integer, but {} was provided.", var)),
@@ -19,7 +19,7 @@ fn get_int(ctx: &Context, scope: &Scope, expr: &ast::Expr) -> Result<i64> {
 }
 
 // Evaluates a call expression.
-pub fn eval_call(ctx: &Context, scope: &Scope, call: &ast::Call) -> Result<Var> {
+pub fn eval_call(ctx: &Context, scope: &Scope, call: &'static ast::Call) -> Result<Var> {
     let ast::Call {name, args} = call;
 
     let check_args = |n| (args.len() == n)

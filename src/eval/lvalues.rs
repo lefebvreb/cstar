@@ -1,7 +1,7 @@
 use super::*;
 
 // Gets an int value from an expression.
-fn get_usize(ctx: &Context, scope: &Scope, expr: &ast::Expr) -> Result<usize> {
+fn get_usize(ctx: &Context, scope: &Scope, expr: &'static ast::Expr) -> Result<usize> {
     match eval_expr(ctx, scope, expr)? {
         Var::Int(i) => Ok(i as usize),
         _ => Err(anyhow!("Expected an integer index.")),
@@ -9,7 +9,7 @@ fn get_usize(ctx: &Context, scope: &Scope, expr: &ast::Expr) -> Result<usize> {
 }
 
 // Gets a value from a list.
-fn get_list(ctx: &Context, scope: &Scope, list: Var, index: &ast::Expr) -> Result<Var> {
+fn get_list(ctx: &Context, scope: &Scope, list: Var, index: &'static ast::Expr) -> Result<Var> {
     let i = get_usize(ctx, scope, index)?;
     match list {
         Var::String(s) => Ok(Var::Char(s.chars().nth(i).ok_or_else(|| anyhow!("Index out of bounds."))?)),
@@ -19,7 +19,7 @@ fn get_list(ctx: &Context, scope: &Scope, list: Var, index: &ast::Expr) -> Resul
 }
 
 // Gets a value from a list.
-fn get_index(ctx: &Context, scope: &Scope, mut var: Var, index: &ast::Index) -> Result<Var> {
+fn get_index(ctx: &Context, scope: &Scope, mut var: Var, index: &'static ast::Index) -> Result<Var> {
     for expr in &index.exprs {
         var = get_list(ctx, scope, var, expr)?;
     }
@@ -51,7 +51,7 @@ fn set_struct(s: Var, name: &'static str, val: Var) -> Result<()> {
     }
 }
 
-fn set_list(ctx: &Context, scope: &Scope, mut var: Var, index: &ast::Index, val: Var) -> Result<()> {
+fn set_list(ctx: &Context, scope: &Scope, mut var: Var, index: &'static ast::Index, val: Var) -> Result<()> {
     for expr in &index.exprs[..index.exprs.len()-1] {
         var = get_list(ctx, scope, var, expr)?;
     }
@@ -73,7 +73,7 @@ fn set_list(ctx: &Context, scope: &Scope, mut var: Var, index: &ast::Index, val:
 }
 
 // Evaluates a left value.
-pub fn eval_lvalue(ctx: &Context, scope: &Scope, lvalue: &ast::LValue) -> Result<Var> {
+pub fn eval_lvalue(ctx: &Context, scope: &Scope, lvalue: &'static ast::LValue) -> Result<Var> {
     let mut var = scope.get_var(&lvalue.name)?;
 
     var = get_index(ctx, scope, var, &lvalue.first_index)?;
@@ -87,7 +87,7 @@ pub fn eval_lvalue(ctx: &Context, scope: &Scope, lvalue: &ast::LValue) -> Result
 }
 
 // Evaluates an assignment expression.
-pub fn eval_assign(ctx: &Context, scope: &Scope, assign: &ast::Assign) -> Result<Var> {
+pub fn eval_assign(ctx: &Context, scope: &Scope, assign: &'static ast::Assign) -> Result<Var> {
     let val = eval_expr(ctx, scope, &assign.expr)?;
     let ret = val.clone();
     let lvalue = &assign.lvalue;

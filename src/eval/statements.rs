@@ -1,7 +1,7 @@
 use super::*;
 
 // Evaluates a statement.
-pub fn eval_statement(ctx: &Context, scope: &Scope, stmt: &ast::Statement) -> Result<Flow> {
+pub fn eval_statement(ctx: &Context, scope: &Scope, stmt: &'static ast::Statement) -> Result<Flow> {
     match stmt {
         ast::Statement::Break => Ok(Flow::Break),
         ast::Statement::Continue => Ok(Flow::Continue),
@@ -19,7 +19,7 @@ pub fn eval_statement(ctx: &Context, scope: &Scope, stmt: &ast::Statement) -> Re
 }
 
 // Evaluates a block of statements.
-pub fn eval_block(ctx: &Context, scope: &Scope, block: &ast::Block) -> Result<Flow> {
+pub fn eval_block(ctx: &Context, scope: &Scope, block: &'static ast::Block) -> Result<Flow> {
     let mut flow = Flow::Ok;
 
     scope.next();
@@ -35,7 +35,7 @@ pub fn eval_block(ctx: &Context, scope: &Scope, block: &ast::Block) -> Result<Fl
 }
 
 // Evaluates an if statement.
-pub fn eval_if(ctx: &Context, scope: &Scope, if_: &ast::If) -> Result<Flow> {
+pub fn eval_if(ctx: &Context, scope: &Scope, if_: &'static ast::If) -> Result<Flow> {
     match eval_expr(ctx, scope, &if_.cond)? {
         Var::Bool(true) => eval_block(ctx, scope, &if_.branch1),
         Var::Bool(false) => {
@@ -50,7 +50,7 @@ pub fn eval_if(ctx: &Context, scope: &Scope, if_: &ast::If) -> Result<Flow> {
 }
 
 // Evaluates a for statement.
-pub fn eval_for(ctx: &Context, scope: &Scope, for_: &ast::For) -> Result<Flow> {
+pub fn eval_for(ctx: &Context, scope: &Scope, for_: &'static ast::For) -> Result<Flow> {
     scope.next();
 
     match &for_.init {
@@ -82,7 +82,7 @@ pub fn eval_for(ctx: &Context, scope: &Scope, for_: &ast::For) -> Result<Flow> {
 }
 
 // Evaluates a declaration.
-pub fn eval_decl(ctx: &Context, scope: &Scope, decl: &ast::Decl) -> Result<Flow> {
+pub fn eval_decl(ctx: &Context, scope: &Scope, decl: &'static ast::Decl) -> Result<Flow> {
     match &decl.init {
         Some(init) => scope.new_var(decl.ident, eval_expr(ctx, scope, &init)?),
         _ => scope.new_var(decl.ident, Var::Void),
@@ -91,7 +91,7 @@ pub fn eval_decl(ctx: &Context, scope: &Scope, decl: &ast::Decl) -> Result<Flow>
 }
 
 // Evaluates a while statement.
-pub fn eval_while(ctx: &Context, scope: &Scope, while_: &ast::While) -> Result<Flow> {
+pub fn eval_while(ctx: &Context, scope: &Scope, while_: &'static ast::While) -> Result<Flow> {
     scope.next();
 
     loop {
@@ -117,7 +117,7 @@ pub fn eval_while(ctx: &Context, scope: &Scope, while_: &ast::While) -> Result<F
 }
 
 // Evaluates an if statement.
-pub fn eval_switch(ctx: &Context, scope: &Scope, switch: &ast::Switch) -> Result<Flow> {
+pub fn eval_switch(ctx: &Context, scope: &Scope, switch: &'static ast::Switch) -> Result<Flow> {
     let var = eval_expr(ctx, scope, &switch.expr)?;
 
     for case in &switch.cases {
@@ -129,15 +129,47 @@ pub fn eval_switch(ctx: &Context, scope: &Scope, switch: &ast::Switch) -> Result
     eval_block(ctx, scope, &switch.default)
 }
 
-pub fn eval_query(ctx: &Context, scope: &Scope, query: &ast::Query) -> Result<Flow> {
+pub fn eval_query(ctx: &Context, scope: &Scope, query: &'static ast::Query) -> Result<Flow> {
     scope.next();
 
-    //todo!(); // Do filtering here !
+    // Get the resources matches.
+    for arg in &query.filter.resources {
+        scope.new_var(arg.name, ctx.world().get_resource(arg.ty)?);
+    }
 
-    //eval_block(ctx, scope, &query.code)?; In a loop
+    if query.filter.entities.is_none() {
+        return Err(anyhow!("A query must have a non-empty entity filter."));
+    }
 
-    //todo!(); // Update the values of the entities here !
+    // The return value.
+    let mut ret = Flow::Ok;
+
+    let filter = query.filter.entities.as_ref().unwrap();
+
+    // Get the entities matches.
+    let matches = ctx.world_mut().filter_entities(filter)?;
+
+    // Evaluates the code for each entity.
+    for entity in matches.iter() {
+        // Adds all components to the scope.
+        for arg in filter.args.iter() {
+            scope.new_var(arg.name, ctx.world().get_component(entity.clone(), arg.ty)?);
+        }
+        
+        // Evaluates the code.
+        let ret = eval_block(ctx, &scope, &query.code)?;
+        match ret {
+            Flow::Break | Flow::Return(_) => break,
+            _ => (),
+        };
+    }
+    
+    // Apply the commannds to the world.
+    ctx.update();
 
     scope.prev();
-    Ok(Flow::Ok)
+    Ok(match ret {
+        Flow::Return(_) => ret,
+        _ => Flow::Ok,
+    })
 }

@@ -1,7 +1,7 @@
 use super::*;
 
 // Evaluates an expression.
-pub fn eval_expr(ctx: &Context, scope: &Scope, expr: &ast::Expr) -> Result<Var> {
+pub fn eval_expr(ctx: &Context, scope: &Scope, expr: &'static ast::Expr) -> Result<Var> {
     match expr {
         ast::Expr::Ternary(ternary) => eval_ternary(ctx, scope, ternary),
         ast::Expr::Assign(assign) => eval_assign(ctx, scope, assign),
@@ -16,7 +16,7 @@ pub fn eval_expr(ctx: &Context, scope: &Scope, expr: &ast::Expr) -> Result<Var> 
 }
 
 // Evaluates a ternary expression.
-pub fn eval_ternary(ctx: &Context, scope: &Scope, ternary: &ast::Ternary) -> Result<Var> {
+pub fn eval_ternary(ctx: &Context, scope: &Scope, ternary: &'static ast::Ternary) -> Result<Var> {
     match eval_expr(ctx, scope, &ternary.cond)? {
         Var::Bool(true) => eval_expr(ctx, scope, &ternary.branch1),
         Var::Bool(false) => eval_expr(ctx, scope, &ternary.branch2),
@@ -25,7 +25,7 @@ pub fn eval_ternary(ctx: &Context, scope: &Scope, ternary: &ast::Ternary) -> Res
 }
 
 // Evaluates an atom.
-pub fn eval_atom(atom: &ast::Atom) -> Result<Var> {
+pub fn eval_atom(atom: &'static ast::Atom) -> Result<Var> {
     Ok(match atom {
         ast::Atom::Void => Var::Void,
         ast::Atom::Bool(b) => Var::Bool(*b),
@@ -37,12 +37,12 @@ pub fn eval_atom(atom: &ast::Atom) -> Result<Var> {
 }
 
 // Evaluates a list initialization.
-pub fn eval_list_init(ctx: &Context, scope: &Scope, list_init: &ast::ListInit) -> Result<Var> {
+pub fn eval_list_init(ctx: &Context, scope: &Scope, list_init: &'static ast::ListInit) -> Result<Var> {
     Ok(Var::List(as_shared(list_init.exprs.iter().map(|expr| eval_expr(ctx, scope, expr)).collect::<Result<_>>()?)))
 }
 
 // Evaluates a struct initialization.
-pub fn eval_struct_init(ctx: &Context, scope: &Scope, struct_init: &ast::StructInit) -> Result<Var> {
+pub fn eval_struct_init(ctx: &Context, scope: &Scope, struct_init: &'static ast::StructInit) -> Result<Var> {
     match ctx.get_def(struct_init.name)? {
         Def::Component(def) | Def::Resource(def) | Def::Struct(def) => {
             let mut map = Map::with_capacity(def.fields.len());
