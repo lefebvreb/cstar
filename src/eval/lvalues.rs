@@ -113,7 +113,8 @@ pub fn eval_assign(ctx: &Context, scope: &Scope, assign: &'static ast::Assign) -
         if index.exprs.is_empty() {
             set_struct(var, name, val)?;
         } else {
-            set_list(ctx, scope, var, &lvalue.first_index, val)?;
+            var = get_struct(var, name)?;
+            set_list(ctx, scope, var, index, val)?;
         }
     }
     

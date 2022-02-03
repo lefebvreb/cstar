@@ -53,7 +53,7 @@ block = { "{" ~ stmt* ~ "}" }
 entity_filter = { "Entity" ~ ident ~ ("," ~ arg)* ~ ","? }
 arg = { ident ~ ident }
 resource_filter = _{ arg }
-filter = { entity_filter | (entity_filter ~ ";")? ~ (resource_filter ~ ";")* ~ resource_filter }
+filter = { (entity_filter ~ ";")? ~ (resource_filter ~ ";")* ~ resource_filter | entity_filter }
 
 
 // Builtins and calls
