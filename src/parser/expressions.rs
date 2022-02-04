@@ -139,6 +139,7 @@ pub fn parse_atom(mut pairs: Pairs<'static, Rule>) -> ast::Atom {
 pub fn escape_char(c: char) -> char {
     match c {
         'n' => '\n',
+        'h' => '\x1b',
         'r' => '\r',
         't' => '\t',
         '\\' => '\\',
