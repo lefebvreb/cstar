@@ -1,0 +1,194 @@
+include "std.cstar";
+
+/* ====== components ====== */
+
+Component AI {}
+
+Component Controlable {}
+
+Component Attacker {}
+
+Component Locomotor {
+    int x;
+    int y;
+}
+
+/* ====== resources ====== */
+
+Resource World {
+    int width;
+    int height;
+    list grid;
+}
+
+/* ====== init ====== */
+
+System init() {
+    let width = 8;
+    let height = 8;
+    let grid = [];
+
+    for (let y = 0; y < height; y = y + 1) {
+        let row = [];
+        for (let x = 0; x < height; x = x + 1) {
+            push(row, '.');
+        }
+        push(grid, row);
+    }
+
+    /* ====== Player ====== */
+    Spawn(
+        Controlable {},
+        Attacker {},
+        Locomotor { x: 1; y: 1; },
+    );
+    grid[1][1] = '@';
+
+    /* ====== Goblins ====== */
+    Spawn(
+        AI {},
+        Attacker {},
+        Locomotor { x: 6; y: 7; },
+    );
+    grid[7][6] = 'g';
+    Spawn(
+        AI {},
+        Attacker {},
+        Locomotor { x: 5; y: 7; },
+    );
+    grid[7][5] = 'g';
+    Spawn(
+        AI {},
+        Attacker {},
+        Locomotor { x: 7; y: 4; },
+    );
+    grid[4][7] = 'g';
+
+    /* ====== Grid ======*/
+    NewResource(World {
+        width: width;
+        height: height;
+        grid: grid;
+    });
+}
+
+/* ====== utils ====== */
+
+function move(dx, dy, w, l) {
+    if (l.x + dx < 0 || l.x + dx >= w.width || l.y + dy < 0 || l.y + dy >= w.height) {
+        return false;
+    }
+
+    let x = l.x + dx;
+    let y = l.y + dy;
+
+    let c = w.grid[y][x];
+
+    if (c != '.') {
+        return false;
+    }
+
+    w.grid[y][x] = w.grid[l.y][l.x];
+    w.grid[l.y][l.x] = '.';
+
+    l.x = x;
+    l.y = y;
+
+    return true;
+}
+
+function next_to(l1, l2) {
+    return (l1.x == l2.x && abs(l1.y - l2.y) == 1) || (l1.y == l2.y && abs(l1.x - l2.x) == 1);
+}
+
+function kill(e, l, w) {
+    w.grid[l.y][l.x] = '.';
+    Delete(e);
+}
+
+/* ====== systems ====== */
+
+System display(World w) {
+    println("\hc");
+    for (let y = 0; y < w.height; y = y + 1) {
+        for (let x = 0; x < w.width; x = x + 1) {
+            print(w.grid[y][x], ' ');
+        }
+        println();
+    }
+}
+
+System player_move(Entity p, Controlable c, Locomotor l; World w) {
+    while (true) {
+        let c = input("Where to move next [nwse] ? ");
+
+        switch (c) {
+            case "w": {
+                move(-1, 0, w, l);
+            }
+            case "e": {
+                move(1, 0, w, l);
+            }
+            case "n": {
+                move(0, -1, w, l);
+            }
+            case "s": {
+                move(0, 1, w, l);
+            }
+            default: {
+                println("Invalid input, please try again");
+                continue;
+            }    
+        }
+
+        break;
+    }
+}
+
+System player_attack(Entity p, Controlable c, Attacker a, Locomotor l1; World w) {
+    query(Entity g, AI ai, Locomotor l2) {
+        if (next_to(l1, l2)) {
+            kill(g, l2, w);
+        }
+    }
+}
+
+System goblin_move(Entity g, AI a, Locomotor l1; World w) {
+    query(Entity p, Controlable c, Locomotor l2) {
+        if (l1.x > l2.x) {
+            move(-1, 0, w, l1);
+            return;
+        }
+        if (l1.x < l2.x) {
+            move(1, 0, w, l1);
+            return;
+        }  
+        
+        if (l1.y > l2.y) {
+            move(0, -1, w, l1);
+            return;
+        } 
+        
+        if (l1.y < l2.y) {
+            move(0, 1, w, l1);
+            return;
+        }
+    }
+}
+
+System goblin_attack(Entity g, AI ai, Attacker a, Locomotor l1; World w) {
+    query(Entity p, Controlable c, Locomotor l2) {
+        if (next_to(l1, l2)) {
+            kill(p, l2, w);
+        }
+    }
+}
+
+Init [init];
+Run [
+    display,
+    player_move, 
+    player_attack,
+    goblin_move,
+    goblin_attack,
+];
